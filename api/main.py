@@ -22,6 +22,7 @@ from api.hero import router as hero_router
 from api.split_order import router as split_order_router
 from api.split_pulse import router as split_pulse_router
 from api.wallet import router as wallet_router
+from api.scan import router as scan_router
 
 # Future routers to be implemented:
 # from api.trust import router as trust_router
@@ -67,6 +68,7 @@ app.include_router(hero_router, prefix="/api/v1", tags=["Hero"])
 app.include_router(split_order_router, prefix="/api/v1", tags=["SplitOrder"])
 app.include_router(split_pulse_router, prefix="/api/v1", tags=["SplitPulse"])
 app.include_router(wallet_router, prefix="/api/v1", tags=["Wallet"])
+app.include_router(scan_router, prefix="/api/v1", tags=["Scan"])
 
 # Future routers:
 # app.include_router(trust_router, prefix="/api/v1", tags=["Trust"])
@@ -113,6 +115,7 @@ async def api_v1():
             "split_order": "/api/v1/split-order",
             "split_pulse": "/api/v1/split-pulse",
             "wallet": "/api/v1/wallet",
+            "scan": "/api/v1/scan",
             # Future endpoints:
             # "trust": "/api/v1/trust",
             # "demand": "/api/v1/demand",
