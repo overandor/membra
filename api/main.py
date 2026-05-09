@@ -24,9 +24,9 @@ from api.split_pulse import router as split_pulse_router
 from api.wallet import router as wallet_router
 from api.scan import router as scan_router
 from api.price import router as price_router
+from api.trust import router as trust_router
 
 # Future routers to be implemented:
-# from api.trust import router as trust_router
 # from api.demand import router as demand_router
 
 
@@ -71,9 +71,9 @@ app.include_router(split_pulse_router, prefix="/api/v1", tags=["SplitPulse"])
 app.include_router(wallet_router, prefix="/api/v1", tags=["Wallet"])
 app.include_router(scan_router, prefix="/api/v1", tags=["Scan"])
 app.include_router(price_router, prefix="/api/v1", tags=["Price"])
+app.include_router(trust_router, prefix="/api/v1", tags=["Trust"])
 
 # Future routers:
-# app.include_router(trust_router, prefix="/api/v1", tags=["Trust"])
 # app.include_router(demand_router, prefix="/api/v1", tags=["Demand"])
 
 # Mount static files for custom documentation UI
@@ -109,17 +109,18 @@ async def api_v1():
     return {
         "version": "v1",
         "endpoints": {
-            "relay": "/api/v1/relay",
             "chat": "/api/v1/chat",
             "inventory": "/api/v1/inventory",
             "marketplace": "/api/v1/marketplace",
             "hero": "/api/v1/hero",
-            "split_order": "/api/v1/split-order",
-            "split_pulse": "/api/v1/split-pulse",
+            "relay": "/api/v1/relay",
+            "split_order": "/api/v1/split_order",
+            "split_pulse": "/api/v1/split_pulse",
             "wallet": "/api/v1/wallet",
             "scan": "/api/v1/scan",
+            "price": "/api/v1/price",
+            "trust": "/api/v1/trust",
             # Future endpoints:
-            # "trust": "/api/v1/trust",
             # "demand": "/api/v1/demand",
         },
     }

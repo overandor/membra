@@ -225,36 +225,50 @@ async def get_scan_types():
 
 # Mock data functions (replace with real AI/vision models in production)
 def get_mock_detected_items(scan_type: str) -> List[dict]:
-    """Mock detected items based on scan type"""
+    """Mock detected items based on scan type - MVP-safe categories only"""
     if scan_type == "closet":
         return [
-            {"name": "Winter coat", "category": "Clothing", "condition": "good"},
-            {"name": "Backpack", "category": "Bags", "condition": "good"},
-            {"name": "Foldable chair", "category": "Furniture", "condition": "good"},
-            {"name": "Extension cord", "category": "Electronics", "condition": "good"},
-            {"name": "Vacuum attachment", "category": "Home", "condition": "good"},
-            {"name": "Storage bins", "category": "Storage", "condition": "good"},
-            {"name": "Camera tripod", "category": "Camera", "condition": "good"},
-            {"name": "Ring light", "category": "Lighting", "condition": "good"},
-            {"name": "Extra hangers", "category": "Storage", "condition": "good"}
+            {"name": "Winter coat", "category": "Clothing", "condition": "good", "mvp_safe": False},
+            {"name": "Backpack", "category": "Bags", "condition": "good", "mvp_safe": True},
+            {"name": "Foldable chair", "category": "Furniture", "condition": "good", "mvp_safe": True},
+            {"name": "Extension cord", "category": "Electronics", "condition": "good", "mvp_safe": True},
+            {"name": "Vacuum attachment", "category": "Home", "condition": "good", "mvp_safe": True},
+            {"name": "Storage bins", "category": "Storage", "condition": "good", "mvp_safe": True},
+            {"name": "Camera tripod", "category": "Camera", "condition": "good", "mvp_safe": True},
+            {"name": "Ring light", "category": "Lighting", "condition": "good", "mvp_safe": True},
+            {"name": "Extra hangers", "category": "Storage", "condition": "good", "mvp_safe": True}
         ]
     elif scan_type == "shelf":
         return [
-            {"name": "Books", "category": "Books", "condition": "good"},
-            {"name": "Board games", "category": "Games", "condition": "good"},
-            {"name": "Decorative items", "category": "Decor", "condition": "good"},
-            {"name": "Small speakers", "category": "Electronics", "condition": "good"}
+            {"name": "Books", "category": "Books", "condition": "good", "mvp_safe": True},
+            {"name": "Board games", "category": "Games", "condition": "good", "mvp_safe": True},
+            {"name": "Decorative items", "category": "Decor", "condition": "good", "mvp_safe": True},
+            {"name": "Small speakers", "category": "Electronics", "condition": "good", "mvp_safe": True}
         ]
     elif scan_type == "garage":
         return [
-            {"name": "Power drill", "category": "Tools", "condition": "good"},
-            {"name": "Ladder", "category": "Tools", "condition": "good"},
-            {"name": "Bike pump", "category": "Sports", "condition": "good"},
-            {"name": "Extension ladder", "category": "Tools", "condition": "good"}
+            {"name": "Power drill", "category": "Tools", "condition": "good", "mvp_safe": True},
+            {"name": "Ladder", "category": "Tools", "condition": "good", "mvp_safe": True},
+            {"name": "Bike pump", "category": "Sports", "condition": "good", "mvp_safe": True},
+            {"name": "Extension ladder", "category": "Tools", "condition": "good", "mvp_safe": True}
+        ]
+    elif scan_type == "desk":
+        return [
+            {"name": "Phone charger", "category": "Electronics", "condition": "good", "mvp_safe": True},
+            {"name": "Laptop charger", "category": "Electronics", "condition": "good", "mvp_safe": True},
+            {"name": "USB cables", "category": "Electronics", "condition": "good", "mvp_safe": True},
+            {"name": "Desk lamp", "category": "Lighting", "condition": "good", "mvp_safe": True}
+        ]
+    elif scan_type == "toolbox":
+        return [
+            {"name": "Screwdriver set", "category": "Tools", "condition": "good", "mvp_safe": True},
+            {"name": "Wrench set", "category": "Tools", "condition": "good", "mvp_safe": True},
+            {"name": "Hammer", "category": "Tools", "condition": "good", "mvp_safe": True},
+            {"name": "Tape measure", "category": "Tools", "condition": "good", "mvp_safe": True}
         ]
     else:
         return [
-            {"name": "Generic item", "category": "Other", "condition": "unknown"}
+            {"name": "Generic item", "category": "Other", "condition": "unknown", "mvp_safe": False}
         ]
 
 
@@ -324,11 +338,32 @@ def generate_listing_content(name: str, category: str) -> tuple:
 
 
 def determine_risk_level(category: str) -> str:
-    """Determine risk level based on category"""
-    high_risk_categories = ["food", "medical", "chemicals", "weapons"]
-    if category.lower() in [c.lower() for c in high_risk_categories]:
+    """Determine risk level based on category - MVP compliance gates"""
+    # High-risk categories (blocked or require special compliance)
+    high_risk = [
+        "food", "food_prep", "chemicals", "flammables", "weapons", "alcohol", 
+        "nicotine", "medicine", "childcare", "elder_care", "medical", 
+        "licensed_trades", "transport_people", "overnight_stays", 
+        "unsupervised_access", "high_value"
+    ]
+    
+    # MVP-safe categories (low risk)
+    mvp_safe = [
+        "chargers", "party_supplies", "tools", "vacuums", "tripods", 
+        "ring_lights", "extension_cords", "storage_bins", "package_holding", 
+        "desk_access", "couch_access", "local_delivery", "return_runs", 
+        "basic_setup", "books", "games", "decor", "electronics", "lighting",
+        "camera", "furniture", "bags", "storage", "sports"
+    ]
+    
+    category_lower = category.lower().replace(" ", "_")
+    
+    if any(risk in category_lower for risk in high_risk):
         return "high"
-    return "low"
+    elif any(safe in category_lower for safe in mvp_safe):
+        return "low"
+    else:
+        return "medium"
 
 
 def determine_approval_status(category: str, risk_level: str) -> ApprovalStatus:
