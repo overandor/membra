@@ -5,7 +5,7 @@
 **Category:** Agentic local-commerce operating layer, household assetification, permissioned market supply  
 
 ## One-Line Thesis
-**MEMBRA is a marketplace you talk to:** an agentic local-commerce operating layer that converts private household assets into permissioned, proof-backed, locally matched market supply.
+**MEMBRA is Inventory-as-a-Service for apartments:** a chat-first, LLM-operated local marketplace where residents become apartment operators, household goods become local SKUs, and AI matches real-time neighborhood demand to nearby approved supply.
 
 ## Core Flow
 ```txt
@@ -17,6 +17,48 @@ Ask MEMBRA
 → Capture proof
 → Settle payment
 ```
+
+
+## Operational Blueprint
+
+**Core thesis:** Your apartment is the nearest warehouse.
+
+MEMBRA turns ordinary residents into local business owners by letting them sell, rent, split, store, deliver, or provide access to household items, tools, ingredients, spaces, and skills they already own or perform.
+
+### Main User Roles
+
+| Role | What they do |
+| --- | --- |
+| Resident Operator | Lists approved apartment inventory, space, tools, ingredients, and services |
+| Requester | Asks for something nearby through chat |
+| Runner | Delivers items locally |
+| Helper | Offers setup, cleaning, organizing, repair, inventory scan, or photo help |
+| Storage Host | Rents shelf, closet, fridge, or corner space |
+| Creator Host | Offers couch seat, room, gear, Wi-Fi, recording, or AI session setup |
+
+### Core UX
+
+MEMBRA is chat-first. The front screen asks: **What do you need nearby?**
+
+Example requests include:
+
+- I need a vacuum for 20 minutes.
+- I need one cup of milk for a recipe.
+- I need a tripod and ring light for a shoot.
+- I need a couch seat with Wi-Fi for an hour.
+- Assess my apartment and tell me what I can earn from.
+
+The LLM responds with structured cards containing item, price, distance, deposit, pickup or delivery, risk level, and an action button.
+
+### Inventory Rule
+
+**Private by default. Public only by approval.**
+
+Google login leads into room scan, receipt upload, Amazon link upload, or spoken inventory. The LLM detects objects and actions, creates private inventory drafts, and only publishes resident-approved listings as local micro-SKUs.
+
+### MVP Focus
+
+Build first: **MEMBRA Requests + Private Inventory Drafts** with Google login, LLM chat, post-need and post-have flows, room/photo scan, Amazon and receipt upload, private SKU drafts, approval, nearby request board, manual accept, Stripe test checkout, proof photo, ratings, and credits.
 
 ## Product Modules
 
@@ -56,7 +98,7 @@ Ask MEMBRA
 
 ## Final Identity
 
-MEMBRA = apartment capitalism with a chat box, a trust layer, and a tiny bodega hiding in every lease.
+MEMBRA = premium local infrastructure for apartment inventory: a private-to-public boundary where every approved household item, supply, ingredient, tool, skill, space, storage shelf, or creator setup can become neighborhood supply.
 
 ---
 
