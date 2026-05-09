@@ -19,10 +19,10 @@ from api.chat import router as chat_router
 from api.inventory import router as inventory_router
 from api.marketplace import router as marketplace_router
 from api.hero import router as hero_router
-from api.split_order import router as split_order_router
-from api.split_pulse import router as split_pulse_router
-from api.wallet import router as wallet_router
-from api.scan import router as scan_router
+# from api.split_order import router as split_order_router
+# from api.split_pulse import router as split_pulse_router
+# from api.wallet import router as wallet_router
+# from api.scan import router as scan_router
 
 # Future routers to be implemented:
 # from api.trust import router as trust_router
@@ -65,14 +65,6 @@ app.include_router(chat_router, prefix="/api/v1", tags=["Chat"])
 app.include_router(inventory_router, prefix="/api/v1", tags=["Inventory"])
 app.include_router(marketplace_router, prefix="/api/v1", tags=["Marketplace"])
 app.include_router(hero_router, prefix="/api/v1", tags=["Hero"])
-app.include_router(split_order_router, prefix="/api/v1", tags=["SplitOrder"])
-app.include_router(split_pulse_router, prefix="/api/v1", tags=["SplitPulse"])
-app.include_router(wallet_router, prefix="/api/v1", tags=["Wallet"])
-app.include_router(scan_router, prefix="/api/v1", tags=["Scan"])
-
-# Future routers:
-# app.include_router(trust_router, prefix="/api/v1", tags=["Trust"])
-# app.include_router(demand_router, prefix="/api/v1", tags=["Demand"])
 
 # Mount static files for custom documentation UI
 docs_path = os.path.join(os.path.dirname(__file__), "..", "docs-ui")
@@ -112,13 +104,6 @@ async def api_v1():
             "inventory": "/api/v1/inventory",
             "marketplace": "/api/v1/marketplace",
             "hero": "/api/v1/hero",
-            "split_order": "/api/v1/split-order",
-            "split_pulse": "/api/v1/split-pulse",
-            "wallet": "/api/v1/wallet",
-            "scan": "/api/v1/scan",
-            # Future endpoints:
-            # "trust": "/api/v1/trust",
-            # "demand": "/api/v1/demand",
         },
     }
 
