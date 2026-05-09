@@ -23,6 +23,7 @@ from api.split_order import router as split_order_router
 from api.split_pulse import router as split_pulse_router
 from api.wallet import router as wallet_router
 from api.scan import router as scan_router
+from api.price import router as price_router
 
 # Future routers to be implemented:
 # from api.trust import router as trust_router
@@ -69,6 +70,7 @@ app.include_router(split_order_router, prefix="/api/v1", tags=["SplitOrder"])
 app.include_router(split_pulse_router, prefix="/api/v1", tags=["SplitPulse"])
 app.include_router(wallet_router, prefix="/api/v1", tags=["Wallet"])
 app.include_router(scan_router, prefix="/api/v1", tags=["Scan"])
+app.include_router(price_router, prefix="/api/v1", tags=["Price"])
 
 # Future routers:
 # app.include_router(trust_router, prefix="/api/v1", tags=["Trust"])
