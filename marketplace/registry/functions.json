@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "last_updated": "2026-05-09T00:00:00Z",
+  "last_updated": "2026-05-09T11:59:26.192704",
   "marketplace_id": "membra-super-mono-repo",
   "self_reference": {
     "is_marketplace": true,
@@ -13,21 +13,30 @@
       "type": "chat-interface",
       "route": "/api/chat",
       "description": "LLM chat interface for routing user queries",
-      "external_refs": ["llm-autonomous-agent:agent", "language-fi:detect"],
+      "external_refs": [
+        "llm-autonomous-agent:agent",
+        "language-fi:detect"
+      ],
       "auto_update": true
     },
     "assetify": {
       "type": "ai-asset-detection",
       "route": "/api/assetify",
       "description": "AI detection and assetification of household items",
-      "external_refs": ["llm-autonomous-agent:task", "language-fi:semantic"],
+      "external_refs": [
+        "llm-autonomous-agent:task",
+        "language-fi:semantic"
+      ],
       "auto_update": true
     },
     "relay": {
       "type": "logistics",
       "route": "/api/relay",
       "description": "Local delivery and relay coordination",
-      "external_refs": ["membra-relay:relay", "membra-relay:dispatch"],
+      "external_refs": [
+        "membra-relay:relay",
+        "membra-relay:dispatch"
+      ],
       "auto_update": true
     },
     "fraction": {
@@ -55,7 +64,10 @@
       "type": "logistics",
       "route": "/api/dispatch",
       "description": "AI dispatch for fulfillment routing",
-      "external_refs": ["membra-relay:dispatch", "groq-supervisor-ai:optimize"],
+      "external_refs": [
+        "membra-relay:dispatch",
+        "groq-supervisor-ai:optimize"
+      ],
       "auto_update": true
     }
   },
