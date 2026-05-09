@@ -6,12 +6,13 @@ from fastapi import APIRouter, UploadFile, File
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
+from enum import Enum
 import uuid
 
 router = APIRouter(prefix="/scan", tags=["Scan"])
 
 
-class ScanType(str):
+class ScanType(str, Enum):
     """Types of scans supported"""
     CLOSET = "closet"
     SHELF = "shelf"
@@ -25,7 +26,7 @@ class ScanType(str):
     BARCODE = "barcode"
 
 
-class ApprovalStatus(str):
+class ApprovalStatus(str, Enum):
     """Approval status for AI-generated listings"""
     READY_TO_APPROVE = "ready_to_approve"
     NEEDS_CONFIRMATION = "needs_confirmation"
@@ -33,7 +34,7 @@ class ApprovalStatus(str):
     BLOCKED = "blocked"
 
 
-class FoodSafetyStatus(str):
+class FoodSafetyStatus(str, Enum):
     """Food safety classification for food items"""
     SEALED_PACKAGED_ONLY = "sealed_packaged_only"
     REVIEW_REQUIRED = "review_required"

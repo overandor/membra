@@ -158,36 +158,67 @@ membra/
 ### Prerequisites
 - Node.js 18+
 - Python 3.11+
-- Docker (optional)
+- Docker
 
-### Installation
+### Deployment
+
+### Public API Documentation (Recommended)
+
+To deploy the MEMBRA API with public documentation links:
+
+**Option 1: Railway (Web Interface)**
+1. Go to https://railway.app/new
+2. Click "Deploy from GitHub repo"
+3. Select `overandor/membra` repository
+4. Railway auto-detects Python/FastAPI
+5. Add environment variables:
+   ```
+   DEBUG=False
+   SECRET_KEY=your-random-secret-key-here
+   DATABASE_URL=postgresql://user:password@host:5432/membra
+   REDIS_URL=redis://host:6379/0
+   ```
+6. Click "Deploy"
+7. Wait ~2 minutes for deployment
+8. Your public links:
+   - API: `https://your-project-name.railway.app`
+   - Swagger UI: `https://your-project-name.railway.app/docs`
+   - ReDoc: `https://your-project-name.railway.app/redoc`
+   - Custom UI: `https://your-project-name.railway.app/docs-ui`
+   - OpenAPI Spec: `https://your-project-name.railway.app/openapi.json`
+
+**Option 2: Render (Web Interface)**
+1. Go to https://render.com
+2. Click "New +" → "Web Service"
+3. Connect GitHub repository `overandor/membra`
+4. Configure:
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `uvicorn api.main:app --host 0.0.0.0 --port $PORT`
+5. Add environment variables (same as above)
+6. Click "Create Web Service"
+7. Your public links appear after deployment
+
+### Local Development
 
 ```bash
-# Install root dependencies
-npm install
+# Using Docker Compose (recommended)
+docker-compose up -d
 
-# Install web app dependencies
-cd apps/web
-npm install
-
-# Install API dependencies
-cd ../api
+# Or using Python directly
 pip install -r requirements.txt
+python -m uvicorn api.main:app --reload
 ```
 
-### Development
+### Environment Variables
 
 ```bash
-# Start web app (Next.js)
-cd apps/web
-npm run dev
-
-# Start API (FastAPI)
-cd apps/api
-uvicorn app.main:app --reload
-
-# Or use Docker Compose
-docker-compose up
+DEBUG=False
+SECRET_KEY=your-random-secret-key-here
+DATABASE_URL=postgresql://user:password@host:5432/membra
+REDIS_URL=redis://host:6379/0
+OPENAI_API_KEY=your-openai-key
+STRIPE_SECRET_KEY=your-stripe-key
+JWT_SECRET=your-jwt-secret
 ```
 
 ## GitHub Description
