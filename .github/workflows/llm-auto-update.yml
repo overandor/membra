@@ -1,0 +1,74 @@
+name: MEMBRA LLM Auto-Update
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Run every 15 minutes
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  llm-update-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run LLM Backend Update
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python marketplace/llm/update-backend.py
+
+      - name: Create Pull Request for Backend changes
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'LLM Auto-Update: Backend improvements'
+          title: 'LLM Auto-Update: Backend improvements'
+          body: 'Automated backend improvements by MEMBRA LLM'
+          branch: llm-backend-update
+          delete-branch: true
+
+  llm-sync-external-repos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Sync External Repo Functions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python marketplace/registry/sync-external-repos.py
+
+      - name: Create Pull Request for External Sync
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'LLM Auto-Update: Sync external repos'
+          title: 'LLM Auto-Update: Sync external repos'
+          body: 'Automated sync of external repo function references'
+          branch: llm-external-sync
+          delete-branch: true

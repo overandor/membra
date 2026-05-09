@@ -1,10 +1,202 @@
-# MEMBRA — A marketplace you talk to
+# MEMBRA
+**Author:** Joseph Skrobynets  
+**Nicknames / Handles:** Dr.Profitosis, overandor, jskroby, carpathianwolfjoseph  
+**Project Lineage:** Couchify → MEMBRA  
+**Category:** AI-operated local commerce, household assetification, fractional inventory, neighborhood fulfillment  
 
-**Need nearby. Earn locally. Turn assets into access. Every apartment is the nearest warehouse.**
+## One-Line Thesis
+**MEMBRA is a marketplace you talk to:** a chat-first AI super app that turns homes, household inventory, unused purchases, spaces, services, storage, delivery capacity, and local demand into fractional neighborhood commerce.
 
-MEMBRA is a chat-first, AI-operated local commerce platform that turns apartments, homes, renters, lease signers, and household resources into permissioned business infrastructure.
+## Core Flow
+```txt
+Ask MEMBRA
+→ Assetify inventory
+→ Approve listing
+→ Match demand
+→ Split / Relay / Book
+→ Capture proof
+→ Settle payment
+```
 
-MEMBRA converts household inventory, post-purchase goods, rooms, spaces, utilities, skills, storage, delivery capacity, reusable intent, and local demand into structured marketplace transactions.
+## Product Modules
+
+* Ask MEMBRA
+* MEMBRA Inventory
+* MEMBRA Marketplace
+* MEMBRA Hero
+* MEMBRA House
+* MEMBRA Alpha Hub
+* MEMBRA Relay
+* MEMBRA SplitOrder
+* MEMBRA SplitPulse
+* MEMBRA Wallet
+* MEMBRA Trust
+* MEMBRA Pay
+
+## MVP Screens
+
+1. Client Home
+2. Hero Dashboard
+3. Inventory Assetification
+4. SplitOrder
+5. SplitPulse
+6. Relay
+7. Wallet
+8. Trust / Proof Receipts
+
+## Tech Stack
+
+* Next.js
+* React
+* Tailwind CSS
+* FastAPI
+* OpenAPI
+* PostgreSQL later
+* AI/Vision assetification layer later
+
+## Final Identity
+
+MEMBRA = apartment capitalism with a chat box, a trust layer, and a tiny bodega hiding in every lease.
+
+---
+
+## Repository Structure
+
+This is a monorepo with apps and packages:
+
+```
+membra/
+├── README.md
+├── LICENSE
+├── .env.example
+├── .gitignore
+├── docker-compose.yml
+├── package.json
+├── apps/
+│   ├── web/
+│   │   ├── package.json
+│   │   ├── next.config.js
+│   │   ├── tailwind.config.ts
+│   │   ├── app/
+│   │   │   ├── layout.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── globals.css
+│   │   │   ├── ask/
+│   │   │   │   └── page.tsx
+│   │   │   ├── marketplace/
+│   │   │   │   └── page.tsx
+│   │   │   ├── hero/
+│   │   │   │   └── page.tsx
+│   │   │   ├── inventory/
+│   │   │   │   └── page.tsx
+│   │   │   ├── split-order/
+│   │   │   │   └── page.tsx
+│   │   │   ├── split-pulse/
+│   │   │   │   └── page.tsx
+│   │   │   ├── relay/
+│   │   │   │   └── page.tsx
+│   │   │   ├── wallet/
+│   │   │   │   └── page.tsx
+│   │   │   └── trust/
+│   │   │       └── page.tsx
+│   │   ├── components/
+│   │   │   ├── AppShell.tsx
+│   │   │   ├── ChatBar.tsx
+│   │   │   ├── ServiceGrid.tsx
+│   │   │   ├── ListingCard.tsx
+│   │   │   ├── HeroDashboard.tsx
+│   │   │   ├── WalletCard.tsx
+│   │   │   ├── RelayCard.tsx
+│   │   │   ├── SplitOrderCard.tsx
+│   │   │   ├── ProofReceipt.tsx
+│   │   │   └── GoldCard.tsx
+│   │   └── lib/
+│   │       ├── api.ts
+│   │       ├── types.ts
+│   │       └── mock-data.ts
+│   │
+│   └── api/
+│       ├── main.py
+│       ├── requirements.txt
+│       ├── app/
+│       │   ├── routers/
+│       │   │   ├── chat.py
+│       │   │   ├── inventory.py
+│       │   │   ├── marketplace.py
+│       │   │   ├── hero.py
+│       │   │   ├── relay.py
+│       │   │   ├── split_order.py
+│       │   │   ├── split_pulse.py
+│       │   │   ├── wallet.py
+│       │   │   └── trust.py
+│       │   ├── models/
+│       │   ├── services/
+│       │   └── db/
+│       └── openapi.json
+│
+├── packages/
+│   ├── ui/
+│   │   ├── Button.tsx
+│   │   ├── Card.tsx
+│   │   ├── Badge.tsx
+│   │   ├── Input.tsx
+│   │   └── index.ts
+│   └── config/
+│       ├── eslint-config/
+│       └── tailwind-config/
+│
+└── docs/
+    ├── MEMBRA_SUPER_SUMMARY.md
+    ├── API_OVERVIEW.md
+    ├── UI_SCREENS.md
+    ├── MVP_PLAN.md
+    └── SAFETY_BOUNDARIES.md
+```
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- Python 3.11+
+- Docker (optional)
+
+### Installation
+
+```bash
+# Install root dependencies
+npm install
+
+# Install web app dependencies
+cd apps/web
+npm install
+
+# Install API dependencies
+cd ../api
+pip install -r requirements.txt
+```
+
+### Development
+
+```bash
+# Start web app (Next.js)
+cd apps/web
+npm run dev
+
+# Start API (FastAPI)
+cd apps/api
+uvicorn app.main:app --reload
+
+# Or use Docker Compose
+docker-compose up
+```
+
+## GitHub Description
+
+MEMBRA is a chat-first AI local commerce operating system created by Joseph Skrobynets, also known as Dr.Profitosis, overandor, jskroby, and carpathianwolfjoseph. MEMBRA evolved from Couchify into a Binance-style services grid for physical reality. It turns household objects, online purchases, private spaces, storage capacity, human services, delivery routes, and local demand into fractional neighborhood inventory.
+
+---
+
+**MEMBRA — A marketplace you talk to.**
 
 ## Simple Version
 
@@ -460,15 +652,78 @@ MEMBRA/
 └── README.md
 ```
 
+## Public Deployment Links
+
+**Quick Deploy to Railway (Easiest):**
+1. Go to https://railway.app/new
+2. Click "Deploy from GitHub repo"
+3. Select this repository
+4. Railway will auto-detect Python/FastAPI
+5. Add environment variables (see below)
+6. Click Deploy
+7. **Your public links will appear after ~2 minutes:**
+   - API: `https://your-project.railway.app`
+   - Swagger UI: `https://your-project.railway.app/docs`
+   - ReDoc: `https://your-project.railway.app/redoc`
+   - Custom UI: `https://your-project.railway.app/docs-ui`
+
+**Quick Deploy to Render:**
+1. Go to https://render.com
+2. Click "New +"
+3. Select "Web Service"
+4. Connect GitHub repository
+5. Build command: `pip install -r requirements.txt`
+6. Start command: `uvicorn api.main:app --host 0.0.0.0 --port $PORT`
+7. **Your public links will appear after deployment:**
+   - API: `https://your-project.onrender.com`
+   - Swagger UI: `https://your-project.onrender.com/docs`
+   - ReDoc: `https://your-project.onrender.com/redoc`
+   - Custom UI: `https://your-project.onrender.com/docs-ui`
+
+**Required Environment Variables:**
+```env
+DEBUG=False
+SECRET_KEY=your-random-secret-key-here
+DATABASE_URL=postgresql://user:password@host:5432/membra
+REDIS_URL=redis://host:6379/0
+# Optional for full features:
+OPENAI_API_KEY=sk-...
+STRIPE_SECRET_KEY=sk_...
+```
+
+**Current Local Links (for development):**
+- API: http://localhost:8000
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+- Custom UI: http://localhost:8000/docs-ui
+- OpenAPI Spec: http://localhost:8000/openapi.json
+
 ## Getting Started
+
+### Local Development
 
 ```bash
 # Install dependencies
 pip install -r requirements.txt
 
-# Run the API server (when implemented)
-uvicorn api.main:app --reload
+# Copy environment file
+cp .env.example .env
+
+# Edit .env with your configuration
+nano .env
+
+# Run with Docker Compose (includes PostgreSQL and Redis)
+docker-compose up -d
+
+# Or run directly
+./run.sh
+# or
+uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
 ```
+
+### Access API Documentation
+- Local: http://localhost:8000/docs
+- Local ReDoc: http://localhost:8000/redoc
 
 ---
 

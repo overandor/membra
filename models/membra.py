@@ -218,3 +218,247 @@ class AdAgentCampaign(BaseModel):
     suggested_price_adjustments: List[float] = []
     status: str = "active"  # active, paused, completed
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Intent(BaseModel):
+    """User intent as inventory (MEMBRA Intent-as-Inventory)"""
+    intent_id: str = Field(default_factory=lambda: str(uuid4()))
+    user_id: str
+    intent_type: str  # supply_intent, demand_intent, permission, boundary, preference, recurring_need
+    content: str  # "I am willing to rent my vacuum", "I need groceries after 8 PM"
+    category: Optional[str] = None
+    conditions: List[str] = []  # ["verified_users_only", "pickup_only", "no_entry"]
+    availability_windows: List[dict] = []  # [{"start": "18:00", "end": "22:00", "days": ["Mon", "Fri"]}]
+    location_latitude: Optional[float] = None
+    location_longitude: Optional[float] = None
+    radius_miles: Optional[float] = None
+    expires_at: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class HeroHouse(BaseModel):
+    """Home as business node (MEMBRA House)"""
+    house_id: str = Field(default_factory=lambda: str(uuid4()))
+    host_id: str
+    address: str
+    latitude: float
+    longitude: float
+    house_type: str  # apartment, house, condo, townhouse
+    capabilities: List[str] = []  # ["pickup", "storage", "service", "inventory", "fulfillment"]
+    storage_capacity_items: int = 0
+    storage_volume_cubic_ft: Optional[float] = None
+    pickup_window_start: str = "08:00"
+    pickup_window_end: str = "22:00"
+    pickup_days: List[str] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    rules: List[str] = []
+    amenities: List[str] = []
+    status: str = "active"  # active, inactive, suspended
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class AlphaHub(HeroHouse):
+    """High-trust, high-volume Hero House (MEMBRA Alpha Hub)"""
+    hub_level: int = 1  # 1-5 based on volume and trust
+    inventory_for_others: List[str] = []  # listing_ids
+    hub_fee_percentage: float = 12.0  # percentage of transactions
+    monthly_volume_usd: float = 0.0
+    total_earnings_usd: float = 0.0
+    supported_heroes: List[str] = []  # hero_ids
+    compliance_level: str = "standard"  # standard, enhanced, premium
+    insurance_coverage_usd: float = 0.0
+    verified_at: Optional[datetime] = None
+
+
+class SplitOrder(BaseModel):
+    """Split bulk purchases into fractional units (MEMBRA SplitOrder)"""
+    split_order_id: str = Field(default_factory=lambda: str(uuid4()))
+    initiator_id: str
+    item_name: str
+    item_url: Optional[str] = None
+    total_quantity: int
+    total_cost_usd: float
+    unit_type: str  # pieces, cups, eggs, pods, items
+    units_available: int
+    units_reserved: int = 0
+    price_per_unit_usd: float
+    location_latitude: float
+    location_longitude: float
+    fulfillment_location: str  # "hero_house", "alpha_hub", "meet_halfway"
+    fulfillment_house_id: Optional[str] = None
+    status: str = "open"  # open, partial, full, cancelled
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    expires_at: Optional[datetime] = None
+
+
+class SplitReservation(BaseModel):
+    """Individual reservation within a SplitOrder"""
+    reservation_id: str = Field(default_factory=lambda: str(uuid4()))
+    split_order_id: str
+    user_id: str
+    quantity: int
+    cost_usd: float
+    pickup_window_start: str
+    pickup_window_end: str
+    status: str = "reserved"  # reserved, picked_up, cancelled, refunded
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class SplitPulse(BaseModel):
+    """Local demand signal for group buying (MEMBRA SplitPulse)"""
+    pulse_id: str = Field(default_factory=lambda: str(uuid4()))
+    item_name: str
+    item_url: Optional[str] = None
+    interest_count: int
+    anonymous_users: bool = True
+    location_latitude: float
+    location_longitude: float
+    radius_miles: float = 2.0
+    urgency: str = "normal"  # low, normal, high
+    category: Optional[str] = None
+    suggested_split_quantity: Optional[int] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    expires_at: Optional[datetime] = None
+
+
+class Wallet(BaseModel):
+    """MEMBRA Wallet (credits, earnings, deposits, rewards)"""
+    wallet_id: str = Field(default_factory=lambda: str(uuid4()))
+    user_id: str
+    balance_credits: int = 0
+    balance_usd: float = 0.0
+    total_earnings_usd: float = 0.0
+    total_spent_usd: float = 0.0
+    referral_rewards_credits: int = 0
+    cashback_credits: int = 0
+    deposit_balance_usd: float = 0.0
+    loyalty_level: str = "bronze"  # bronze, silver, gold, platinum
+    reputation_score: float = 0.0
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class WalletTransaction(BaseModel):
+    """Individual wallet transaction"""
+    transaction_id: str = Field(default_factory=lambda: str(uuid4()))
+    wallet_id: str
+    transaction_type: str  # credit_earn, credit_spend, deposit, withdrawal, payout, cashback, refund
+    amount: float
+    currency: str = "USD"  # USD or CREDITS
+    reference_id: Optional[str] = None  # listing_id, transaction_id, etc.
+    description: str
+    status: str = "pending"  # pending, completed, failed
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class DemandSignal(BaseModel):
+    """Local demand intelligence signal"""
+    signal_id: str = Field(default_factory=lambda: str(uuid4()))
+    item_name: str
+    category: str
+    request_count: int
+    failed_match_count: int
+    average_budget_usd: float
+    urgency_distribution: dict  # {"low": 10, "normal": 50, "high": 30, "urgent": 10}
+    time_of_day_distribution: dict  # {"morning": 20, "afternoon": 40, "evening": 30, "night": 10}
+    location_latitude: float
+    location_longitude: float
+    radius_miles: float = 2.0
+    trend_score: float = 0.0  # -1.0 to 1.0, negative = declining, positive = growing
+    suggested_action: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class OpportunityRecommendation(BaseModel):
+    """Supply creation recommendation based on demand"""
+    recommendation_id: str = Field(default_factory=lambda: str(uuid4()))
+    user_id: str
+    item_name: str
+    category: str
+    buy_cost_usd: float
+    estimated_rent_price_usd: Optional[float] = None
+    estimated_sale_price_usd: Optional[float] = None
+    monthly_earnings_estimate_usd: float
+    demand_score: float  # 0-100
+    time_to_sale_days: Optional[int] = None
+    risk_level: RiskLevel = RiskLevel.LOW
+    fulfillment_option: str  # "self", "alpha_hub", "both"
+    alpha_hub_distance_miles: Optional[float] = None
+    confidence_score: float = 0.0  # 0-1
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+# Relay models for MEMBRA Relay logistics layer
+class RelayMode(str, Enum):
+    """Relay fulfillment modes"""
+    PICKUP_ONLY = "pickup_only"
+    MEET_HALFWAY = "meet_halfway"
+    LOCAL_DELIVERY = "local_delivery"
+    RETURN_RUN = "return_run"
+    HUB_TRANSFER = "hub_transfer"
+    ERRAND_RELAY = "errand_relay"
+    BATCH_ROUTE = "batch_route"
+    STORAGE_TO_DELIVERY = "storage_to_delivery"
+    ON_DEMAND_COURIER = "on_demand_courier"
+
+
+class NodeType(str, Enum):
+    """Network node types"""
+    HERO_HOUSE = "hero_house"
+    ALPHA_HUB = "alpha_hub"
+    STORE = "store"
+    COURIER_HUB = "courier_hub"
+
+
+class RelayRequest(BaseModel):
+    """Relay fulfillment request"""
+    request_id: str = Field(default_factory=lambda: str(uuid4()))
+    user_id: str
+    item_description: str
+    pickup_location_latitude: float
+    pickup_location_longitude: float
+    pickup_address: str
+    delivery_location_latitude: Optional[float] = None
+    delivery_location_longitude: Optional[float] = None
+    delivery_address: Optional[str] = None
+    mode: RelayMode
+    risk_level: RiskLevel = RiskLevel.LOW
+    heavy: bool = False
+    fragile: bool = False
+    high_value: bool = False
+    special_instructions: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class RelayOffer(BaseModel):
+    """Relay agent's offer for a request"""
+    offer_id: str = Field(default_factory=lambda: str(uuid4()))
+    request_id: str
+    agent_id: str
+    estimated_price_usd: float
+    estimated_duration_minutes: Optional[int] = None
+    available_at: datetime
+    expires_at: Optional[datetime] = None
+    vehicle_type: Optional[str] = None
+    message: Optional[str] = None
+
+
+class RelayBatch(BaseModel):
+    """Batched Relay route for efficiency"""
+    batch_id: str = Field(default_factory=lambda: str(uuid4()))
+    requests: List[str]  # request_ids
+    agent_id: str
+    estimated_price_usd: float
+    estimated_duration_minutes: int
+    route_sequence: List[str]  # addresses in order
+
+
+class RelayProof(BaseModel):
+    """Proof of pickup or delivery"""
+    proof_id: str = Field(default_factory=lambda: str(uuid4()))
+    relay_id: str
+    proof_type: str  # pickup, delivery
+    photo_url: str
+    location_latitude: float
+    location_longitude: float
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    signature: Optional[str] = None
+    notes: Optional[str] = None

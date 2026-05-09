@@ -3,7 +3,7 @@ MEMBRA Relay API Endpoints
 """
 from fastapi import APIRouter
 from typing import Optional
-from models.relay import (
+from models.membra import (
     RelayRequest, RelayOffer, RelayBatch, RelayProof,
     RelayMode, RiskLevel, NodeType
 )

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEMBRA API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 0;
+            border-bottom: 1px solid #333;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            font-size: 1.25rem;
+            color: #888;
+            margin-bottom: 1rem;
+        }
+
+        .version {
+            display: inline-block;
+            background: #333;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            color: #ffd700;
+        }
+
+        .api-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .api-links a {
+            background: #ffd700;
+            color: #000;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .api-links a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+
+        .modules {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .module-card {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .module-card:hover {
+            transform: translateY(-4px);
+            border-color: #ffd700;
+        }
+
+        .module-card h3 {
+            color: #ffd700;
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .module-card p {
+            color: #888;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .module-card .endpoints {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .endpoint {
+            background: #222;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-family: monospace;
+            color: #666;
+        }
+
+        .endpoint.get { color: #4ade80; }
+        .endpoint.post { color: #f97316; }
+        .endpoint.put { color: #3b82f6; }
+        .endpoint.delete { color: #ef4444; }
+
+        .flow-section {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .flow-section h2 {
+            color: #ffd700;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+        }
+
+        .flow-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .flow-step {
+            background: #222;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .flow-step h4 {
+            color: #fff;
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .flow-step p {
+            color: #888;
+            font-size: 0.75rem;
+        }
+
+        .flow-arrow {
+            color: #ffd700;
+            font-size: 1.5rem;
+        }
+
+        .status-section {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .status-section h2 {
+            color: #ffd700;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .status-item {
+            background: #222;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .status-item h4 {
+            color: #fff;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .status-item .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-item .status.completed {
+            background: #166534;
+            color: #4ade80;
+        }
+
+        .status-item .status.pending {
+            background: #7c2d12;
+            color: #fb923c;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            border-top: 1px solid #333;
+            color: #666;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .container { padding: 1rem; }
+            .flow-steps { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MEMBRA API</h1>
+            <p class="tagline">A marketplace you talk to</p>
+            <span class="version">v0.1.0</span>
+            <div class="api-links">
+                <a href="/docs" target="_blank">Swagger UI</a>
+                <a href="/redoc" target="_blank">ReDoc</a>
+                <a href="/openapi.json" target="_blank">OpenAPI Spec</a>
+            </div>
+        </header>
+
+        <section class="flow-section">
+            <h2>Core Flow</h2>
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <h4>Ask MEMBRA</h4>
+                    <p>Chat interface</p>
+                </div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-step">
+                    <h4>Assetify</h4>
+                    <p>AI inventory</p>
+                </div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-step">
+                    <h4>Approve</h4>
+                    <p>Owner review</p>
+                </div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-step">
+                    <h4>Match</h4>
+                    <p>Demand routing</p>
+                </div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-step">
+                    <h4>Split/Relay</h4>
+                    <p>Fulfillment</p>
+                </div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-step">
+                    <h4>Proof</h4>
+                    <p>Verification</p>
+                </div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-step">
+                    <h4>Settle</h4>
+                    <p>Payment split</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="modules">
+            <div class="module-card">
+                <h3>Chat API</h3>
+                <p>Ask MEMBRA anything nearby</p>
+                <div class="endpoints">
+                    <span class="endpoint post">POST /api/v1/chat/ask</span>
+                    <span class="endpoint post">POST /api/v1/chat/intent</span>
+                    <span class="endpoint get">GET /api/v1/chat/suggestions</span>
+                    <span class="endpoint post">POST /api/v1/chat/follow-up</span>
+                </div>
+            </div>
+
+            <div class="module-card">
+                <h3>Inventory API</h3>
+                <p>AI assetification from photos, receipts, Amazon, CSV</p>
+                <div class="endpoints">
+                    <span class="endpoint post">POST /api/v1/inventory/assess</span>
+                    <span class="endpoint post">POST /api/v1/inventory/assess/photo</span>
+                    <span class="endpoint post">POST /api/v1/inventory/assess/amazon</span>
+                    <span class="endpoint post">POST /api/v1/inventory/assess/receipt</span>
+                    <span class="endpoint post">POST /api/v1/inventory/assess/csv</span>
+                </div>
+            </div>
+
+            <div class="module-card">
+                <h3>Marketplace API</h3>
+                <p>Listings, search, bookings, transactions</p>
+                <div class="endpoints">
+                    <span class="endpoint post">POST /api/v1/marketplace/listings</span>
+                    <span class="endpoint get">GET /api/v1/marketplace/listings</span>
+                    <span class="endpoint post">POST /api/v1/marketplace/transactions</span>
+                    <span class="endpoint get">GET /api/v1/marketplace/transactions</span>
+                </div>
+            </div>
+
+            <div class="module-card">
+                <h3>Hero API</h3>
+                <p>Hero Houses, Alpha Hubs, dashboards, earnings</p>
+                <div class="endpoints">
+                    <span class="endpoint post">POST /api/v1/hero/houses</span>
+                    <span class="endpoint get">GET /api/v1/hero/houses</span>
+                    <span class="endpoint post">POST /api/v1/hero/alpha-hub/apply</span>
+                    <span class="endpoint get">GET /api/v1/hero/alpha-hub/dashboard</span>
+                </div>
+            </div>
+
+            <div class="module-card">
+                <h3>Relay API</h3>
+                <p>Local fulfillment, pickup, delivery, batch routes</p>
+                <div class="endpoints">
+                    <span class="endpoint post">POST /api/v1/relay/request</span>
+                    <span class="endpoint post">POST /api/v1/relay/offer</span>
+                    <span class="endpoint post">POST /api/v1/relay/pickup</span>
+                    <span class="endpoint post">POST /api/v1/relay/deliver</span>
+                    <span class="endpoint get">GET /api/v1/relay/quote</span>
+                </div>
+            </div>
+
+            <div class="module-card">
+                <h3>SplitOrder API</h3>
+                <p>Fractional bulk purchasing and group buying</p>
+                <div class="endpoints">
+                    <span class="endpoint post">POST /api/v1/split-order</span>
+                    <span class="endpoint get">GET /api/v1/split-order</span>
+                    <span class="endpoint post">POST /api/v1/split-order/reserve</span>
+                    <span class="endpoint get">GET /api/v1/split-order/calculate</span>
+                </div>
+            </div>
+
+            <div class="module-card">
+                <h3>SplitPulse API</h3>
+                <p>Anonymous local demand signals and group-buy triggers</p>
+                <div class="endpoints">
+                    <span class="endpoint post">POST /api/v1/split-pulse/interest</span>
+                    <span class="endpoint get">GET /api/v1/split-pulse/signals</span>
+                    <span class="endpoint post">POST /api/v1/split-pulse/pool</span>
+                    <span class="endpoint get">GET /api/v1/split-pulse/trending</span>
+                </div>
+            </div>
+
+            <div class="module-card">
+                <h3>Wallet API</h3>
+                <p>Credits, deposits, payouts, payment splits, referrals</p>
+                <div class="endpoints">
+                    <span class="endpoint post">POST /api/v1/wallet</span>
+                    <span class="endpoint post">POST /api/v1/wallet/funds</span>
+                    <span class="endpoint post">POST /api/v1/wallet/withdraw</span>
+                    <span class="endpoint get">GET /api/v1/wallet/transactions</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="status-section">
+            <h2>API Status</h2>
+            <div class="status-grid">
+                <div class="status-item">
+                    <h4>Chat API</h4>
+                    <span class="status completed">✓ Completed</span>
+                </div>
+                <div class="status-item">
+                    <h4>Inventory API</h4>
+                    <span class="status completed">✓ Completed</span>
+                </div>
+                <div class="status-item">
+                    <h4>Marketplace API</h4>
+                    <span class="status completed">✓ Completed</span>
+                </div>
+                <div class="status-item">
+                    <h4>Hero API</h4>
+                    <span class="status completed">✓ Completed</span>
+                </div>
+                <div class="status-item">
+                    <h4>Relay API</h4>
+                    <span class="status completed">✓ Completed</span>
+                </div>
+                <div class="status-item">
+                    <h4>SplitOrder API</h4>
+                    <span class="status completed">✓ Completed</span>
+                </div>
+                <div class="status-item">
+                    <h4>SplitPulse API</h4>
+                    <span class="status completed">✓ Completed</span>
+                </div>
+                <div class="status-item">
+                    <h4>Wallet API</h4>
+                    <span class="status completed">✓ Completed</span>
+                </div>
+                <div class="status-item">
+                    <h4>Trust API</h4>
+                    <span class="status pending">◐ Pending</span>
+                </div>
+                <div class="status-item">
+                    <h4>Profile API</h4>
+                    <span class="status pending">◐ Pending</span>
+                </div>
+                <div class="status-item">
+                    <h4>Intent API</h4>
+                    <span class="status pending">◐ Pending</span>
+                </div>
+                <div class="status-item">
+                    <h4>Ledger API</h4>
+                    <span class="status pending">◐ Pending</span>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>MEMBRA — A marketplace you talk to. Need nearby. Earn locally.</p>
+            <p style="margin-top: 0.5rem;">© 2026 MEMBRA. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Dynamic API health check
+        async function checkHealth() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                console.log('API Health:', data);
+            } catch (error) {
+                console.log('API health check failed:', error);
+            }
+        }
+
+        checkHealth();
+    </script>
+</body>
+</html>

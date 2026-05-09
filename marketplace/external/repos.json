@@ -1,0 +1,42 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-05-09T00:00:00Z",
+  "repos": {
+    "couchify": {
+      "owner": "overandor",
+      "repo": "couchify",
+      "functions": ["rent", "host", "verify", "llm-host"],
+      "api_base": "https://api.couchify.dev",
+      "sync_enabled": true
+    },
+    "membra-relay": {
+      "owner": "overandor",
+      "repo": "membra-relay",
+      "functions": ["relay", "delivery", "route", "batch", "dispatch"],
+      "api_base": "https://api.membra-relay.dev",
+      "sync_enabled": true
+    },
+    "language-fi": {
+      "owner": "overandor",
+      "repo": "language-fi",
+      "functions": ["translate", "localize", "detect", "semantic"],
+      "api_base": "https://api.language-fi.dev",
+      "sync_enabled": true
+    },
+    "llm-autonomous-agent": {
+      "owner": "overandor",
+      "repo": "llm-autonomous-agent",
+      "functions": ["agent", "task", "planning", "execution"],
+      "api_base": "https://api.llm-agent.dev",
+      "sync_enabled": true
+    },
+    "groq-supervisor-ai": {
+      "owner": "overandor",
+      "repo": "groq-supervisor-ai",
+      "functions": ["supervise", "monitor", "optimize"],
+      "api_base": "https://api.groq-supervisor.dev",
+      "sync_enabled": true
+    }
+  },
+  "sync_schedule": "*/15 * * * *"
+}
