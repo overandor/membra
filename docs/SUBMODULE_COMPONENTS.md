@@ -6,6 +6,7 @@ This document maps which parts from each submodule can be used for MEMBRA.
 
 ### DockOS
 **Purpose:** FastAPI backend infrastructure for space booking with auth, payments, booking engine
+**Repository:** https://github.com/overandor/DockOS.git
 
 **Components for MEMBRA:**
 - **Auth system** (`packages/auth/`) — JWT authentication, user registration, login, role management (guest/host)
@@ -23,6 +24,7 @@ This document maps which parts from each submodule can be used for MEMBRA.
 
 ### Couchify
 **Purpose:** Next.js app for booking private seating capacity by the minute
+**Repository:** https://github.com/overandor/Couchify.git
 
 **Components for MEMBRA:**
 - **Next.js App Router** — `/explore` marketplace grid, `/spaces/[id]` detail pages, `/host` dashboard
@@ -40,6 +42,7 @@ This document maps which parts from each submodule can be used for MEMBRA.
 
 ### Repo 19 (Speculative Signal Research Lab)
 **Purpose:** Research operating system for discovering and evaluating signal classes with AI/ML
+**Repository:** https://github.com/overandor/19.git
 
 **Components for MEMBRA:**
 - **Feedback ingestion** (`feedback_ingest/`) — Parse and classify user feedback for improvement
@@ -55,6 +58,7 @@ This document maps which parts from each submodule can be used for MEMBRA.
 
 ### -google-voice-orders
 **Purpose:** Voice-based order processing integration
+**Repository:** https://github.com/overandor/-google-voice-orders.git
 
 **Components for MEMBRA:**
 - **Voice-to-text processing** — Convert voice requests to structured demand
@@ -69,6 +73,7 @@ This document maps which parts from each submodule can be used for MEMBRA.
 
 ### Repo 1 (KPI Factory)
 **Purpose:** Full-stack scaffold for tokenized KPIs with Solidity contracts, FastAPI backend, Streamlit frontend
+**Repository:** https://github.com/overandor/1.git
 
 **Components for MEMBRA:**
 - **Smart contracts** (`contracts/`) — ERC-20 KPI tokens, oracle contracts, registry
@@ -82,6 +87,7 @@ This document maps which parts from each submodule can be used for MEMBRA.
 
 ### Repo 5 (KPI Factory)
 **Purpose:** Similar to repo 1 — KPI Factory system
+**Repository:** https://github.com/overandor/5.git
 
 **Components for MEMBRA:**
 - Same as repo 1 (duplicate or variant)
@@ -94,6 +100,7 @@ This document maps which parts from each submodule can be used for MEMBRA.
 
 ### Repo 25 (Vault Protocol)
 **Purpose:** Enterprise IP collateralization with blockchain, security, rate limiting, ERC-3643 compliance
+**Repository:** https://github.com/overandor/25.git
 
 **Components for MEMBRA:**
 - **Async blockchain service** — Non-blocking Web3 operations with gas optimization
@@ -109,6 +116,7 @@ This document maps which parts from each submodule can be used for MEMBRA.
 
 ### Repo 6 (SuperpositionNFT)
 **Purpose:** NFT observation economy with Hardhat contracts, Next.js 14 UI, wallet connectivity
+**Repository:** https://github.com/overandor/6.git
 
 **Components for MEMBRA:**
 - **Smart contracts** (`packages/contracts/`) — Hardhat project with NFT contracts
@@ -125,6 +133,7 @@ This document maps which parts from each submodule can be used for MEMBRA.
 
 ### Repo 14 (Repository Factory)
 **Purpose:** Flask app for spinning up pre-initialized Git repositories
+**Repository:** https://github.com/overandor/14.git
 
 **Components for MEMBRA:**
 - **Repository initialization** — Git repo creation with standardized metadata
@@ -138,21 +147,25 @@ This document maps which parts from each submodule can be used for MEMBRA.
 
 ### Repo 12 (Paradox Liquidity)
 **Purpose:** Solana Anchor and Foundry smart contracts for liquidity
+**Repository:** https://github.com/overandor/12.git
 
 **Components for MEMBRA:** Not directly relevant (DeFi/liquidity focused)
 
 ### Repo 15 (Live Alpha Signals)
 **Purpose:** Price edge mining for trading
+**Repository:** https://github.com/overandor/15.git
 
 **Components for MEMBRA:** Not directly relevant (trading focused)
 
 ### Repo 30 (DEX Sniper Agent)
 **Purpose:** Solana DEX routing for price comparison
+**Repository:** https://github.com/overandor/30.git
 
 **Components for MEMBRA:** Not directly relevant (DeFi focused)
 
 ### Repo 18 (Anchor)
 **Purpose:** Solana Anchor programs
+**Repository:** https://github.com/overandor/18.git
 
 **Components for MEMBRA:** Not directly relevant (Solana smart contracts)
 
@@ -163,6 +176,31 @@ This document maps which parts from each submodule can be used for MEMBRA.
 ### Repos 2, 3, 7, 8, 10, 11, 13, 16, 17, 20, 22, 23, 24, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38
 **Status:** Minimal or no README documentation
 **Recommendation:** Need manual inspection to determine relevance
+
+**Repository Links:**
+- https://github.com/overandor/2.git
+- https://github.com/overandor/3.git
+- https://github.com/overandor/7.git
+- https://github.com/overandor/8.git
+- https://github.com/overandor/10.git
+- https://github.com/overandor/11.git
+- https://github.com/overandor/13.git
+- https://github.com/overandor/16.git
+- https://github.com/overandor/17.git
+- https://github.com/overandor/20.git
+- https://github.com/overandor/22.git
+- https://github.com/overandor/23.git
+- https://github.com/overandor/24.git
+- https://github.com/overandor/28.git
+- https://github.com/overandor/29.git
+- https://github.com/overandor/31.git
+- https://github.com/overandor/32.git
+- https://github.com/overandor/33.git
+- https://github.com/overandor/34.git
+- https://github.com/overandor/35.git
+- https://github.com/overandor/36.git
+- https://github.com/overandor/37.git
+- https://github.com/overandor/38.git
 
 ---
 
