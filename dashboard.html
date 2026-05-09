@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { background: #0a0a0a; color: #e0e0e0; font-family: system-ui; padding: 20px; }
+        .header { display: flex; justify-content: space-between; border-bottom: 1px solid #d4af37; padding: 20px; }
+        .logo { color: #d4af37; font-size: 24px; font-weight: bold; }
+        .card { background: rgba(20,20,20,0.9); border: 1px solid rgba(212,175,55,0.3); border-radius: 12px; padding: 20px; margin: 20px 0; }
+        .title { color: #d4af37; text-transform: uppercase; margin-bottom: 15px; }
+        .scan { height: 200px; background: #1a1a1a; border: 1px solid #333; display: flex; align-items: center; justify-content: center; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border-bottom: 1px solid #333; text-align: left; font-size: 12px; }
+        th { color: #d4af37; }
+        .btn { background: #d4af37; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+        .metrics { display: flex; gap: 15px; }
+        .metric { background: rgba(212,175,55,0.1); padding: 15px; border-radius: 8px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">MEMBRA</div>
+        <div>Alpha Network: Active</div>
+    </div>
+    <div class="card">
+        <div class="title">Room Scan · Living Room</div>
+        <div class="scan">Upload room scan image</div>
+        <button class="btn">Live Scan</button>
+    </div>
+    <div class="card">
+        <div class="title">SKU Verification</div>
+        <table>
+            <tr><th>Item</th><th>Score</th><th>Category</th><th>Status</th></tr>
+            <tr><td>Couch</td><td>96%</td><td>Furniture</td><td><button class="btn">Approve</button></td></tr>
+            <tr><td>Vacuum</td><td>93%</td><td>Appliances</td><td><button class="btn">Approve</button></td></tr>
+        </table>
+    </div>
+    <div class="card">
+        <div class="title">Private Inventory Draft</div>
+        <div class="metrics">
+            <div class="metric"><div>8</div><div>Items</div></div>
+            <div class="metric"><div>92%</div><div>Match Score</div></div>
+            <div class="metric"><div>24ft²</div><div>Space</div></div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,7 +1,7 @@
-import { ChatBar } from "@/components/ChatBar";
-import { ServiceGrid } from "@/components/ServiceGrid";
-import { ListingCard } from "@/components/ListingCard";
-import { WalletCard } from "@/components/WalletCard";
+import { ChatBar } from "../components/ChatBar";
+import { ServiceGrid } from "../components/ServiceGrid";
+import { ListingCard } from "../components/ListingCard";
+import { WalletCard } from "../components/WalletCard";
 
 export default function HomePage() {
   return (
