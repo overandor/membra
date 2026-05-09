@@ -1,29 +1,29 @@
 -- MEMBRA Production Database Schema
--- SQLite/PostgreSQL compatible
+-- SQLite compatible
 
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255) UNIQUE NOT NULL,
-    phone VARCHAR(20) UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    full_name VARCHAR(255),
-    is_host BOOLEAN DEFAULT FALSE,
-    is_verified BOOLEAN DEFAULT FALSE,
-    trust_score DECIMAL(3,2) DEFAULT 0.00,
+    id TEXT PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    phone TEXT UNIQUE,
+    password_hash TEXT NOT NULL,
+    full_name TEXT,
+    is_host INTEGER DEFAULT 0,
+    is_verified INTEGER DEFAULT 0,
+    trust_score REAL DEFAULT 0.00,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Hosts table
 CREATE TABLE IF NOT EXISTS hosts (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    business_name VARCHAR(255),
-    tax_id VARCHAR(50),
-    stripe_account_id VARCHAR(255),
-    is_active BOOLEAN DEFAULT FALSE,
-    rating DECIMAL(3,2) DEFAULT 0.00,
+    id TEXT PRIMARY KEY,
+    user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+    business_name TEXT,
+    tax_id TEXT,
+    stripe_account_id TEXT,
+    is_active INTEGER DEFAULT 0,
+    rating REAL DEFAULT 0.00,
     total_bookings INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -31,90 +31,90 @@ CREATE TABLE IF NOT EXISTS hosts (
 
 -- Rooms table
 CREATE TABLE IF NOT EXISTS rooms (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    host_id UUID REFERENCES hosts(id) ON DELETE CASCADE,
-    name VARCHAR(255) NOT NULL,
+    id TEXT PRIMARY KEY,
+    host_id TEXT REFERENCES hosts(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
     description TEXT,
     address TEXT,
-    city VARCHAR(100),
-    state VARCHAR(50),
-    zip_code VARCHAR(20),
-    area_sq_ft DECIMAL(10,2),
-    climate_control VARCHAR(50),
-    access_type VARCHAR(50),
-    is_verified BOOLEAN DEFAULT FALSE,
+    city TEXT,
+    state TEXT,
+    zip_code TEXT,
+    area_sq_ft REAL,
+    climate_control TEXT,
+    access_type TEXT,
+    is_verified INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Uploaded images table
 CREATE TABLE IF NOT EXISTS uploaded_images (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    room_id UUID REFERENCES rooms(id) ON DELETE CASCADE,
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    file_path VARCHAR(500) NOT NULL,
-    file_name VARCHAR(255) NOT NULL,
+    id TEXT PRIMARY KEY,
+    room_id TEXT REFERENCES rooms(id) ON DELETE CASCADE,
+    user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+    file_path TEXT NOT NULL,
+    file_name TEXT NOT NULL,
     file_size INTEGER,
-    mime_type VARCHAR(100),
+    mime_type TEXT,
     upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_processed BOOLEAN DEFAULT FALSE
+    is_processed INTEGER DEFAULT 0
 );
 
 -- Detected objects table
 CREATE TABLE IF NOT EXISTS detected_objects (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    image_id UUID REFERENCES uploaded_images(id) ON DELETE CASCADE,
-    object_name VARCHAR(255) NOT NULL,
-    category VARCHAR(100),
-    confidence DECIMAL(5,4),
-    bounding_box JSON,
+    id TEXT PRIMARY KEY,
+    image_id TEXT REFERENCES uploaded_images(id) ON DELETE CASCADE,
+    object_name TEXT NOT NULL,
+    category TEXT,
+    confidence REAL,
+    bounding_box TEXT,
     detection_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- SKU matches table
 CREATE TABLE IF NOT EXISTS sku_matches (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    object_id UUID REFERENCES detected_objects(id) ON DELETE CASCADE,
-    sku_id VARCHAR(100),
-    match_score DECIMAL(5,4),
-    suggested_rent_price DECIMAL(10,2),
-    suggested_sale_price DECIMAL(10,2),
-    rent_mode VARCHAR(50),
-    space_mode VARCHAR(50),
-    is_approved BOOLEAN DEFAULT FALSE,
-    approved_by UUID REFERENCES users(id),
+    id TEXT PRIMARY KEY,
+    object_id TEXT REFERENCES detected_objects(id) ON DELETE CASCADE,
+    sku_id TEXT,
+    match_score REAL,
+    suggested_rent_price REAL,
+    suggested_sale_price REAL,
+    rent_mode TEXT,
+    space_mode TEXT,
+    is_approved INTEGER DEFAULT 0,
+    approved_by TEXT REFERENCES users(id),
     approved_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Inventory items table
 CREATE TABLE IF NOT EXISTS inventory_items (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    host_id UUID REFERENCES hosts(id) ON DELETE CASCADE,
-    room_id UUID REFERENCES rooms(id) ON DELETE CASCADE,
-    sku_match_id UUID REFERENCES sku_matches(id) ON DELETE SET NULL,
-    name VARCHAR(255) NOT NULL,
-    category VARCHAR(100),
+    id TEXT PRIMARY KEY,
+    host_id TEXT REFERENCES hosts(id) ON DELETE CASCADE,
+    room_id TEXT REFERENCES rooms(id) ON DELETE CASCADE,
+    sku_match_id TEXT REFERENCES sku_matches(id) ON DELETE SET NULL,
+    name TEXT NOT NULL,
+    category TEXT,
     description TEXT,
-    condition VARCHAR(50),
-    rent_price DECIMAL(10,2),
-    sale_price DECIMAL(10,2),
-    deposit_amount DECIMAL(10,2),
-    rent_mode VARCHAR(50),
-    space_mode VARCHAR(50),
-    is_public BOOLEAN DEFAULT FALSE,
-    is_available BOOLEAN DEFAULT TRUE,
+    condition TEXT,
+    rent_price REAL,
+    sale_price REAL,
+    deposit_amount REAL,
+    rent_mode TEXT,
+    space_mode TEXT,
+    is_public INTEGER DEFAULT 0,
+    is_available INTEGER DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Approvals table
 CREATE TABLE IF NOT EXISTS approvals (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    inventory_item_id UUID REFERENCES inventory_items(id) ON DELETE CASCADE,
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    approval_type VARCHAR(50),
-    status VARCHAR(50),
+    id TEXT PRIMARY KEY,
+    inventory_item_id TEXT REFERENCES inventory_items(id) ON DELETE CASCADE,
+    user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+    approval_type TEXT,
+    status TEXT,
     notes TEXT,
     approved_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -122,64 +122,64 @@ CREATE TABLE IF NOT EXISTS approvals (
 
 -- Smart actions table
 CREATE TABLE IF NOT EXISTS smart_actions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    inventory_item_id UUID REFERENCES inventory_items(id) ON DELETE CASCADE,
-    action_type VARCHAR(50) NOT NULL,
-    action_config JSON,
-    is_active BOOLEAN DEFAULT TRUE,
+    id TEXT PRIMARY KEY,
+    inventory_item_id TEXT REFERENCES inventory_items(id) ON DELETE CASCADE,
+    action_type TEXT NOT NULL,
+    action_config TEXT,
+    is_active INTEGER DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Requests table
 CREATE TABLE IF NOT EXISTS requests (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    inventory_item_id UUID REFERENCES inventory_items(id) ON DELETE CASCADE,
-    action_type VARCHAR(50),
+    id TEXT PRIMARY KEY,
+    user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+    inventory_item_id TEXT REFERENCES inventory_items(id) ON DELETE CASCADE,
+    action_type TEXT,
     start_time TIMESTAMP,
     end_time TIMESTAMP,
     quantity INTEGER DEFAULT 1,
-    total_amount DECIMAL(10,2),
-    status VARCHAR(50),
+    total_amount REAL,
+    status TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Transactions table
 CREATE TABLE IF NOT EXISTS transactions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    request_id UUID REFERENCES requests(id) ON DELETE CASCADE,
-    payment_method_id VARCHAR(255),
-    amount DECIMAL(10,2) NOT NULL,
-    currency VARCHAR(10) DEFAULT 'USD',
-    status VARCHAR(50),
-    stripe_payment_intent_id VARCHAR(255),
+    id TEXT PRIMARY KEY,
+    request_id TEXT REFERENCES requests(id) ON DELETE CASCADE,
+    payment_method_id TEXT,
+    amount REAL NOT NULL,
+    currency TEXT DEFAULT 'USD',
+    status TEXT,
+    stripe_payment_intent_id TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Audit logs table
 CREATE TABLE IF NOT EXISTS audit_logs (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
-    action VARCHAR(255) NOT NULL,
-    resource_type VARCHAR(100),
-    resource_id UUID,
-    old_values JSON,
-    new_values JSON,
-    ip_address VARCHAR(45),
+    id TEXT PRIMARY KEY,
+    user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+    action TEXT NOT NULL,
+    resource_type TEXT,
+    resource_id TEXT,
+    old_values TEXT,
+    new_values TEXT,
+    ip_address TEXT,
     user_agent TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Analytics events table
 CREATE TABLE IF NOT EXISTS analytics_events (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    event_type VARCHAR(100) NOT NULL,
-    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
-    host_id UUID REFERENCES hosts(id) ON DELETE SET NULL,
-    event_data JSON,
+    id TEXT PRIMARY KEY,
+    event_type TEXT NOT NULL,
+    user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+    host_id TEXT REFERENCES hosts(id) ON DELETE SET NULL,
+    event_data TEXT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

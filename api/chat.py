@@ -8,8 +8,13 @@ from fastapi import APIRouter, HTTPException
 from typing import Optional, List
 from pydantic import BaseModel, Field
 from enum import Enum
+import os
+from openai import OpenAI
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
+
+# Initialize OpenAI client
+openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", ""))
 
 
 class ChatIntent(str, Enum):

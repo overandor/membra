@@ -112,6 +112,10 @@ async def api_v1():
             "inventory": "/api/v1/inventory",
             "marketplace": "/api/v1/marketplace",
             "hero": "/api/v1/hero",
+            "room_scan": "/api/v1/room-scan",
+            "sku_approval": "/api/v1/sku-approval",
+            "smart_actions": "/api/v1/smart-actions",
+            "analytics": "/api/v1/analytics",
         },
     }
 
