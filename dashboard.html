@@ -2,44 +2,461 @@
 <html>
 <head>
     <style>
-        body { background: #0a0a0a; color: #e0e0e0; font-family: system-ui; padding: 20px; }
-        .header { display: flex; justify-content: space-between; border-bottom: 1px solid #d4af37; padding: 20px; }
-        .logo { color: #d4af37; font-size: 24px; font-weight: bold; }
-        .card { background: rgba(20,20,20,0.9); border: 1px solid rgba(212,175,55,0.3); border-radius: 12px; padding: 20px; margin: 20px 0; }
-        .title { color: #d4af37; text-transform: uppercase; margin-bottom: 15px; }
-        .scan { height: 200px; background: #1a1a1a; border: 1px solid #333; display: flex; align-items: center; justify-content: center; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+            color: #e0e0e0; 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            padding: 20px; 
+            min-height: 100vh;
+        }
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid rgba(212,175,55,0.3); 
+            padding: 20px; 
+            margin-bottom: 30px;
+            background: rgba(10,10,10,0.8);
+            backdrop-filter: blur(10px);
+        }
+        .logo { 
+            color: #d4af37; 
+            font-size: 28px; 
+            font-weight: bold; 
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(212,175,55,0.3);
+        }
+        .nav { display: flex; gap: 25px; }
+        .nav a { 
+            color: #808080; 
+            text-decoration: none; 
+            text-transform: uppercase; 
+            font-size: 11px; 
+            letter-spacing: 1px;
+            transition: color 0.3s;
+        }
+        .nav a:hover { color: #d4af37; }
+        .status { 
+            color: #4caf50; 
+            font-size: 11px; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 16px;
+            background: rgba(76,175,80,0.1);
+            border: 1px solid rgba(76,175,80,0.3);
+            border-radius: 20px;
+        }
+        .dashboard { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .card { 
+            background: rgba(20,20,20,0.8); 
+            border: 1px solid rgba(212,175,55,0.2); 
+            border-radius: 16px; 
+            padding: 24px; 
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        .title { 
+            color: #d4af37; 
+            text-transform: uppercase; 
+            margin-bottom: 20px;
+            font-size: 14px;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+        .subtitle {
+            color: #606060;
+            font-size: 11px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .scan { 
+            height: 300px; 
+            background: linear-gradient(135deg, #1a1a1a, #0f0f0f); 
+            border: 1px solid rgba(212,175,55,0.2); 
+            border-radius: 12px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .scan::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at center, rgba(212,175,55,0.1) 0%, transparent 70%);
+        }
+        .scan-content {
+            text-align: center;
+            z-index: 1;
+        }
+        .scan-icon { font-size: 64px; margin-bottom: 15px; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 10px; border-bottom: 1px solid #333; text-align: left; font-size: 12px; }
-        th { color: #d4af37; }
-        .btn { background: #d4af37; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
-        .metrics { display: flex; gap: 15px; }
-        .metric { background: rgba(212,175,55,0.1); padding: 15px; border-radius: 8px; text-align: center; }
+        th, td { 
+            padding: 12px; 
+            border-bottom: 1px solid rgba(212,175,55,0.15); 
+            text-align: left; 
+            font-size: 12px;
+        }
+        th { 
+            color: #d4af37; 
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .btn { 
+            background: linear-gradient(135deg, #d4af37, #b8860b); 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 8px; 
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(212,175,55,0.3);
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            box-shadow: 0 6px 20px rgba(212,175,55,0.5);
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: rgba(212,175,55,0.1);
+            border: 1px solid rgba(212,175,55,0.3);
+            color: #d4af37;
+        }
+        .btn-secondary:hover {
+            background: rgba(212,175,55,0.2);
+        }
+        .metrics { display: flex; gap: 15px; margin-bottom: 20px; }
+        .metric { 
+            background: rgba(212,175,55,0.1); 
+            padding: 20px; 
+            border-radius: 12px; 
+            text-align: center;
+            flex: 1;
+            border: 1px solid rgba(212,175,55,0.2);
+        }
+        .metric-value { 
+            font-size: 32px; 
+            font-weight: bold; 
+            color: #d4af37; 
+            margin-bottom: 8px;
+        }
+        .metric-label { 
+            font-size: 11px; 
+            color: #808080; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .analytics-strip {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .analytics-card {
+            background: rgba(20,20,20,0.8);
+            border: 1px solid rgba(212,175,55,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .analytics-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #d4af37;
+            margin-bottom: 4px;
+        }
+        .analytics-label {
+            font-size: 10px;
+            color: #808080;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .analytics-trend {
+            font-size: 10px;
+            color: #4caf50;
+            margin-top: 4px;
+        }
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .action-card {
+            background: rgba(212,175,55,0.05);
+            border: 1px solid rgba(212,175,55,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .action-card:hover {
+            background: rgba(212,175,55,0.1);
+            border-color: rgba(212,175,55,0.4);
+        }
+        .action-icon { font-size: 24px; margin-bottom: 8px; }
+        .action-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #d4af37;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .hosting-card {
+            background: rgba(212,175,55,0.05);
+            border: 1px solid rgba(212,175,55,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .hosting-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 8px;
+        }
+        .hosting-details {
+            font-size: 11px;
+            color: #808080;
+            margin-bottom: 12px;
+        }
+        .hosting-price {
+            font-size: 14px;
+            font-weight: bold;
+            color: #d4af37;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="logo">MEMBRA</div>
-        <div>Alpha Network: Active</div>
+        <div class="nav">
+            <a href="#">Inventory</a>
+            <a href="#">Nodes</a>
+            <a href="#">Market</a>
+            <a href="#">Analytics</a>
+            <a href="#">Hosts</a>
+        </div>
+        <div class="status">Alpha Network: Active</div>
     </div>
-    <div class="card">
-        <div class="title">Room Scan · Living Room</div>
-        <div class="scan">Upload room scan image</div>
-        <button class="btn">Live Scan</button>
+    
+    <div class="dashboard">
+        <div>
+            <div class="card">
+                <div class="title">Room Scan · Living Room</div>
+                <div class="subtitle">Detect. Match. Approve. Rent.</div>
+                <div class="scan">
+                    <div class="scan-content">
+                        <div class="scan-icon">📷</div>
+                        <div>Upload room scan image</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn">Live Scan</button>
+                    <button class="btn btn-secondary">Retake Photo</button>
+                </div>
+                <div style="font-size: 11px; color: #606060; margin-top: 15px;">
+                    Detection Confidence: High | 10 Items Detected
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="title">SKU Verification</div>
+                <div class="subtitle">Review detected items and match to SKUs</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Match Score</th>
+                            <th>Category</th>
+                            <th>Rent Mode</th>
+                            <th>Space Mode</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Couch Seat</td>
+                            <td>96%</td>
+                            <td>Furniture</td>
+                            <td>Rentable</td>
+                            <td>Floor Space</td>
+                            <td><button class="btn" style="padding: 6px 12px; font-size: 10px;">Approve</button></td>
+                        </tr>
+                        <tr>
+                            <td>Vacuum Cleaner</td>
+                            <td>93%</td>
+                            <td>Appliances</td>
+                            <td>Rentable</td>
+                            <td>Floor Space</td>
+                            <td><button class="btn" style="padding: 6px 12px; font-size: 10px;">Approve</button></td>
+                        </tr>
+                        <tr>
+                            <td>Ring Light 18"</td>
+                            <td>91%</td>
+                            <td>Lighting</td>
+                            <td>Rentable</td>
+                            <td>Vertical</td>
+                            <td><button class="btn" style="padding: 6px 12px; font-size: 10px;">Approve</button></td>
+                        </tr>
+                        <tr>
+                            <td>Camera Tripod</td>
+                            <td>94%</td>
+                            <td>Gear</td>
+                            <td>Rentable</td>
+                            <td>Floor Space</td>
+                            <td><button class="btn" style="padding: 6px 12px; font-size: 10px;">Approve</button></td>
+                        </tr>
+                        <tr>
+                            <td>Storage Shelf</td>
+                            <td>90%</td>
+                            <td>Storage</td>
+                            <td>Rentable</td>
+                            <td>Vertical</td>
+                            <td><button class="btn" style="padding: 6px 12px; font-size: 10px;">Approve</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="margin-top: 20px;">
+                    <button class="btn">Approve All (5)</button>
+                </div>
+                <div style="font-size: 11px; color: #606060; margin-top: 10px;">
+                    5 of 5 items ready for approval
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="title">Private Inventory Draft</div>
+                <div class="subtitle">Private by default. Public only by approval.</div>
+                <div class="metrics">
+                    <div class="metric">
+                        <div class="metric-value">8</div>
+                        <div class="metric-label">Items Detected</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">8</div>
+                        <div class="metric-label">SKUs Matched</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">92%</div>
+                        <div class="metric-label">Avg. Match Score</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">24ft²</div>
+                        <div class="metric-label">Space Detected</div>
+                    </div>
+                </div>
+                <div style="font-size: 11px; color: #606060; margin-bottom: 15px;">
+                    This inventory is private until you publish it to the network.
+                </div>
+                <button class="btn">Approve All to Publish</button>
+            </div>
+        </div>
+
+        <div>
+            <div class="card">
+                <div class="title">Overflow Inventory Hosting</div>
+                <div class="subtitle">List your unused space. Earn by helping other hosts scale.</div>
+                
+                <div class="hosting-card">
+                    <div class="hosting-title">Shelf Space</div>
+                    <div class="hosting-details">5ft Wide · ~15 ft³ · Vertical · Climate: Stable</div>
+                    <div class="hosting-price">$12/month</div>
+                    <button class="btn btn-secondary" style="width: 100%; margin-top: 10px; font-size: 10px;">List Space</button>
+                </div>
+
+                <div class="hosting-card">
+                    <div class="hosting-title">Closet Space</div>
+                    <div class="hosting-details">Reach-in · ~20 ft³ · Enclosed · Climate: Stable</div>
+                    <div class="hosting-price">$18/month</div>
+                    <button class="btn btn-secondary" style="width: 100%; margin-top: 10px; font-size: 10px;">List Space</button>
+                </div>
+
+                <div class="hosting-card">
+                    <div class="hosting-title">Corner Storage</div>
+                    <div class="hosting-details">Secure Zone · ~10 ft³ · Floor · Climate: Stable</div>
+                    <div class="hosting-price">$9/month</div>
+                    <button class="btn btn-secondary" style="width: 100%; margin-top: 10px; font-size: 10px;">List Space</button>
+                </div>
+
+                <div style="font-size: 10px; color: #606060; text-align: center; margin-top: 10px;">
+                    Shared with Another Host
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="title">Smart Actions</div>
+                <div class="subtitle">Choose how MEMBRA moves your inventory.</div>
+                
+                <div class="action-grid">
+                    <div class="action-card">
+                        <div class="action-icon">💰</div>
+                        <div class="action-title">Rent</div>
+                    </div>
+                    <div class="action-card">
+                        <div class="action-icon">🤝</div>
+                        <div class="action-title">Split</div>
+                    </div>
+                    <div class="action-card">
+                        <div class="action-icon">🚚</div>
+                        <div class="action-title">Deliver</div>
+                    </div>
+                    <div class="action-card">
+                        <div class="action-icon">📍</div>
+                        <div class="action-title">Meet Halfway</div>
+                    </div>
+                    <div class="action-card">
+                        <div class="action-icon">📦</div>
+                        <div class="action-title">Store for Host</div>
+                    </div>
+                    <div class="action-card">
+                        <div class="action-icon">✅</div>
+                        <div class="action-title">Approve SKU</div>
+                    </div>
+                </div>
+
+                <button class="btn" style="width: 100%; margin-top: 20px;">Request Today</button>
+            </div>
+        </div>
     </div>
-    <div class="card">
-        <div class="title">SKU Verification</div>
-        <table>
-            <tr><th>Item</th><th>Score</th><th>Category</th><th>Status</th></tr>
-            <tr><td>Couch</td><td>96%</td><td>Furniture</td><td><button class="btn">Approve</button></td></tr>
-            <tr><td>Vacuum</td><td>93%</td><td>Appliances</td><td><button class="btn">Approve</button></td></tr>
-        </table>
-    </div>
-    <div class="card">
-        <div class="title">Private Inventory Draft</div>
-        <div class="metrics">
-            <div class="metric"><div>8</div><div>Items</div></div>
-            <div class="metric"><div>92%</div><div>Match Score</div></div>
-            <div class="metric"><div>24ft²</div><div>Space</div></div>
+
+    <div class="analytics-strip">
+        <div class="analytics-card">
+            <div class="analytics-value">0.86</div>
+            <div class="analytics-label">Inventory Alpha</div>
+            <div class="analytics-trend">↑ 0.12 vs 30d</div>
+        </div>
+        <div class="analytics-card">
+            <div class="analytics-value">94.2%</div>
+            <div class="analytics-label">Match Quality</div>
+            <div class="analytics-trend">↑ 3.4% vs 30d</div>
+        </div>
+        <div class="analytics-card">
+            <div class="analytics-value">93.7</div>
+            <div class="analytics-label">Trust Score</div>
+            <div class="analytics-trend">↑ 2.1 pts vs 30d</div>
+        </div>
+        <div class="analytics-card">
+            <div class="analytics-value">$187.43</div>
+            <div class="analytics-label">Node Yield</div>
+            <div class="analytics-trend">↑ 14% vs 30d</div>
+        </div>
+        <div class="analytics-card">
+            <div class="analytics-value">128,540</div>
+            <div class="analytics-label">Active Nodes</div>
+            <div class="analytics-trend">Network Active</div>
+        </div>
+        <div class="analytics-card">
+            <div class="analytics-value">99.98%</div>
+            <div class="analytics-label">Network Uptime</div>
+            <div class="analytics-trend">Excellent</div>
         </div>
     </div>
 </body>
