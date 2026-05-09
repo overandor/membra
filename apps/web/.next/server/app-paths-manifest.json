@@ -1,0 +1,17 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/ask/page": "app/ask/page.js",
+  "/hero/page": "app/hero/page.js",
+  "/cameralink-phone/page": "app/cameralink-phone/page.js",
+  "/marketplace/page": "app/marketplace/page.js",
+  "/inventory/page": "app/inventory/page.js",
+  "/cameralink/page": "app/cameralink/page.js",
+  "/relay/page": "app/relay/page.js",
+  "/page": "app/page.js",
+  "/scan/page": "app/scan/page.js",
+  "/os/page": "app/os/page.js",
+  "/wallet/page": "app/wallet/page.js",
+  "/split-order/page": "app/split-order/page.js",
+  "/trust/page": "app/trust/page.js",
+  "/split-pulse/page": "app/split-pulse/page.js"
+}

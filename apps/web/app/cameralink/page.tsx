@@ -1,6 +1,6 @@
-import { CameraLinkQRCode } from "@/components/CameraLinkQRCode";
-import { CameraLinkSession } from "@/components/CameraLinkSession";
-import { CameraLinkDetections } from "@/components/CameraLinkDetections";
+import { CameraLinkQRCode } from "../../components/CameraLinkQRCode";
+import { CameraLinkSession } from "../../components/CameraLinkSession";
+import { CameraLinkDetections } from "../../components/CameraLinkDetections";
 
 export default function CameraLinkPage() {
   return (

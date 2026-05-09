@@ -25,6 +25,7 @@ from api.wallet import router as wallet_router
 from api.scan import router as scan_router
 from api.price import router as price_router
 from api.trust import router as trust_router
+from api.camera import router as camera_router
 
 # Future routers to be implemented:
 # from api.demand import router as demand_router
@@ -72,6 +73,7 @@ app.include_router(wallet_router, prefix="/api/v1", tags=["Wallet"])
 app.include_router(scan_router, prefix="/api/v1", tags=["Scan"])
 app.include_router(price_router, prefix="/api/v1", tags=["Price"])
 app.include_router(trust_router, prefix="/api/v1", tags=["Trust"])
+app.include_router(camera_router, prefix="/api/v1", tags=["CameraLink"])
 
 # Future routers:
 # app.include_router(demand_router, prefix="/api/v1", tags=["Demand"])
@@ -120,6 +122,7 @@ async def api_v1():
             "scan": "/api/v1/scan",
             "price": "/api/v1/price",
             "trust": "/api/v1/trust",
+            "camera": "/api/v1/camera-sessions",
             # Future endpoints:
             # "demand": "/api/v1/demand",
         },

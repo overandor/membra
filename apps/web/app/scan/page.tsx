@@ -177,7 +177,7 @@ export default function ScanPage() {
                     </span>
                   </div>
                   <div className="text-yellow-500 font-semibold">
-                    ${Object.values(listing.suggested_price)[0]}
+                    ${String(Object.values(listing.suggested_price)[0])}
                   </div>
                 </div>
 

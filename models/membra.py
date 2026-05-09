@@ -462,3 +462,59 @@ class RelayProof(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     signature: Optional[str] = None
     notes: Optional[str] = None
+
+
+# CameraLink models for cross-platform camera bridge
+class CameraLinkMode(str, Enum):
+    """CameraLink scan modes"""
+    SNAPSHOT = "snapshot"
+    LIVE = "live"
+
+
+class CameraLinkStatus(str, Enum):
+    """CameraLink session status"""
+    CREATED = "created"
+    QR_GENERATED = "qr_generated"
+    JOINED = "joined"
+    SCANNING = "scanning"
+    PROCESSING = "processing"
+    READY_FOR_APPROVAL = "ready_for_approval"
+    APPROVED = "approved"
+    ENDED = "ended"
+    EXPIRED = "expired"
+
+
+class CameraLinkSession(BaseModel):
+    """CameraLink scanning session"""
+    session_id: str = Field(default_factory=lambda: str(uuid4()))
+    desktop_user_id: str
+    phone_device_id: Optional[str] = None
+    mode: CameraLinkMode = CameraLinkMode.SNAPSHOT
+    pairing_method: str = "qr"
+    expires_in_minutes: int = 15
+    camera_permission: bool = False
+    owner_approval_required: bool = True
+    status: CameraLinkStatus = CameraLinkStatus.CREATED
+    qr_code_token: Optional[str] = None
+    qr_code_url: Optional[str] = None
+    photos_uploaded: int = 0
+    detections: List[dict] = Field(default_factory=list)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    expires_at: Optional[datetime] = None
+    joined_at: Optional[datetime] = None
+    ended_at: Optional[datetime] = None
+
+
+class CameraLinkDetection(BaseModel):
+    """AI detection from camera scan"""
+    detection_id: str = Field(default_factory=lambda: str(uuid4()))
+    session_id: str
+    photo_url: str
+    detected_items: List[Item] = Field(default_factory=list)
+    confidence: float = Field(ge=0.0, le=1.0)
+    suggested_categories: List[str] = Field(default_factory=list)
+    suggested_prices: dict = Field(default_factory=dict)
+    risk_levels: List[RiskLevel] = Field(default_factory=list)
+    needs_approval: bool = True
+    approved: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
