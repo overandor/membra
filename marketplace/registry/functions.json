@@ -1,0 +1,89 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-05-09T00:00:00Z",
+  "marketplace_id": "membra-super-mono-repo",
+  "self_reference": {
+    "is_marketplace": true,
+    "marketplace_type": "code-function-marketplace",
+    "auto_update_interval": "15 minutes",
+    "llm_enabled": true
+  },
+  "functions": {
+    "ask-membra": {
+      "type": "chat-interface",
+      "route": "/api/chat",
+      "description": "LLM chat interface for routing user queries",
+      "external_refs": ["llm-autonomous-agent:agent", "language-fi:detect"],
+      "auto_update": true
+    },
+    "assetify": {
+      "type": "ai-asset-detection",
+      "route": "/api/assetify",
+      "description": "AI detection and assetification of household items",
+      "external_refs": ["llm-autonomous-agent:task", "language-fi:semantic"],
+      "auto_update": true
+    },
+    "relay": {
+      "type": "logistics",
+      "route": "/api/relay",
+      "description": "Local delivery and relay coordination",
+      "external_refs": ["membra-relay:relay", "membra-relay:dispatch"],
+      "auto_update": true
+    },
+    "fraction": {
+      "type": "pricing",
+      "route": "/api/fraction",
+      "description": "Fractional pricing and minimum useful price calculation",
+      "external_refs": [],
+      "auto_update": true
+    },
+    "room-os": {
+      "type": "monetization",
+      "route": "/api/room-os",
+      "description": "Room-based monetization engine",
+      "external_refs": [],
+      "auto_update": true
+    },
+    "split-order": {
+      "type": "commerce",
+      "route": "/api/split-order",
+      "description": "Split bulk orders into fractional units",
+      "external_refs": [],
+      "auto_update": true
+    },
+    "dispatch": {
+      "type": "logistics",
+      "route": "/api/dispatch",
+      "description": "AI dispatch for fulfillment routing",
+      "external_refs": ["membra-relay:dispatch", "groq-supervisor-ai:optimize"],
+      "auto_update": true
+    }
+  },
+  "external_api_endpoints": {
+    "couchify": {
+      "base_url": "https://api.couchify.dev",
+      "endpoints": {
+        "rent": "/api/rent",
+        "host": "/api/host",
+        "verify": "/api/verify"
+      }
+    },
+    "membra-relay": {
+      "base_url": "https://api.membra-relay.dev",
+      "endpoints": {
+        "relay": "/api/relay",
+        "delivery": "/api/delivery",
+        "route": "/api/route",
+        "dispatch": "/api/dispatch"
+      }
+    },
+    "language-fi": {
+      "base_url": "https://api.language-fi.dev",
+      "endpoints": {
+        "translate": "/api/translate",
+        "localize": "/api/localize",
+        "detect": "/api/detect"
+      }
+    }
+  }
+}
