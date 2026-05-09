@@ -6,12 +6,13 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
+from enum import Enum
 import uuid
 
 router = APIRouter(prefix="/trust", tags=["Trust"])
 
 
-class ProofType(str):
+class ProofType(str, Enum):
     """Types of proof"""
     PHOTO = "photo"
     VIDEO = "video"
@@ -21,7 +22,7 @@ class ProofType(str):
     TIMESTAMP = "timestamp"
 
 
-class ProofStatus(str):
+class ProofStatus(str, Enum):
     """Proof verification status"""
     PENDING = "pending"
     VERIFIED = "verified"
@@ -29,7 +30,7 @@ class ProofStatus(str):
     DISPUTED = "disputed"
 
 
-class DisputeStatus(str):
+class DisputeStatus(str, Enum):
     """Dispute resolution status"""
     OPEN = "open"
     INVESTIGATING = "investigating"

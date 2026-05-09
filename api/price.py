@@ -6,12 +6,13 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict
 from datetime import datetime
+from enum import Enum
 import uuid
 
 router = APIRouter(prefix="/price", tags=["Price"])
 
 
-class PricingMode(str):
+class PricingMode(str, Enum):
     """Pricing modes"""
     RENT = "rent"
     SELL = "sell"
@@ -84,8 +85,7 @@ async def suggest_bulk_prices(request: BulkPricingRequest):
     return {
         "total_items": len(suggestions),
         "total_value_estimate": sum(
-            next(iter(s.suggested_price.values())), 0
-            for s in suggestions
+            (next(iter(s.suggested_price.values()), 0) for s in suggestions)
         ),
         "suggestions": suggestions
     }

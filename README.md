@@ -2,10 +2,10 @@
 **Author:** Joseph Skrobynets  
 **Nicknames / Handles:** Dr.Profitosis, overandor, jskroby, carpathianwolfjoseph  
 **Project Lineage:** Couchify → MEMBRA  
-**Category:** AI-operated local commerce, household assetification, fractional inventory, neighborhood fulfillment  
+**Category:** Agentic local-commerce operating layer, household assetification, permissioned market supply  
 
 ## One-Line Thesis
-**MEMBRA is a marketplace you talk to:** a chat-first AI super app that turns homes, household inventory, unused purchases, spaces, services, storage, delivery capacity, and local demand into fractional neighborhood commerce.
+**MEMBRA is a marketplace you talk to:** an agentic local-commerce operating layer that converts private household assets into permissioned, proof-backed, locally matched market supply.
 
 ## Core Flow
 ```txt
@@ -223,27 +223,37 @@ JWT_SECRET=your-jwt-secret
 
 ## GitHub Description
 
-MEMBRA is a chat-first AI local commerce operating system created by Joseph Skrobynets, also known as Dr.Profitosis, overandor, jskroby, and carpathianwolfjoseph. MEMBRA evolved from Couchify into a Binance-style services grid for physical reality. It turns household objects, online purchases, private spaces, storage capacity, human services, delivery routes, and local demand into fractional neighborhood inventory.
+MEMBRA is an agentic local-commerce operating layer that converts private household assets into permissioned, proof-backed, locally matched market supply.
 
----
+Created by Joseph Skrobynets (Dr.Profitosis, overandor, jskroby, carpathianwolfjoseph), MEMBRA turns household objects, online purchases, private spaces, storage capacity, human services, delivery routes, and local demand into fractional neighborhood inventory.
 
-**MEMBRA — A marketplace you talk to.**
+## Core Thesis
 
-## Simple Version
+MEMBRA fractionalizes household utility through AI agents.
 
-Take a picture of what you own. Ask for what you need. MEMBRA turns local usefulness into money.
-
-## Sharp Version
-
-MEMBRA turns intent into inventory, inventory into commerce, and apartments into programmable bodegas.
+A vacuum becomes 15 minutes of access.
+A pack of cups becomes single-unit local inventory.
+A shelf becomes storage.
+A couch becomes bookable space.
+A fridge slot becomes cold storage.
+A van becomes route capacity.
+An Amazon order becomes neighborhood supply.
 
 ## Investor Version
 
-MEMBRA is an LLM-operated marketplace and HouseOS-as-a-Service platform that converts private household reality into permissioned local economic utility.
+MEMBRA is an agentic local-commerce operating layer that converts private household assets into permissioned, proof-backed, locally matched market supply.
+
+## Simple Version
+
+Take a picture of what you own. Ask for what you need. MEMBRA turns household assets into local supply.
+
+## Sharp Version
+
+MEMBRA converts private household reality into permissioned, proof-backed, locally matched market supply.
 
 ## Radical Version
 
-MEMBRA makes every apartment the nearest warehouse, every renter a micro-operator, and every chat a pathway from need into income.
+MEMBRA makes every apartment the nearest warehouse, every useful object a potential SKU, and every chat a path from need into income.
 
 ---
 
@@ -254,21 +264,17 @@ Most homes contain underused economic infrastructure.
 Inside a normal apartment there are:
 - Tools
 - Seats
-- Tables
-- Shelves
-- Pantry items
-- Chargers
-- Storage space
+- Storage
 - Delivery capacity
-- Unused Amazon purchases
+- Service capacity
+- Receipts
+- Amazon orders
 - Skills
-- Free time
-- Knowledge
-- Willingness
-- Local access
-- Recurring needs
+- Time
 
-MEMBRA inventories all of that and turns it into local commerce.
+Most of this is latent. It exists but is not monetized.
+
+MEMBRA is the agentic operating layer that makes this latent infrastructure visible, priceable, bookable, and locally fulfillable.
 
 ---
 
@@ -276,9 +282,9 @@ MEMBRA inventories all of that and turns it into local commerce.
 
 Use these depending on the audience:
 
-- MEMBRA is a marketplace you talk to.
+- MEMBRA is an agentic local-commerce operating layer.
 - Need nearby. Earn locally.
-- Turn assets into access.
+- Turn household assets into local supply.
 - Every apartment is the nearest warehouse.
 - Users need. Heroes earn. Hero Houses become Alpha Hubs.
 - MEMBRA turns homes into local business nodes.
@@ -626,6 +632,30 @@ MEMBRA must stay governable.
 - Anything ambiguous around consent or legality
 
 **Rule:** MEMBRA is not "anything of any nature." MEMBRA is anything permissioned, legal, safe, priceable, and governable.
+
+---
+
+## Defensible Novelty
+
+MEMBRA's defensible novelty is not "local marketplace" — that category exists everywhere (Facebook Marketplace, Nextdoor, OfferUp, TaskRabbit, Neighbor, Turo-style asset rental, local services marketplaces).
+
+The stronger claim is:
+
+**MEMBRA is an agentic local-commerce operating layer that converts private household assets into permissioned, proof-backed, locally matched market supply.**
+
+This distinction is much cleaner than "AI marketplace" because AI marketplace is already crowded (AI commerce/chat shopping assistants help users shop conversationally, but usually against existing merchant catalogs, not household-level supply creation).
+
+MEMBRA does not compete with:
+- **Membrane** (getmembrane.com) — AI-generated software integrations, unified APIs, MCP/tooling, SaaS app connectors (different category entirely)
+
+MEMBRA's uniqueness lies in:
+- **AI assetification of private household reality** — photos, receipts, Amazon orders, CSVs, and voice prompts become structured local inventory
+- **Intent-as-inventory** — wants, needs, permissions, boundaries, and willingness become reusable entities
+- **Apartment-as-bodega** — homes become local business nodes through permissioned inventory and fulfillment
+- **Demand intelligence** — MEMBRA shows what the neighborhood already wants and recommends what to stock, rent, store, deliver, or service
+- **Proof-backed transactions** — blockchain records consent, access events, pickup/return proof, settlement events, reputation credentials
+
+The result: Every apartment becomes the nearest warehouse, every useful object becomes a potential SKU, every Hero becomes a local operator, and every chat becomes a pathway from need into income.
 
 ---
 
