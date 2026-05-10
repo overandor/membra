@@ -189,6 +189,7 @@ python deploy_hf.py
 - [SKU Verification](docs/sku-verification.md)
 - [Host Node Model](docs/host-node-model.md)
 - [Inventorization and Indexing](docs/inventorization-indexing.md) - Field-to-index mapping and index dictionary
+- [Inventorization Index Map](docs/inventorization-index-map.md) - Visual flow from household reality to liquidity outputs
 - [Index Dictionary](membra_index_dictionary.json) - Complete field definitions for household utility liquidity
 
 ## Devnet Infrastructure
