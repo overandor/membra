@@ -261,3 +261,4 @@ MEMBRA turns every home into a liquid inventory node.
 ### Product Phrase
 
 Pre-user. Post-thesis. Artifact-complete.
+<img width="864" height="1821" alt="image" src="https://github.com/user-attachments/assets/d81b5869-3000-4b73-a775-14253348461c" />
