@@ -1,16 +1,27 @@
-# MEMBRA
+# MEMBRA Liquid
 
-AI-powered household inventory commerce OS for converting private assets, spaces, utilities, and errands into verified local SKUs.
+The liquidity layer for real-world household utility.
 
-MEMBRA is the inventory, access, trust, and fulfillment layer for household-to-market conversion. It turns homes into verified micro-warehouses and utility nodes for neighborhood commerce.
+MEMBRA Liquid converts idle household assets, space, access, errands, storage, skills, and availability into priced, verified, fractional, finance-ready inventory.
 
 ## Vision
 
-Turn your home into a local inventory node. Scan your space, approve your assets, and earn from storage, tools, errands, and everyday household utility.
+Every household is an underwritten balance sheet of idle utility. MEMBRA Liquid converts that utility into verified local SKUs, priced access contracts, trust-scored inventory nodes, and eventually collateralizable neighborhood cash flow.
+
+## The Primitive: Household Utility Liquidity (HUL)
+
+Household Utility Liquidity is the conversion of idle private-world capacity — objects, spaces, access, time windows, storage, errands, skills, and local availability — into verified, priced, permissioned, and settleable micro-assets.
+
+## Core Economic Unit: Minimum Useful Unit
+
+A vacuum is not a vacuum. It is 20 minutes of cleaning capacity.
+A shelf is not a shelf. It is 15 cubic feet of monthly storage.
+A couch is not furniture. It is hourly seating capacity.
+A neighbor's availability is not labor. It is local fulfillment liquidity.
 
 ## Product Architecture
 
-Intent → Inventory → Assetization → Fractionalization → Listing → Access → Fulfillment → Proof → Settlement → Reputation → Replenishment
+Intent → Inventory → Assetization → Fractionalization → Risk → Permission → Price → Transaction → Proof → Settlement → Reputation → Yield
 
 ## Core Primitives
 
@@ -21,7 +32,16 @@ Intent → Inventory → Assetization → Fractionalization → Listing → Acce
 - **TrustOS**: Risk, proof, insurance, reputation, and permissioning
 - **OracleOS**: LLM/vision matching of intent to inventory
 - **LedgerOS**: Payment, escrow, deposits, usage records, returns, disputes, and reputation
-- **MUP**: Minimum Useful Price - smallest price at which a household unit becomes worth sharing
+- **MUP**: Minimum Useful Price - smallest price at which a household unit becomes economically worth exposing to the market
+
+## Fintech Layer
+
+- **Host Yield Score**: Expected monthly earnings from approved household inventory
+- **Inventory Credit File**: Verified inventory, utilization, proof history, and cash flow
+- **Node Yield**: Income generated per household node
+- **MUP Oracle**: Pricing engine for minimum useful household units
+- **Trust-Adjusted Liquidity**: How much of a household's inventory can be safely exposed
+- **Household Utility Index**: Aggregate market value of local household capacity
 
 ## MVP Focus
 
@@ -59,6 +79,33 @@ Low-risk, high-frequency SKUs:
 - Fulfillment margin on delivery or handoff
 - B2B/API access for property managers, dorms, co-living operators
 
+## MEMBRA Liquid Terminal
+
+The MEMBRA Liquid Terminal is a Bloomberg terminal for household liquidity. It converts rooms into underwritten micro-commerce balance sheets.
+
+**Core Dashboard Sections:**
+- Inventory Node Value
+- Approved SKUs
+- Projected Monthly Yield
+- Trust-Adjusted Liquidity
+- Risk Ladder
+- MUP Pricing
+- Local Demand Match
+- Proof & Settlement Log
+- Liquidity Index
+
+**Example Output:**
+```
+Household Node: Living Room Alpha
+Detected Utility Units: 14
+Approved Liquid Units: 8
+Gross Utility Value: $1,240/month
+Trust-Adjusted Liquidity: $486/month
+Node Yield Score: 87.2
+Risk Grade: Low-Medium
+Top Units: shelf storage, vacuum access, ring light rental, chair rental, local drop-off, charging workspace
+```
+
 ## Quick Start
 
 ### Prerequisites
@@ -76,7 +123,7 @@ cd membra
 # Install dependencies
 pip install -r requirements.txt
 
-# Run the Inventory Node Simulator
+# Run the MEMBRA Liquid Terminal
 python app.py
 ```
 
@@ -104,3 +151,45 @@ python deploy_hf.py
 ## License
 
 MIT
+
+---
+
+## Valuation Narrative
+
+MEMBRA Liquid is pre-user because it is manufacturing the market object first, not because it lacks a market.
+
+### Asset Value Sources
+
+- Category creation (Household Utility Liquidity)
+- Named economic primitive (HUL)
+- Product architecture (Protocol loop)
+- UI/brand system (Liquid Terminal)
+- Pricing doctrine (Minimum Useful Price)
+- Risk/trust system (Trust-Adjusted Liquidity)
+- Data model (Inventory Node, SKU, Transaction)
+- Demo terminal (Artifact-complete app.py)
+- Protocol documentation (Complete docs)
+- Implementation pathway (Clear deployment path)
+
+### Appraisal Ladder
+
+- Concept + visuals + schema: $25k–$75k
+- Artifact-complete demo with app.py, docs, pricing engine, SKU model, exportable reports: $75k–$200k
+- Fintech-grade MVP with auth, payments, verification, node dashboards, and real host onboarding: $250k–$750k
+- Pilot with transactions, retention, node yield, and repeat liquidity: $1M–$5M+ seed-stage valuation potential
+
+### Investor Line
+
+We are building the market structure for household utility before household utility becomes a market.
+
+### Densest Pitch
+
+MEMBRA Liquid converts idle household utility into verified, fractional, finance-ready local liquidity. Using AI inventory detection, Minimum Useful Price modeling, trust-adjusted access rules, proof-of-use settlement, and node-yield scoring, MEMBRA transforms rooms into underwritten micro-commerce balance sheets. The result is a new asset class: household utility liquidity.
+
+### Sharpest Investor Line
+
+MEMBRA turns every home into a liquid inventory node.
+
+### Product Phrase
+
+Pre-user. Post-thesis. Artifact-complete.

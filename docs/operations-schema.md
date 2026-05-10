@@ -1,8 +1,8 @@
-# MEMBRA Operations Schema
+# MEMBRA Liquid Operations Schema
 
 ## Product Architecture Loop
 
-Intent → Inventory → Assetization → Fractionalization → Listing → Access → Fulfillment → Proof → Settlement → Reputation → Replenishment
+Intent → Inventory → Assetization → Fractionalization → Risk → Permission → Price → Transaction → Proof → Settlement → Reputation → Yield
 
 ## Stage Definitions
 
@@ -18,35 +18,41 @@ Intent → Inventory → Assetization → Fractionalization → Listing → Acce
 - Asset categorized by type, risk, and utility
 
 ### Assetization
-- Raw inventory item converted to commercial asset
+- Raw inventory item converted to liquid asset
 - Asset receives: unique ID, category, condition rating, risk level
 - Asset tagged with access requirements (supervised, unsupervised, remote)
-- Asset assigned base pricing tier
+- Asset assigned base pricing tier using MUP
 
 ### Fractionalization
-- Asset broken into usable units
+- Asset broken into Minimum Useful Units
 - Time-based: hourly, daily, weekly access
 - Space-based: shelf units, closet sections, storage zones
 - Usage-based: per-use, per-charge, per-delivery
 - Each unit receives Minimum Useful Price (MUP)
 
-### Listing
-- Fractional unit becomes public SKU
-- SKU includes: price, availability, access rules, fulfillment method
-- SKU published to local market
-- SKU indexed by location, category, price, availability
+### Risk
+- Risk assessment based on asset type, condition, access mode
+- Risk score assigned: Low, Medium, High
+- Risk determines insurance requirements and deposit amounts
+- Risk affects trust-adjusted liquidity calculation
 
-### Access
-- Requester discovers SKU through search or recommendation
-- Requester requests access with proposed terms
-- Host receives request with requester reputation and verification status
+### Permission
+- Access rules defined for each fractional unit
+- Permission based on: trust score, verification level, risk tolerance
+- Access modes: supervised, unsupervised, remote
+- Permission granted or denied based on criteria
+
+### Price
+- MUP calculated for each fractional unit
+- Price quoted based on MUP, market conditions, demand
+- Dynamic pricing based on supply/demand
+- Price floor enforced (70% of MUP)
+
+### Transaction
+- Requester requests access to fractional unit
 - Host approves, modifies, or declines request
-
-### Fulfillment
-- Access granted based on approved terms
-- Fulfillment method executed: pickup, delivery, on-site, remote
-- Hero may handle logistics for physical items
-- Access timer or usage meter activated
+- Transaction created with terms
+- Escrow holds payment
 
 ### Proof
 - Fulfillment confirmed through: photo, GPS, digital signature, time-stamp
@@ -66,11 +72,11 @@ Intent → Inventory → Assetization → Fractionalization → Listing → Acce
 - Verification status may increase
 - Risk profile adjusted based on transaction history
 
-### Replenishment
-- Asset availability restored
-- Inventory count updated
-- Asset condition re-evaluated
-- SKU may be repriced based on demand
+### Yield
+- Node yield calculated based on approved inventory
+- Monthly revenue projected
+- Trust-adjusted liquidity computed
+- Household Utility Index contribution calculated
 
 ## Data Model
 

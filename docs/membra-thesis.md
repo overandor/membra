@@ -1,20 +1,54 @@
-# MEMBRA Thesis
+# MEMBRA Liquid Thesis
 
 ## Core Positioning
 
-MEMBRA is the inventory, access, trust, and fulfillment layer for household-to-market conversion.
+MEMBRA Liquid is the liquidity layer for real-world household utility.
 
-That framing makes the household behave like a commercial node. Every couch, shelf, tool, outlet, errand, storage corner, appliance, and skill becomes a permissioned SKU. The host does not need to manually build a store. MEMBRA scans the room, structures the inventory, prices the unit, verifies access rules, and routes demand.
+MEMBRA Liquid converts idle household assets, space, access, errands, storage, skills, and availability into priced, verified, fractional, finance-ready inventory.
 
-## Why Now
+Every household is an underwritten balance sheet of idle utility. MEMBRA Liquid converts that utility into verified local SKUs, priced access contracts, trust-scored inventory nodes, and eventually collateralizable neighborhood cash flow.
 
-AI vision can now detect household assets. LLMs can translate casual user intent into structured requests. Payments and identity rails already exist. Local commerce is fragmented across Facebook Marketplace, Craigslist, storage apps, gig apps, and delivery platforms. MEMBRA combines those into a permissioned, AI-mediated household inventory network.
+## The Primitive: Household Utility Liquidity (HUL)
+
+Household Utility Liquidity is the conversion of idle private-world capacity — objects, spaces, access, time windows, storage, errands, skills, and local availability — into verified, priced, permissioned, and settleable micro-assets.
+
+## Core Economic Unit: Minimum Useful Unit
+
+A vacuum is not a vacuum. It is 20 minutes of cleaning capacity.
+A shelf is not a shelf. It is 15 cubic feet of monthly storage.
+A couch is not furniture. It is hourly seating capacity.
+A neighbor's availability is not labor. It is local fulfillment liquidity.
+
+## Pricing Doctrine: Minimum Useful Price (MUP)
+
+Minimum Useful Price is the smallest price at which an idle household unit becomes economically worth exposing to the market.
+
+MEMBRA does not ask what an item is worth. It asks what the smallest useful purchasable unit of access is.
 
 ## Product Architecture
 
-Intent → Inventory → Assetization → Fractionalization → Listing → Access → Fulfillment → Proof → Settlement → Reputation → Replenishment
+Intent → Inventory → Assetization → Fractionalization → Risk → Permission → Price → Transaction → Proof → Settlement → Reputation → Yield
 
-That loop is the right backbone because it gives MEMBRA more depth than a rental marketplace. It becomes a local commerce operating system.
+That loop is the company. It gives MEMBRA more depth than a rental marketplace. It becomes a local commerce operating system.
+
+## Why Now
+
+AI vision can now detect household assets. LLMs can translate casual user intent into structured requests. Payments and identity rails already exist. Local commerce is fragmented across Facebook Marketplace, Craigslist, storage apps, gig apps, and delivery platforms. MEMBRA Liquid combines those into a permissioned, AI-mediated household liquidity network.
+
+## Fintech Layer
+
+To become fintech, MEMBRA Liquid cannot stop at listings. It needs settlement, risk, escrow, insurance, underwriting, and yield.
+
+The financial products become:
+
+- **Host Yield Score**: Expected monthly earnings from approved household inventory
+- **Inventory Credit File**: Verified inventory, utilization, proof history, and cash flow
+- **Node Yield**: Income generated per household node
+- **MUP Oracle**: Pricing engine for minimum useful household units
+- **Trust-Adjusted Liquidity**: How much of a household's inventory can be safely exposed
+- **Household Utility Index**: Aggregate market value of local household capacity
+
+Collateralization comes later, carefully. The early version should say "finance-ready inventory records," not "instant loans against couches." That keeps it credible.
 
 ## MVP Strategy
 
@@ -114,4 +148,12 @@ Settlement and reputation update.
 
 ## One-Sentence Form
 
-MEMBRA is the AI operating system that turns private household utility into verified, fractional, permissioned local commerce.
+MEMBRA Liquid is the AI operating system that turns private household utility into verified, fractional, permissioned local liquidity.
+
+## Investor Line
+
+We are building the market structure for household utility before household utility becomes a market.
+
+## Product Phrase
+
+Pre-user. Post-thesis. Artifact-complete.

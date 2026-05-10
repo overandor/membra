@@ -1,12 +1,11 @@
 """
-MEMBRA Inventory Node Simulator
-AI-powered household inventory commerce OS
+MEMBRA Liquid Terminal
+The liquidity layer for real-world household utility
 """
 
 import gradio as gr
 import json
 from datetime import datetime
-import random
 
 # Sample inventory data for simulation
 SAMPLE_INVENTORY = [
@@ -20,7 +19,14 @@ SAMPLE_INVENTORY = [
         "space_mode": "pickup",
         "suggested_price": 7.50,
         "condition": "Good",
-        "approved": False
+        "approved": False,
+        "mup_calculation": {
+            "hourly_depreciation": 0.14,
+            "setup_overhead": 4.00,
+            "risk_premium": 0.08,
+            "market_adjustment": 1.50,
+            "platform_margin": 1.78
+        }
     },
     {
         "name": "Shelf Space (3ft)",
@@ -32,7 +38,14 @@ SAMPLE_INVENTORY = [
         "space_mode": "onsite",
         "suggested_price": 15.00,
         "condition": "Excellent",
-        "approved": False
+        "approved": False,
+        "mup_calculation": {
+            "hourly_depreciation": 0.00,
+            "setup_overhead": 2.50,
+            "risk_premium": 0.00,
+            "market_adjustment": 0.50,
+            "platform_margin": 3.00
+        }
     },
     {
         "name": "Power Drill",
@@ -44,7 +57,14 @@ SAMPLE_INVENTORY = [
         "space_mode": "pickup",
         "suggested_price": 8.00,
         "condition": "Good",
-        "approved": False
+        "approved": False,
+        "mup_calculation": {
+            "hourly_depreciation": 0.15,
+            "setup_overhead": 5.00,
+            "risk_premium": 0.09,
+            "market_adjustment": 2.00,
+            "platform_margin": 0.76
+        }
     },
     {
         "name": "Folding Chair",
@@ -56,7 +76,14 @@ SAMPLE_INVENTORY = [
         "space_mode": "pickup",
         "suggested_price": 3.00,
         "condition": "Excellent",
-        "approved": False
+        "approved": False,
+        "mup_calculation": {
+            "hourly_depreciation": 0.03,
+            "setup_overhead": 2.00,
+            "risk_premium": 0.00,
+            "market_adjustment": 0.50,
+            "platform_margin": 0.47
+        }
     },
     {
         "name": "Ring Light",
@@ -68,7 +95,14 @@ SAMPLE_INVENTORY = [
         "space_mode": "pickup",
         "suggested_price": 5.00,
         "condition": "Good",
-        "approved": False
+        "approved": False,
+        "mup_calculation": {
+            "hourly_depreciation": 0.08,
+            "setup_overhead": 3.00,
+            "risk_premium": 0.05,
+            "market_adjustment": 1.00,
+            "platform_margin": 0.87
+        }
     },
     {
         "name": "Closet Space (5ft)",
@@ -80,7 +114,14 @@ SAMPLE_INVENTORY = [
         "space_mode": "onsite",
         "suggested_price": 25.00,
         "condition": "Excellent",
-        "approved": False
+        "approved": False,
+        "mup_calculation": {
+            "hourly_depreciation": 0.00,
+            "setup_overhead": 3.00,
+            "risk_premium": 0.00,
+            "market_adjustment": 1.00,
+            "platform_margin": 5.00
+        }
     },
     {
         "name": "Extension Cord (25ft)",
@@ -92,7 +133,14 @@ SAMPLE_INVENTORY = [
         "space_mode": "pickup",
         "suggested_price": 2.00,
         "condition": "Excellent",
-        "approved": False
+        "approved": False,
+        "mup_calculation": {
+            "hourly_depreciation": 0.01,
+            "setup_overhead": 1.50,
+            "risk_premium": 0.00,
+            "market_adjustment": 0.25,
+            "platform_margin": 0.24
+        }
     },
     {
         "name": "Phone Charger",
@@ -104,7 +152,14 @@ SAMPLE_INVENTORY = [
         "space_mode": "pickup",
         "suggested_price": 1.50,
         "condition": "Good",
-        "approved": False
+        "approved": False,
+        "mup_calculation": {
+            "hourly_depreciation": 0.01,
+            "setup_overhead": 1.00,
+            "risk_premium": 0.00,
+            "market_adjustment": 0.25,
+            "platform_margin": 0.24
+        }
     }
 ]
 
@@ -113,22 +168,59 @@ def simulate_detection(image):
     if image is None:
         return "Please upload a room image to begin."
     
-    # In a real implementation, this would use computer vision
-    # For now, we return sample inventory
-    return f"Detected {len(SAMPLE_INVENTORY)} items in your space. Review and approve below."
+    return f"Detected {len(SAMPLE_INVENTORY)} utility units in your space. Review and approve to generate household balance sheet."
 
-def generate_sku_cards():
-    """Generate SKU cards from detected inventory"""
+def calculate_mup(item):
+    """Calculate Minimum Useful Price for an item"""
+    calc = item.get('mup_calculation', {})
+    base = calc.get('hourly_depreciation', 0) + calc.get('setup_overhead', 0) + calc.get('risk_premium', 0) + calc.get('market_adjustment', 0)
+    mup = base * 1.2  # Platform margin
+    return mup
+
+def calculate_trust_adjusted_liquidity(approved_items):
+    """Calculate trust-adjusted liquidity score"""
+    if not approved_items:
+        return 0.0
+    
+    gross_value = 0
+    risk_adjusted = 0
+    
+    for item in approved_items:
+        monthly_value = item['suggested_price'] * 20 if item['rent_mode'] == 'hourly' else item['suggested_price']
+        gross_value += monthly_value
+        
+        # Risk adjustment factor
+        risk_factor = 1.0 if item['risk_level'] == 'Low' else 0.7 if item['risk_level'] == 'Medium' else 0.4
+        risk_adjusted += monthly_value * risk_factor
+    
+    return risk_adjusted if gross_value == 0 else (risk_adjusted / gross_value) * 100
+
+def calculate_node_yield_score(approved_items):
+    """Calculate node yield score"""
+    if not approved_items:
+        return 0.0
+    
+    # Factors: inventory diversity, confidence avg, risk profile, pricing quality
+    diversity = len(set(item['category'] for item in approved_items)) / len(approved_items)
+    avg_confidence = sum(item['confidence'] for item in approved_items) / len(approved_items)
+    risk_score = sum(1 if item['risk_level'] == 'Low' else 0.5 for item in approved_items) / len(approved_items)
+    
+    score = (diversity * 30) + (avg_confidence * 40) + (risk_score * 30)
+    return score
+
+def generate_liquid_cards():
+    """Generate liquid asset cards from detected inventory"""
     cards = []
     for item in SAMPLE_INVENTORY:
+        mup = calculate_mup(item)
         card = f"""
 **{item['name']}**
 - Category: {item['category']}
 - Type: {item['type']}
 - Detection Confidence: {item['confidence']:.0%}
 - Risk Level: {item['risk_level']}
-- Rent Mode: {item['rent_mode']}
-- Space Mode: {item['space_mode']}
+- Access Mode: {item['space_mode']}
+- MUP: ${mup:.2f}/{item['rent_mode']}
 - Suggested Price: ${item['suggested_price']:.2f}/{item['rent_mode']}
 - Condition: {item['condition']}
 - Status: {'✓ Approved' if item['approved'] else '○ Pending'}
@@ -140,80 +232,110 @@ def update_inventory_status(approved_indices):
     """Update approval status for selected items"""
     for i, item in enumerate(SAMPLE_INVENTORY):
         SAMPLE_INVENTORY[i]['approved'] = i in approved_indices
-    return generate_sku_cards()
+    return generate_liquid_cards()
 
-def calculate_earnings():
-    """Calculate estimated monthly earnings"""
+def generate_household_balance_sheet():
+    """Generate household balance sheet from approved inventory"""
     approved_items = [item for item in SAMPLE_INVENTORY if item['approved']]
     
-    monthly_earnings = 0
-    breakdown = []
+    if not approved_items:
+        return "No approved items to generate balance sheet."
     
+    gross_value = 0
     for item in approved_items:
-        if item['rent_mode'] == 'monthly':
-            monthly_earnings += item['suggested_price']
-            breakdown.append(f"{item['name']}: ${item['suggested_price']:.2f}/month")
-        else:  # hourly
-            # Assume 20 hours/month usage
-            monthly_earnings += item['suggested_price'] * 20
-            breakdown.append(f"{item['name']}: ${item['suggested_price']:.2f}/hr × 20hr = ${item['suggested_price'] * 20:.2f}/month")
+        monthly_value = item['suggested_price'] * 20 if item['rent_mode'] == 'hourly' else item['suggested_price']
+        gross_value += monthly_value
     
-    if not breakdown:
-        return "No approved items. Approve items to see earnings estimate."
+    trust_adjusted = calculate_trust_adjusted_liquidity(approved_items)
+    node_yield = calculate_node_yield_score(approved_items)
+    risk_grade = "Low" if all(item['risk_level'] == 'Low' for item in approved_items) else "Low-Medium"
     
-    breakdown_text = "\n".join(breakdown)
-    return f"""**Estimated Monthly Earnings: ${monthly_earnings:.2f}**
+    top_units = ", ".join([item['name'] for item in approved_items[:5]])
+    
+    return f"""**Household Node Balance Sheet**
 
-Breakdown:
-{breakdown_text}
+Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
-*Estimates based on 20 hours/month usage for hourly items. Actual earnings may vary.*
+**Node Metrics:**
+- Detected Utility Units: {len(SAMPLE_INVENTORY)}
+- Approved Liquid Units: {len(approved_items)}
+- Gross Utility Value: ${gross_value:.2f}/month
+- Trust-Adjusted Liquidity: ${trust_adjusted:.2f}/month
+- Node Yield Score: {node_yield:.1f}
+- Risk Grade: {risk_grade}
+
+**Top Liquid Units:**
+{top_units}
+
+**Risk Ladder:**
+{len([item for item in approved_items if item['risk_level'] == 'Low'])} Low Risk
+{len([item for item in approved_items if item['risk_level'] == 'Medium'])} Medium Risk
+{len([item for item in approved_items if item['risk_level'] == 'High'])} High Risk
+
+*This is a simulation. Real deployment requires AI vision detection and live market data.*
 """
 
-def generate_public_listing():
-    """Generate public inventory listing"""
+def generate_mock_settlement_ledger():
+    """Generate mock settlement ledger (demo/dry-run only)"""
     approved_items = [item for item in SAMPLE_INVENTORY if item['approved']]
     
     if not approved_items:
-        return "No approved items to list."
+        return "No approved items to generate settlement ledger."
     
-    listing = f"# Public Inventory Listing\n"
-    listing += f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-    listing += f"Total Items: {len(approved_items)}\n\n"
+    ledger = "**MOCK SETTLEMENT LEDGER (DEMO/DRY-RUN ONLY)**\n\n"
+    ledger += "This ledger is for demonstration purposes only. No actual transactions will occur.\n\n"
     
-    for item in approved_items:
-        listing += f"## {item['name']}\n"
-        listing += f"- **Category**: {item['category']}\n"
-        listing += f"- **Type**: {item['type']}\n"
-        listing += f"- **Price**: ${item['suggested_price']:.2f}/{item['rent_mode']}\n"
-        listing += f"- **Access**: {item['space_mode']}\n"
-        listing += f"- **Condition**: {item['condition']}\n"
-        listing += f"- **Risk Level**: {item['risk_level']}\n\n"
+    # Generate mock transactions
+    ledger += "**Recent Transactions (Simulated)**\n\n"
     
-    return listing
+    for i, item in enumerate(approved_items[:3]):
+        ledger += f"TX-{1000+i}: {item['name']}\n"
+        ledger += f"- SKU ID: SKU-{i+1:04d}\n"
+        ledger += f"- Price: ${item['suggested_price']:.2f}\n"
+        ledger += "- Status: COMPLETED\n"
+        ledger += "- Proof: PHOTO_VERIFIED\n"
+        ledger += "- Settlement: PAYOUT_COMPLETE\n\n"
+    
+    ledger += "*All data shown is simulated. Real deployment requires live transaction processing.*"
+    return ledger
 
-def simulate_matching():
-    """Simulate requester matching (dry-run only)"""
+def generate_investor_summary():
+    """Generate exportable investor summary"""
     approved_items = [item for item in SAMPLE_INVENTORY if item['approved']]
     
     if not approved_items:
-        return "No approved items to match."
+        return "No approved items to generate investor summary."
     
-    # Simulate potential requests
-    requests = [
-        "Need a vacuum near me for 20 minutes",
-        "Looking for shelf space for boxes",
-        "Need a drill for home project",
-        "Need folding chairs for event",
-        "Need ring light for video shoot"
-    ]
+    gross_value = sum(item['suggested_price'] * 20 if item['rent_mode'] == 'hourly' else item['suggested_price'] for item in approved_items)
+    trust_adjusted = calculate_trust_adjusted_liquidity(approved_items)
+    node_yield = calculate_node_yield_score(approved_items)
     
-    matches = []
-    for request in requests:
-        matched_item = random.choice(approved_items)
-        matches.append(f"Request: '{request}'\nMatched: {matched_item['name']} (${matched_item['suggested_price']:.2f}/{matched_item['rent_mode']})")
+    summary = {
+        "generated_at": datetime.now().isoformat(),
+        "household_node": {
+            "detected_units": len(SAMPLE_INVENTORY),
+            "approved_liquid_units": len(approved_items),
+            "gross_utility_value_monthly": gross_value,
+            "trust_adjusted_liquidity_monthly": trust_adjusted,
+            "node_yield_score": node_yield,
+            "risk_grade": "Low" if all(item['risk_level'] == 'Low' for item in approved_items) else "Low-Medium"
+        },
+        "inventory_breakdown": [
+            {
+                "name": item['name'],
+                "category": item['category'],
+                "mup": calculate_mup(item),
+                "suggested_price": item['suggested_price'],
+                "rent_mode": item['rent_mode'],
+                "risk_level": item['risk_level'],
+                "confidence": item['confidence']
+            }
+            for item in approved_items
+        ],
+        "disclaimer": "This is a simulation. Real deployment requires AI vision detection and live market data."
+    }
     
-    return "**Requester Matching Simulation (Dry-Run)**\n\n" + "\n\n".join(matches)
+    return json.dumps(summary, indent=2)
 
 def export_inventory_json():
     """Export inventory as JSON"""
@@ -238,17 +360,17 @@ def export_inventory_csv():
     
     return "\n".join(output)
 
-# Gradio Interface
-with gr.Blocks(title="MEMBRA Inventory Node Simulator", theme=gr.themes.Soft()) as demo:
+# Gradio Interface - MEMBRA Liquid Terminal
+with gr.Blocks(title="MEMBRA Liquid Terminal", theme=gr.themes.Soft()) as demo:
     gr.Markdown("""
-    # MEMBRA Inventory Node Simulator
-    ### AI-powered household inventory commerce OS
+    # MEMBRA Liquid Terminal
+    ### The liquidity layer for real-world household utility
     """)
     
     with gr.Tab("Scan & Detect"):
         gr.Markdown("### Step 1: Upload Room Image")
         image_input = gr.Image(label="Upload room photo", type="filepath")
-        detect_btn = gr.Button("Detect Inventory", variant="primary")
+        detect_btn = gr.Button("Detect Utility Units", variant="primary")
         detect_output = gr.Textbox(label="Detection Result")
         
         detect_btn.click(
@@ -258,15 +380,15 @@ with gr.Blocks(title="MEMBRA Inventory Node Simulator", theme=gr.themes.Soft()) 
         )
     
     with gr.Tab("Review & Approve"):
-        gr.Markdown("### Step 2: Review Detected Items")
-        gr.Markdown("Select items to approve for listing:")
+        gr.Markdown("### Step 2: Review Detected Utility Units")
+        gr.Markdown("Select utility units to approve for liquidity:")
         
-        sku_cards = gr.Textbox(label="Detected SKU Cards", value=generate_sku_cards(), lines=20)
+        liquid_cards = gr.Textbox(label="Detected Liquid Asset Cards", value=generate_liquid_cards(), lines=20)
         
-        gr.Markdown("### Approve Items")
+        gr.Markdown("### Approve Utility Units")
         approve_checkboxes = gr.CheckboxGroup(
             choices=[f"{i+1}. {item['name']}" for i, item in enumerate(SAMPLE_INVENTORY)],
-            label="Select items to approve",
+            label="Select utility units to approve",
             value=[]
         )
         
@@ -275,42 +397,86 @@ with gr.Blocks(title="MEMBRA Inventory Node Simulator", theme=gr.themes.Soft()) 
         approve_btn.click(
             update_inventory_status,
             inputs=[approve_checkboxes],
-            outputs=[sku_cards]
+            outputs=[liquid_cards]
         )
     
-    with gr.Tab("Earnings Estimate"):
-        gr.Markdown("### Step 3: View Earnings Estimate")
-        earnings_btn = gr.Button("Calculate Earnings", variant="primary")
-        earnings_output = gr.Markdown(label="Monthly Earnings Estimate")
+    with gr.Tab("Household Balance Sheet"):
+        gr.Markdown("### Step 3: Generate Household Balance Sheet")
+        gr.Markdown("View your household as a liquidity node:")
         
-        earnings_btn.click(
-            calculate_earnings,
-            outputs=[earnings_output]
+        balance_btn = gr.Button("Generate Balance Sheet", variant="primary")
+        balance_output = gr.Markdown(label="Household Node Balance Sheet")
+        
+        balance_btn.click(
+            generate_household_balance_sheet,
+            outputs=[balance_output]
         )
     
-    with gr.Tab("Public Listing"):
-        gr.Markdown("### Step 4: Generate Public Listing")
-        listing_btn = gr.Button("Generate Listing", variant="primary")
-        listing_output = gr.Markdown(label="Public Inventory Listing")
+    with gr.Tab("Risk Ladder"):
+        gr.Markdown("### Step 4: Risk Assessment")
+        gr.Markdown("View risk ladder for approved utility units:")
         
-        listing_btn.click(
-            generate_public_listing,
-            outputs=[listing_output]
+        risk_btn = gr.Button("Generate Risk Assessment", variant="primary")
+        risk_output = gr.Markdown(label="Risk Ladder Assessment")
+        
+        def generate_risk_assessment():
+            approved_items = [item for item in SAMPLE_INVENTORY if item['approved']]
+            if not approved_items:
+                return "No approved items to assess."
+            
+            low_risk = [item for item in approved_items if item['risk_level'] == 'Low']
+            medium_risk = [item for item in approved_items if item['risk_level'] == 'Medium']
+            high_risk = [item for item in approved_items if item['risk_level'] == 'High']
+            
+            assessment = f"""**Risk Ladder Assessment**
+
+**Low Risk Units ({len(low_risk)}):**
+{', '.join([item['name'] for item in low_risk]) if low_risk else 'None'}
+
+**Medium Risk Units ({len(medium_risk)}):**
+{', '.join([item['name'] for item in medium_risk]) if medium_risk else 'None'}
+
+**High Risk Units ({len(high_risk)}):**
+{', '.join([item['name'] for item in high_risk]) if high_risk else 'None'}
+
+**Overall Risk Grade:**
+{'LOW' if len(high_risk) == 0 and len(medium_risk) == 0 else 'LOW-MEDIUM' if len(high_risk) == 0 else 'MEDIUM'}
+
+*Risk assessment based on asset type, condition, and access mode.*
+"""
+            return assessment
+        
+        risk_btn.click(
+            generate_risk_assessment,
+            outputs=[risk_output]
         )
     
-    with gr.Tab("Matching Simulation"):
-        gr.Markdown("### Step 5: Requester Matching (Dry-Run)")
-        gr.Markdown("*This is a simulation only. No actual requests will be sent.*")
-        match_btn = gr.Button("Simulate Matching", variant="primary")
-        match_output = gr.Markdown(label="Matching Results")
+    with gr.Tab("Settlement Ledger"):
+        gr.Markdown("### Step 5: Mock Settlement Ledger")
+        gr.Markdown("*This is a demonstration. No actual transactions will occur.*")
         
-        match_btn.click(
-            simulate_matching,
-            outputs=[match_output]
+        ledger_btn = gr.Button("Generate Mock Ledger", variant="primary")
+        ledger_output = gr.Markdown(label="Mock Settlement Ledger")
+        
+        ledger_btn.click(
+            generate_mock_settlement_ledger,
+            outputs=[ledger_output]
+        )
+    
+    with gr.Tab("Investor Summary"):
+        gr.Markdown("### Step 6: Export Investor Summary")
+        gr.Markdown("Generate finance-ready inventory summary for investors:")
+        
+        investor_btn = gr.Button("Generate Investor Summary", variant="primary")
+        investor_output = gr.Textbox(label="Investor Summary (JSON)")
+        
+        investor_btn.click(
+            generate_investor_summary,
+            outputs=[investor_output]
         )
     
     with gr.Tab("Export"):
-        gr.Markdown("### Step 6: Export Inventory")
+        gr.Markdown("### Step 7: Export Data")
         
         with gr.Row():
             json_btn = gr.Button("Export JSON", variant="secondary")
@@ -332,9 +498,11 @@ with gr.Blocks(title="MEMBRA Inventory Node Simulator", theme=gr.themes.Soft()) 
     
     gr.Markdown("""
     ---
-    **MEMBRA** turns private household utility into verified, fractional, permissioned local commerce.
+    **MEMBRA Liquid** converts idle household utility into verified, fractional, finance-ready local liquidity.
     
-    *This is a simulator. Real AI detection and matching would use computer vision and LLM intent matching.*
+    *This is a simulator. Real deployment requires AI vision detection and live market data.*
+    
+    **Pre-user. Post-thesis. Artifact-complete.**
     """)
 
 if __name__ == "__main__":
