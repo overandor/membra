@@ -188,6 +188,8 @@ python deploy_hf.py
 - [Trust Risk Ladder](docs/trust-risk-ladder.md)
 - [SKU Verification](docs/sku-verification.md)
 - [Host Node Model](docs/host-node-model.md)
+- [Inventorization and Indexing](docs/inventorization-indexing.md) - Field-to-index mapping and index dictionary
+- [Index Dictionary](membra_index_dictionary.json) - Complete field definitions for household utility liquidity
 
 ## Devnet Infrastructure
 
