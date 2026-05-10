@@ -1,4 +1,5 @@
-# MEMBRA Liquid
+<img width="1774" height="887" alt="image" src="https://github.com/user-attachments/assets/44a6cdb4-f09a-45d0-aa67-b09b990fbc6d" />
+# MEMBRA 
 
 The liquidity layer for real-world household utility.
 
