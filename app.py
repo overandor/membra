@@ -26,7 +26,17 @@ SAMPLE_INVENTORY = [
             "risk_premium": 0.08,
             "market_adjustment": 1.50,
             "platform_margin": 1.78
-        }
+        },
+        # MembraIndexRecord fields
+        "membra_index_id": "MI-LIVINGROOM-0001",
+        "unit_type": "20-minute use",
+        "access_mode": "Door Handoff",
+        "fulfillment_mode": "Host Handoff",
+        "minimum_useful_price": 5.00,
+        "trust_score": 93.7,
+        "demand_score": 81.4,
+        "liquidity_score": 72.8,
+        "yield_score": 64.2
     },
     {
         "name": "Shelf Space (3ft)",
@@ -45,7 +55,16 @@ SAMPLE_INVENTORY = [
             "risk_premium": 0.00,
             "market_adjustment": 0.50,
             "platform_margin": 3.00
-        }
+        },
+        "membra_index_id": "MI-LIVINGROOM-0002",
+        "unit_type": "cubic-foot/month",
+        "access_mode": "On-Premise Use",
+        "fulfillment_mode": "Self-Service",
+        "minimum_useful_price": 12.00,
+        "trust_score": 95.2,
+        "demand_score": 75.3,
+        "liquidity_score": 78.5,
+        "yield_score": 71.4
     },
     {
         "name": "Power Drill",
@@ -64,7 +83,16 @@ SAMPLE_INVENTORY = [
             "risk_premium": 0.09,
             "market_adjustment": 2.00,
             "platform_margin": 0.76
-        }
+        },
+        "membra_index_id": "MI-LIVINGROOM-0003",
+        "unit_type": "hourly use",
+        "access_mode": "Door Handoff",
+        "fulfillment_mode": "Host Handoff",
+        "minimum_useful_price": 6.50,
+        "trust_score": 89.1,
+        "demand_score": 83.7,
+        "liquidity_score": 75.2,
+        "yield_score": 68.9
     },
     {
         "name": "Folding Chair",
@@ -83,7 +111,16 @@ SAMPLE_INVENTORY = [
             "risk_premium": 0.00,
             "market_adjustment": 0.50,
             "platform_margin": 0.47
-        }
+        },
+        "membra_index_id": "MI-LIVINGROOM-0004",
+        "unit_type": "hourly seating",
+        "access_mode": "Door Handoff",
+        "fulfillment_mode": "Host Handoff",
+        "minimum_useful_price": 2.50,
+        "trust_score": 96.4,
+        "demand_score": 79.2,
+        "liquidity_score": 82.1,
+        "yield_score": 74.3
     },
     {
         "name": "Ring Light",
@@ -102,7 +139,16 @@ SAMPLE_INVENTORY = [
             "risk_premium": 0.05,
             "market_adjustment": 1.00,
             "platform_margin": 0.87
-        }
+        },
+        "membra_index_id": "MI-LIVINGROOM-0005",
+        "unit_type": "hourly lighting",
+        "access_mode": "Door Handoff",
+        "fulfillment_mode": "Host Handoff",
+        "minimum_useful_price": 4.00,
+        "trust_score": 91.8,
+        "demand_score": 86.5,
+        "liquidity_score": 79.4,
+        "yield_score": 73.1
     },
     {
         "name": "Closet Space (5ft)",
@@ -121,7 +167,16 @@ SAMPLE_INVENTORY = [
             "risk_premium": 0.00,
             "market_adjustment": 1.00,
             "platform_margin": 5.00
-        }
+        },
+        "membra_index_id": "MI-LIVINGROOM-0006",
+        "unit_type": "cubic-foot/month",
+        "access_mode": "On-Premise Use",
+        "fulfillment_mode": "Self-Service",
+        "minimum_useful_price": 20.00,
+        "trust_score": 94.3,
+        "demand_score": 77.8,
+        "liquidity_score": 80.7,
+        "yield_score": 76.5
     },
     {
         "name": "Extension Cord (25ft)",
@@ -140,7 +195,16 @@ SAMPLE_INVENTORY = [
             "risk_premium": 0.00,
             "market_adjustment": 0.25,
             "platform_margin": 0.24
-        }
+        },
+        "membra_index_id": "MI-LIVINGROOM-0007",
+        "unit_type": "hourly use",
+        "access_mode": "Door Handoff",
+        "fulfillment_mode": "Host Handoff",
+        "minimum_useful_price": 1.75,
+        "trust_score": 97.1,
+        "demand_score": 72.4,
+        "liquidity_score": 84.3,
+        "yield_score": 69.8
     },
     {
         "name": "Phone Charger",
@@ -159,7 +223,16 @@ SAMPLE_INVENTORY = [
             "risk_premium": 0.00,
             "market_adjustment": 0.25,
             "platform_margin": 0.24
-        }
+        },
+        "membra_index_id": "MI-LIVINGROOM-0008",
+        "unit_type": "hourly charging",
+        "access_mode": "Door Handoff",
+        "fulfillment_mode": "Host Handoff",
+        "minimum_useful_price": 1.25,
+        "trust_score": 92.6,
+        "demand_score": 85.9,
+        "liquidity_score": 81.2,
+        "yield_score": 70.5
     }
 ]
 
@@ -215,13 +288,19 @@ def generate_liquid_cards():
         mup = calculate_mup(item)
         card = f"""
 **{item['name']}**
+- Index ID: {item.get('membra_index_id', 'N/A')}
 - Category: {item['category']}
 - Type: {item['type']}
+- Unit Type: {item.get('unit_type', 'N/A')}
 - Detection Confidence: {item['confidence']:.0%}
 - Risk Level: {item['risk_level']}
-- Access Mode: {item['space_mode']}
-- MUP: ${mup:.2f}/{item['rent_mode']}
+- Access Mode: {item.get('access_mode', item['space_mode'])}
+- Fulfillment Mode: {item.get('fulfillment_mode', 'Host Handoff')}
+- MUP: ${item.get('minimum_useful_price', mup):.2f}/{item['rent_mode']}
 - Suggested Price: ${item['suggested_price']:.2f}/{item['rent_mode']}
+- Trust Score: {item.get('trust_score', 0):.1f}
+- Liquidity Score: {item.get('liquidity_score', 0):.1f}
+- Yield Score: {item.get('yield_score', 0):.1f}
 - Condition: {item['condition']}
 - Status: {'✓ Approved' if item['approved'] else '○ Pending'}
 """
@@ -250,6 +329,11 @@ def generate_household_balance_sheet():
     node_yield = calculate_node_yield_score(approved_items)
     risk_grade = "Low" if all(item['risk_level'] == 'Low' for item in approved_items) else "Low-Medium"
     
+    # Calculate average scores
+    avg_trust = sum(item.get('trust_score', 0) for item in approved_items) / len(approved_items)
+    avg_liquidity = sum(item.get('liquidity_score', 0) for item in approved_items) / len(approved_items)
+    avg_yield = sum(item.get('yield_score', 0) for item in approved_items) / len(approved_items)
+    
     top_units = ", ".join([item['name'] for item in approved_items[:5]])
     
     return f"""**Household Node Balance Sheet**
@@ -263,6 +347,11 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 - Trust-Adjusted Liquidity: ${trust_adjusted:.2f}/month
 - Node Yield Score: {node_yield:.1f}
 - Risk Grade: {risk_grade}
+
+**Index Scores (Average):**
+- Trust Score: {avg_trust:.1f}
+- Liquidity Score: {avg_liquidity:.1f}
+- Yield Score: {avg_yield:.1f}
 
 **Top Liquid Units:**
 {top_units}
@@ -310,6 +399,11 @@ def generate_investor_summary():
     trust_adjusted = calculate_trust_adjusted_liquidity(approved_items)
     node_yield = calculate_node_yield_score(approved_items)
     
+    # Calculate average scores
+    avg_trust = sum(item.get('trust_score', 0) for item in approved_items) / len(approved_items)
+    avg_liquidity = sum(item.get('liquidity_score', 0) for item in approved_items) / len(approved_items)
+    avg_yield = sum(item.get('yield_score', 0) for item in approved_items) / len(approved_items)
+    
     summary = {
         "generated_at": datetime.now().isoformat(),
         "household_node": {
@@ -318,17 +412,27 @@ def generate_investor_summary():
             "gross_utility_value_monthly": gross_value,
             "trust_adjusted_liquidity_monthly": trust_adjusted,
             "node_yield_score": node_yield,
-            "risk_grade": "Low" if all(item['risk_level'] == 'Low' for item in approved_items) else "Low-Medium"
+            "risk_grade": "Low" if all(item['risk_level'] == 'Low' for item in approved_items) else "Low-Medium",
+            "average_trust_score": avg_trust,
+            "average_liquidity_score": avg_liquidity,
+            "average_yield_score": avg_yield
         },
         "inventory_breakdown": [
             {
+                "membra_index_id": item.get('membra_index_id'),
                 "name": item['name'],
                 "category": item['category'],
-                "mup": calculate_mup(item),
+                "unit_type": item.get('unit_type'),
+                "mup": item.get('minimum_useful_price', calculate_mup(item)),
                 "suggested_price": item['suggested_price'],
                 "rent_mode": item['rent_mode'],
                 "risk_level": item['risk_level'],
-                "confidence": item['confidence']
+                "confidence": item['confidence'],
+                "trust_score": item.get('trust_score'),
+                "liquidity_score": item.get('liquidity_score'),
+                "yield_score": item.get('yield_score'),
+                "access_mode": item.get('access_mode'),
+                "fulfillment_mode": item.get('fulfillment_mode')
             }
             for item in approved_items
         ],

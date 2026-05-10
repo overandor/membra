@@ -4,6 +4,46 @@ The liquidity layer for real-world household utility.
 
 MEMBRA Liquid converts idle household assets, space, access, errands, storage, skills, and availability into priced, verified, fractional, finance-ready inventory.
 
+## MEMBRA Devnet Doctrine
+
+MEMBRA operates under the **MEMBRA Devnet Doctrine** by default:
+
+- **Solana Devnet only** - No mainnet by default
+- **No real SOL** - Uses fake/test Devnet SOL from airdrops
+- **No real customer funds** - No live trading by default
+- **Database is source of truth** - Canonical state preserved in database
+- **Devnet is proof layer** - Real transaction mechanics without real-money exposure
+- **User-gasless mode** - Platform sponsors Devnet transaction fees
+
+### Core Architecture
+
+```
+Database (Postgres/SQLite/Supabase) → Canonical State
+ProofBook → Verification Bridge
+Solana Devnet → Proof/Training Layer
+SkillOS → Agent Lifecycle
+WatchTower → Monitoring
+LaunchPad → Mainnet Promotion
+BlockEdge → Blockchain Workflow Simulator
+```
+
+### Guardrails
+
+Every application must enforce:
+```python
+from devnet_guardrails import enforce_membra_devnet_doctrine
+
+enforce_membra_devnet_doctrine()  # Call at startup
+```
+
+This ensures:
+- `ALLOW_MAINNET=false`
+- `ALLOW_REAL_FUNDS=false`
+- `ALLOW_LIVE_TRADING=false`
+- `DRY_RUN=true`
+
+See [docs/devnet-doctrine.md](docs/devnet-doctrine.md) for complete doctrine.
+
 ## Vision
 
 Every household is an underwritten balance sheet of idle utility. MEMBRA Liquid converts that utility into verified local SKUs, priced access contracts, trust-scored inventory nodes, and eventually collateralizable neighborhood cash flow.
@@ -141,12 +181,36 @@ python deploy_hf.py
 
 ## Documentation
 
+- [MEMBRA Devnet Doctrine](docs/devnet-doctrine.md) - Official operating doctrine for Solana Devnet
 - [MEMBRA Thesis](docs/membra-thesis.md)
 - [Operations Schema](docs/operations-schema.md)
 - [Minimum Useful Price](docs/minimum-useful-price.md)
 - [Trust Risk Ladder](docs/trust-risk-ladder.md)
 - [SKU Verification](docs/sku-verification.md)
 - [Host Node Model](docs/host-node-model.md)
+
+## Devnet Infrastructure
+
+### Core Modules
+
+- **devnet_guardrails.py** - Enforces MEMBRA Devnet Doctrine guardrails
+- **proof_utils.py** - Standard proof hashing and Devnet memo generation
+- **schema.sql** - Database schema for hybrid architecture
+
+### Prompt Pack
+
+Located in `prompts/` directory:
+- `SYSTEM_MembraDevnet_Operator.md` - Master system prompt for all MEMBRA agents
+- `SP_MembraDevnet_Init.md` - Initialize Devnet environment
+- `SP_AgentBirth_DevnetWallet.md` - Create agent with Devnet wallet
+- `SP_SkillTest_Run.md` - Execute skill tests
+- `SP_TaskHunter_Search.md` - Search for available tasks
+- `SP_TaskExecution_Devnet.md` - Execute tasks on Devnet
+- `SP_ProofBook_Anchor.md` - Anchor proof hashes to Devnet
+- `SP_BlockEdge_OpportunityScan.md` - Scan blockchain opportunities
+- `SP_WatchTower_Report.md` - Generate monitoring reports
+- `SP_Graduation_Check.md` - Check agent graduation requirements
+- `SP_MainnetPromotion_Request.md` - Request mainnet promotion
 
 ## License
 

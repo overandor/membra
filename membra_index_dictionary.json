@@ -1,0 +1,1364 @@
+{
+  "version": "1.0.0",
+  "description": "MEMBRA Liquid Index Dictionary - Field definitions for household utility liquidity",
+  "inventorization_claim": "MEMBRA inventorizes the private world. It converts rooms, objects, spaces, skills, services, utilities, and time windows into indexed economic fields. Those fields become searchable inventory, priced utility units, permissioned SKUs, risk-scored transactions, proof-backed settlements, and trust-adjusted liquidity.",
+  "field_classes": [
+    "Identity Fields",
+    "Location Fields",
+    "Inventory Fields",
+    "Utility Fields",
+    "Pricing Fields",
+    "Risk Fields",
+    "Trust Fields",
+    "Access Fields",
+    "Transaction Fields",
+    "Liquidity Fields"
+  ],
+  "indexes": [
+    {
+      "name": "Inventory Index",
+      "purpose": "Makes household assets searchable and classifiable",
+      "indexed_fields": [
+        "item_id",
+        "node_id",
+        "canonical_name",
+        "category",
+        "subcategory",
+        "condition",
+        "brand",
+        "model",
+        "detection_confidence",
+        "owner_approved",
+        "photo_hash"
+      ]
+    },
+    {
+      "name": "Utility Index",
+      "purpose": "Converts inventory into useful access units",
+      "indexed_fields": [
+        "utility_unit_id",
+        "item_id",
+        "unit_type",
+        "unit_duration",
+        "unit_capacity",
+        "unit_quantity",
+        "unit_constraints",
+        "availability_window"
+      ]
+    },
+    {
+      "name": "SKU Index",
+      "purpose": "Makes approved utility units transactable",
+      "indexed_fields": [
+        "sku_id",
+        "node_id",
+        "item_id",
+        "utility_unit_id",
+        "sku_name",
+        "rent_mode",
+        "space_mode",
+        "access_mode",
+        "fulfillment_mode",
+        "price",
+        "deposit_required",
+        "listing_status"
+      ]
+    },
+    {
+      "name": "MUP Index",
+      "purpose": "Tracks the smallest economically useful price for each unit",
+      "indexed_fields": [
+        "sku_id",
+        "host_friction_cost",
+        "risk_cost",
+        "time_cost",
+        "depreciation_cost",
+        "cleaning_cost",
+        "handoff_cost",
+        "platform_margin",
+        "minimum_useful_price",
+        "suggested_price",
+        "price_confidence"
+      ]
+    },
+    {
+      "name": "Risk Index",
+      "purpose": "Prevents unsafe liquidity",
+      "indexed_fields": [
+        "sku_id",
+        "risk_grade",
+        "damage_risk",
+        "theft_risk",
+        "privacy_risk",
+        "access_risk",
+        "regulatory_risk",
+        "hygiene_risk",
+        "insurance_required",
+        "prohibited_flag"
+      ]
+    },
+    {
+      "name": "Trust Index",
+      "purpose": "Scores whether host, requester, hero, node, and SKU are reliable enough to transact",
+      "indexed_fields": [
+        "entity_type",
+        "entity_id",
+        "identity_score",
+        "transaction_score",
+        "proof_score",
+        "return_score",
+        "dispute_score",
+        "condition_score",
+        "response_score",
+        "final_trust_score"
+      ]
+    },
+    {
+      "name": "Access Index",
+      "purpose": "Defines how utility can be accessed safely",
+      "indexed_fields": [
+        "sku_id",
+        "access_mode",
+        "handoff_mode",
+        "pickup_allowed",
+        "delivery_allowed",
+        "meet_halfway_allowed",
+        "home_entry_required",
+        "access_window",
+        "proof_required",
+        "deposit_required",
+        "identity_required"
+      ]
+    },
+    {
+      "name": "Demand Index",
+      "purpose": "Measures whether a SKU has likely buyer/requester demand",
+      "indexed_fields": [
+        "sku_id",
+        "local_search_count",
+        "intent_match_count",
+        "category_demand_score",
+        "radius_demand_score",
+        "urgency_score",
+        "seasonality_score",
+        "repeatability_score",
+        "demand_confidence"
+      ]
+    },
+    {
+      "name": "Liquidity Index",
+      "purpose": "Converts approved inventory into finance-readable safe value",
+      "indexed_fields": [
+        "node_id",
+        "gross_utility_value",
+        "approved_sku_value",
+        "risk_adjusted_value",
+        "trust_adjusted_value",
+        "demand_adjusted_value",
+        "availability_adjusted_value",
+        "trust_adjusted_liquidity",
+        "liquidity_band"
+      ]
+    },
+    {
+      "name": "Yield Index",
+      "purpose": "Tracks earning capacity per node, SKU, host, and category",
+      "indexed_fields": [
+        "node_id",
+        "sku_id",
+        "gross_projected_yield",
+        "net_projected_yield",
+        "actual_yield",
+        "utilization_rate",
+        "yield_per_sku",
+        "yield_per_square_foot",
+        "yield_per_available_hour",
+        "repeat_rate"
+      ]
+    },
+    {
+      "name": "Proof Index",
+      "purpose": "Makes physical-world transactions auditable",
+      "indexed_fields": [
+        "proof_id",
+        "transaction_id",
+        "proof_type",
+        "photo_before_hash",
+        "photo_after_hash",
+        "timestamp",
+        "geo_hash",
+        "condition_delta",
+        "attestation_score",
+        "proof_score"
+      ]
+    },
+    {
+      "name": "Settlement Index",
+      "purpose": "Records completed financial movement",
+      "indexed_fields": [
+        "transaction_id",
+        "sku_id",
+        "node_id",
+        "host_id",
+        "requester_id",
+        "hero_id",
+        "gross_amount",
+        "platform_fee",
+        "hero_fee",
+        "insurance_fee",
+        "payout_amount",
+        "escrow_status",
+        "settlement_status",
+        "refund_status",
+        "dispute_status"
+      ]
+    }
+  ],
+  "liquidity_bands": [
+    "Dormant",
+    "Detected",
+    "Approved",
+    "Listed",
+    "Matched",
+    "Transacted",
+    "Yielding",
+    "Finance-Ready"
+  ],
+  "access_modes": [
+    "No Entry",
+    "Door Handoff",
+    "Meet Halfway",
+    "Hero Delivery",
+    "Host Delivery",
+    "Supervised Use",
+    "On-Premise Use",
+    "Restricted Access"
+  ],
+  "risk_grades": [
+    "Low",
+    "Medium",
+    "High",
+    "Prohibited"
+  ],
+  "field_definitions": {
+    "field_id": {
+      "definition": "Unique identifier for the inventorized field",
+      "type": "string",
+      "allowed_values": null,
+      "source": "system_generated",
+      "index_family": ["Identity Fields"],
+      "required": true,
+      "scoring_relevance": 0.0
+    },
+    "field_name": {
+      "definition": "Human-readable name of the field",
+      "type": "string",
+      "allowed_values": null,
+      "source": "host_input",
+      "index_family": ["Inventory Fields"],
+      "required": true,
+      "scoring_relevance": 0.5
+    },
+    "field_type": {
+      "definition": "Type of field (object, space, utility, service, skill, consumable, storage, access)",
+      "type": "string",
+      "allowed_values": ["object", "space", "utility", "service", "skill", "consumable", "storage", "access"],
+      "source": "classification",
+      "index_family": ["Inventory Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "source_object": {
+      "definition": "Original source object (e.g., room scan, manual entry)",
+      "type": "string",
+      "allowed_values": null,
+      "source": "capture",
+      "index_family": ["Inventory Fields"],
+      "required": false,
+      "scoring_relevance": 0.2
+    },
+    "entity_type": {
+      "definition": "Type of entity (inventory_item, utility_unit, sku, transaction)",
+      "type": "string",
+      "allowed_values": ["inventory_item", "utility_unit", "sku", "transaction"],
+      "source": "classification",
+      "index_family": ["Identity Fields"],
+      "required": true,
+      "scoring_relevance": 0.6
+    },
+    "entity_id": {
+      "definition": "Unique identifier for the entity",
+      "type": "string",
+      "allowed_values": null,
+      "source": "system_generated",
+      "index_family": ["Identity Fields"],
+      "required": true,
+      "scoring_relevance": 0.0
+    },
+    "capture_method": {
+      "definition": "How the field was captured (ai_vision, manual, hybrid)",
+      "type": "string",
+      "allowed_values": ["ai_vision", "manual", "hybrid"],
+      "source": "capture",
+      "index_family": ["Inventory Fields"],
+      "required": false,
+      "scoring_relevance": 0.3
+    },
+    "raw_value": {
+      "definition": "Raw unprocessed value from capture",
+      "type": "string",
+      "allowed_values": null,
+      "source": "capture",
+      "index_family": ["Inventory Fields"],
+      "required": false,
+      "scoring_relevance": 0.1
+    },
+    "normalized_value": {
+      "definition": "Canonical normalized value",
+      "type": "string",
+      "allowed_values": null,
+      "source": "normalization",
+      "index_family": ["Inventory Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "confidence_score": {
+      "definition": "Confidence score for field detection/classification",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "ai_vision",
+      "index_family": ["Inventory Fields", "Trust Fields"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "owner_verified": {
+      "definition": "Whether the host has verified this field",
+      "type": "boolean",
+      "allowed_values": [true, false],
+      "source": "host_input",
+      "index_family": ["Trust Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "system_verified": {
+      "definition": "Whether the system has verified this field",
+      "type": "boolean",
+      "allowed_values": [true, false],
+      "source": "system_verification",
+      "index_family": ["Trust Fields"],
+      "required": false,
+      "scoring_relevance": 0.5
+    },
+    "indexable_status": {
+      "definition": "Whether the field is ready for indexing",
+      "type": "boolean",
+      "allowed_values": [true, false],
+      "source": "system_verification",
+      "index_family": ["Liquidity Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "item_id": {
+      "definition": "Unique identifier for inventory item",
+      "type": "string",
+      "allowed_values": null,
+      "source": "system_generated",
+      "index_family": ["Identity Fields", "Inventory Fields"],
+      "required": true,
+      "scoring_relevance": 0.0
+    },
+    "node_id": {
+      "definition": "Unique identifier for household node",
+      "type": "string",
+      "allowed_values": null,
+      "source": "system_generated",
+      "index_family": ["Identity Fields", "Location Fields"],
+      "required": true,
+      "scoring_relevance": 0.0
+    },
+    "canonical_name": {
+      "definition": "Canonical name for the item",
+      "type": "string",
+      "allowed_values": null,
+      "source": "normalization",
+      "index_family": ["Inventory Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "category": {
+      "definition": "Primary category (Appliance, Tool, Furniture, Storage, etc.)",
+      "type": "string",
+      "allowed_values": ["Appliance", "Tool", "Furniture", "Storage", "Service", "Space", "Utility", "Skill"],
+      "source": "classification",
+      "index_family": ["Inventory Fields", "Risk Fields", "Demand Fields"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "subcategory": {
+      "definition": "Subcategory within primary category",
+      "type": "string",
+      "allowed_values": null,
+      "source": "classification",
+      "index_family": ["Inventory Fields"],
+      "required": false,
+      "scoring_relevance": 0.6
+    },
+    "condition": {
+      "definition": "Condition of the item",
+      "type": "string",
+      "allowed_values": ["Excellent", "Good", "Fair", "Poor"],
+      "source": "classification",
+      "index_family": ["Inventory Fields", "Risk Fields", "Pricing Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "brand": {
+      "definition": "Brand of the item",
+      "type": "string",
+      "allowed_values": null,
+      "source": "classification",
+      "index_family": ["Inventory Fields"],
+      "required": false,
+      "scoring_relevance": 0.4
+    },
+    "model": {
+      "definition": "Model of the item",
+      "type": "string",
+      "allowed_values": null,
+      "source": "classification",
+      "index_family": ["Inventory Fields"],
+      "required": false,
+      "scoring_relevance": 0.3
+    },
+    "detection_confidence": {
+      "definition": "AI detection confidence score",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "ai_vision",
+      "index_family": ["Inventory Fields", "Trust Fields"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "owner_approved": {
+      "definition": "Whether host has approved this item for listing",
+      "type": "boolean",
+      "allowed_values": [true, false],
+      "source": "host_input",
+      "index_family": ["Trust Fields", "Liquidity Fields"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "photo_hash": {
+      "definition": "Hash of item photo for verification",
+      "type": "string",
+      "allowed_values": null,
+      "source": "capture",
+      "index_family": ["Inventory Fields", "Proof Fields"],
+      "required": false,
+      "scoring_relevance": 0.5
+    },
+    "utility_unit_id": {
+      "definition": "Unique identifier for utility unit",
+      "type": "string",
+      "allowed_values": null,
+      "source": "system_generated",
+      "index_family": ["Identity Fields", "Utility Fields"],
+      "required": true,
+      "scoring_relevance": 0.0
+    },
+    "unit_type": {
+      "definition": "Type of utility unit (20-minute use, cubic-foot/month, hourly access)",
+      "type": "string",
+      "allowed_values": null,
+      "source": "fractionalization",
+      "index_family": ["Utility Fields", "Pricing Fields", "Yield Fields"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "unit_duration": {
+      "definition": "Duration of the utility unit",
+      "type": "string",
+      "allowed_values": ["hourly", "daily", "weekly", "monthly", "per_use"],
+      "source": "fractionalization",
+      "index_family": ["Utility Fields", "Pricing Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "unit_capacity": {
+      "definition": "Capacity of the utility unit",
+      "type": "string",
+      "allowed_values": null,
+      "source": "fractionalization",
+      "index_family": ["Utility Fields"],
+      "required": false,
+      "scoring_relevance": 0.5
+    },
+    "unit_quantity": {
+      "definition": "Quantity of utility units available",
+      "type": "integer",
+      "allowed_values": null,
+      "source": "fractionalization",
+      "index_family": ["Utility Fields"],
+      "required": false,
+      "scoring_relevance": 0.4
+    },
+    "unit_constraints": {
+      "definition": "Constraints on utility unit usage",
+      "type": "string",
+      "allowed_values": null,
+      "source": "fractionalization",
+      "index_family": ["Utility Fields", "Access Fields"],
+      "required": false,
+      "scoring_relevance": 0.6
+    },
+    "availability_window": {
+      "definition": "Time window when utility is available",
+      "type": "string",
+      "allowed_values": null,
+      "source": "host_input",
+      "index_family": ["Utility Fields", "Access Fields", "Demand Fields"],
+      "required": false,
+      "scoring_relevance": 0.7
+    },
+    "sku_id": {
+      "definition": "Unique identifier for SKU",
+      "type": "string",
+      "allowed_values": null,
+      "source": "system_generated",
+      "index_family": ["Identity Fields"],
+      "required": true,
+      "scoring_relevance": 0.0
+    },
+    "sku_name": {
+      "definition": "Human-readable SKU name",
+      "type": "string",
+      "allowed_values": null,
+      "source": "normalization",
+      "index_family": ["Inventory Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "rent_mode": {
+      "definition": "Rent mode (hourly, daily, weekly, monthly)",
+      "type": "string",
+      "allowed_values": ["hourly", "daily", "weekly", "monthly"],
+      "source": "fractionalization",
+      "index_family": ["Utility Fields", "Pricing Fields"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "space_mode": {
+      "definition": "Space mode (onsite, pickup, delivery)",
+      "type": "string",
+      "allowed_values": ["onsite", "pickup", "delivery"],
+      "source": "fractionalization",
+      "index_family": ["Access Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "access_mode": {
+      "definition": "Access mode (No Entry, Door Handoff, Meet Halfway, Hero Delivery, etc.)",
+      "type": "string",
+      "allowed_values": ["No Entry", "Door Handoff", "Meet Halfway", "Hero Delivery", "Host Delivery", "Supervised Use", "On-Premise Use", "Restricted Access"],
+      "source": "permission",
+      "index_family": ["Access Fields", "Risk Fields"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "fulfillment_mode": {
+      "definition": "Fulfillment mode (Host Handoff, Hero Handoff, Self-Service)",
+      "type": "string",
+      "allowed_values": ["Host Handoff", "Hero Handoff", "Self-Service"],
+      "source": "permission",
+      "index_family": ["Access Fields", "Transaction Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "price": {
+      "definition": "Suggested price for the SKU",
+      "type": "float",
+      "allowed_values": null,
+      "source": "pricing",
+      "index_family": ["Pricing Fields", "SKU Index"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "deposit_required": {
+      "definition": "Whether deposit is required",
+      "type": "boolean",
+      "allowed_values": [true, false],
+      "source": "permission",
+      "index_family": ["Access Fields", "Risk Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "listing_status": {
+      "definition": "Listing status (Pending, Listed, Delisted)",
+      "type": "string",
+      "allowed_values": ["Pending", "Listed", "Delisted"],
+      "source": "system",
+      "index_family": ["Liquidity Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "host_friction_cost": {
+      "definition": "Cost of host friction (time, effort)",
+      "type": "float",
+      "allowed_values": null,
+      "source": "pricing",
+      "index_family": ["Pricing Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "risk_cost": {
+      "definition": "Cost of risk (damage, theft)",
+      "type": "float",
+      "allowed_values": null,
+      "source": "pricing",
+      "index_family": ["Pricing Fields", "Risk Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "time_cost": {
+      "definition": "Cost of time spent",
+      "type": "float",
+      "allowed_values": null,
+      "source": "pricing",
+      "index_family": ["Pricing Fields"],
+      "required": true,
+      "scoring_relevance": 0.6
+    },
+    "depreciation_cost": {
+      "definition": "Cost of depreciation per use",
+      "type": "float",
+      "allowed_values": null,
+      "source": "pricing",
+      "index_family": ["Pricing Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "cleaning_cost": {
+      "definition": "Cost of cleaning after use",
+      "type": "float",
+      "allowed_values": null,
+      "source": "pricing",
+      "index_family": ["Pricing Fields"],
+      "required": false,
+      "scoring_relevance": 0.5
+    },
+    "handoff_cost": {
+      "definition": "Cost of handoff logistics",
+      "type": "float",
+      "allowed_values": null,
+      "source": "pricing",
+      "index_family": ["Pricing Fields"],
+      "required": true,
+      "scoring_relevance": 0.6
+    },
+    "platform_margin": {
+      "definition": "Platform margin percentage",
+      "type": "float",
+      "allowed_values": null,
+      "source": "pricing",
+      "index_family": ["Pricing Fields"],
+      "required": true,
+      "scoring_relevance": 0.0
+    },
+    "minimum_useful_price": {
+      "definition": "Minimum economically useful price",
+      "type": "float",
+      "allowed_values": null,
+      "source": "pricing",
+      "index_family": ["Pricing Fields", "MUP Index", "Liquidity Index"],
+      "required": true,
+      "scoring_relevance": 0.95
+    },
+    "suggested_price": {
+      "definition": "Suggested market price",
+      "type": "float",
+      "allowed_values": null,
+      "source": "pricing",
+      "index_family": ["Pricing Fields", "SKU Index"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "price_confidence": {
+      "definition": "Confidence in price calculation",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "pricing",
+      "index_family": ["Pricing Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "risk_grade": {
+      "definition": "Overall risk grade",
+      "type": "string",
+      "allowed_values": ["Low", "Medium", "High", "Prohibited"],
+      "source": "risk_scoring",
+      "index_family": ["Risk Fields", "Access Fields", "Liquidity Index"],
+      "required": true,
+      "scoring_relevance": 0.95
+    },
+    "damage_risk": {
+      "definition": "Risk of damage",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "risk_scoring",
+      "index_family": ["Risk Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "theft_risk": {
+      "definition": "Risk of theft",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "risk_scoring",
+      "index_family": ["Risk Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "privacy_risk": {
+      "definition": "Risk of privacy violation",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "risk_scoring",
+      "index_family": ["Risk Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "access_risk": {
+      "definition": "Risk of unauthorized access",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "risk_scoring",
+      "index_family": ["Risk Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "regulatory_risk": {
+      "definition": "Regulatory compliance risk",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "risk_scoring",
+      "index_family": ["Risk Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "hygiene_risk": {
+      "definition": "Hygiene-related risk",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "risk_scoring",
+      "index_family": ["Risk Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "insurance_required": {
+      "definition": "Whether insurance is required",
+      "type": "boolean",
+      "allowed_values": [true, false],
+      "source": "risk_scoring",
+      "index_family": ["Risk Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "prohibited_flag": {
+      "definition": "Whether SKU is prohibited",
+      "type": "boolean",
+      "allowed_values": [true, false],
+      "source": "risk_scoring",
+      "index_family": ["Risk Fields"],
+      "required": true,
+      "scoring_relevance": 1.0
+    },
+    "identity_score": {
+      "definition": "Identity verification score",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "verification",
+      "index_family": ["Trust Fields"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "transaction_score": {
+      "definition": "Transaction history score",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "trust_scoring",
+      "index_family": ["Trust Fields"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "proof_score": {
+      "definition": "Proof submission score",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "trust_scoring",
+      "index_family": ["Trust Fields", "Proof Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "return_score": {
+      "definition": "Return condition score",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "trust_scoring",
+      "index_family": ["Trust Fields"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "dispute_score": {
+      "definition": "Dispute resolution score",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "trust_scoring",
+      "index_family": ["Trust Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "condition_score": {
+      "definition": "Item condition accuracy score",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "trust_scoring",
+      "index_family": ["Trust Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "response_score": {
+      "definition": "Response time score",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "trust_scoring",
+      "index_family": ["Trust Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "final_trust_score": {
+      "definition": "Final aggregated trust score",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "trust_scoring",
+      "index_family": ["Trust Fields", "Liquidity Index"],
+      "required": true,
+      "scoring_relevance": 0.95
+    },
+    "pickup_allowed": {
+      "definition": "Whether pickup is allowed",
+      "type": "boolean",
+      "allowed_values": [true, false],
+      "source": "permission",
+      "index_family": ["Access Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "delivery_allowed": {
+      "definition": "Whether delivery is allowed",
+      "type": "boolean",
+      "allowed_values": [true, false],
+      "source": "permission",
+      "index_family": ["Access Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "meet_halfway_allowed": {
+      "definition": "Whether meet halfway is allowed",
+      "type": "boolean",
+      "allowed_values": [true, false],
+      "source": "permission",
+      "index_family": ["Access Fields"],
+      "required": true,
+      "scoring_relevance": 0.6
+    },
+    "home_entry_required": {
+      "definition": "Whether home entry is required",
+      "type": "boolean",
+      "allowed_values": [true, false],
+      "source": "permission",
+      "index_family": ["Access Fields", "Risk Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "identity_required": {
+      "definition": "Whether identity verification is required",
+      "type": "boolean",
+      "allowed_values": [true, false],
+      "source": "permission",
+      "index_family": ["Access Fields", "Trust Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "local_search_count": {
+      "definition": "Count of local searches for this SKU",
+      "type": "integer",
+      "allowed_values": null,
+      "source": "demand_tracking",
+      "index_family": ["Demand Fields"],
+      "required": false,
+      "scoring_relevance": 0.8
+    },
+    "intent_match_count": {
+      "definition": "Count of intent matches",
+      "type": "integer",
+      "allowed_values": null,
+      "source": "demand_tracking",
+      "index_family": ["Demand Fields"],
+      "required": false,
+      "scoring_relevance": 0.8
+    },
+    "category_demand_score": {
+      "definition": "Demand score for category",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "demand_scoring",
+      "index_family": ["Demand Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "radius_demand_score": {
+      "definition": "Demand score within radius",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "demand_scoring",
+      "index_family": ["Demand Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "urgency_score": {
+      "definition": "Urgency score for demand",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "demand_scoring",
+      "index_family": ["Demand Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "seasonality_score": {
+      "definition": "Seasonality score",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "demand_scoring",
+      "index_family": ["Demand Fields"],
+      "required": true,
+      "scoring_relevance": 0.6
+    },
+    "repeatability_score": {
+      "definition": "Repeatability score",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "demand_scoring",
+      "index_family": ["Demand Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "demand_confidence": {
+      "definition": "Confidence in demand calculation",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "demand_scoring",
+      "index_family": ["Demand Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "gross_utility_value": {
+      "definition": "Gross utility value before adjustments",
+      "type": "float",
+      "allowed_values": null,
+      "source": "liquidity_calculation",
+      "index_family": ["Liquidity Fields", "Yield Fields"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "approved_sku_value": {
+      "definition": "Value of approved SKUs",
+      "type": "float",
+      "allowed_values": null,
+      "source": "liquidity_calculation",
+      "index_family": ["Liquidity Fields"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "risk_adjusted_value": {
+      "definition": "Value adjusted for risk",
+      "type": "float",
+      "allowed_values": null,
+      "source": "liquidity_calculation",
+      "index_family": ["Liquidity Fields"],
+      "required": true,
+      "scoring_relevance": 0.95
+    },
+    "trust_adjusted_value": {
+      "definition": "Value adjusted for trust",
+      "type": "float",
+      "allowed_values": null,
+      "source": "liquidity_calculation",
+      "index_family": ["Liquidity Fields"],
+      "required": true,
+      "scoring_relevance": 0.95
+    },
+    "demand_adjusted_value": {
+      "definition": "Value adjusted for demand",
+      "type": "float",
+      "allowed_values": null,
+      "source": "liquidity_calculation",
+      "index_family": ["Liquidity Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "availability_adjusted_value": {
+      "definition": "Value adjusted for availability",
+      "type": "float",
+      "allowed_values": null,
+      "source": "liquidity_calculation",
+      "index_family": ["Liquidity Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "trust_adjusted_liquidity": {
+      "definition": "Final trust-adjusted liquidity value",
+      "type": "float",
+      "allowed_values": null,
+      "source": "liquidity_calculation",
+      "index_family": ["Liquidity Fields"],
+      "required": true,
+      "scoring_relevance": 0.98
+    },
+    "liquidity_band": {
+      "definition": "Liquidity band classification",
+      "type": "string",
+      "allowed_values": ["Dormant", "Detected", "Approved", "Listed", "Matched", "Transacted", "Yielding", "Finance-Ready"],
+      "source": "liquidity_calculation",
+      "index_family": ["Liquidity Fields"],
+      "required": true,
+      "scoring_relevance": 0.95
+    },
+    "gross_projected_yield": {
+      "definition": "Gross projected yield",
+      "type": "float",
+      "allowed_values": null,
+      "source": "yield_calculation",
+      "index_family": ["Yield Fields"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "net_projected_yield": {
+      "definition": "Net projected yield after fees",
+      "type": "float",
+      "allowed_values": null,
+      "source": "yield_calculation",
+      "index_family": ["Yield Fields"],
+      "required": true,
+      "scoring_relevance": 0.95
+    },
+    "actual_yield": {
+      "definition": "Actual yield from transactions",
+      "type": "float",
+      "allowed_values": null,
+      "source": "yield_tracking",
+      "index_family": ["Yield Fields", "Settlement Fields"],
+      "required": false,
+      "scoring_relevance": 0.9
+    },
+    "utilization_rate": {
+      "definition": "Utilization rate of SKU",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "yield_tracking",
+      "index_family": ["Yield Fields"],
+      "required": false,
+      "scoring_relevance": 0.8
+    },
+    "yield_per_sku": {
+      "definition": "Yield per SKU",
+      "type": "float",
+      "allowed_values": null,
+      "source": "yield_calculation",
+      "index_family": ["Yield Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "yield_per_square_foot": {
+      "definition": "Yield per square foot",
+      "type": "float",
+      "allowed_values": null,
+      "source": "yield_calculation",
+      "index_family": ["Yield Fields"],
+      "required": false,
+      "scoring_relevance": 0.7
+    },
+    "yield_per_available_hour": {
+      "definition": "Yield per available hour",
+      "type": "float",
+      "allowed_values": null,
+      "source": "yield_calculation",
+      "index_family": ["Yield Fields"],
+      "required": false,
+      "scoring_relevance": 0.7
+    },
+    "repeat_rate": {
+      "definition": "Repeat transaction rate",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "yield_tracking",
+      "index_family": ["Yield Fields", "Demand Fields"],
+      "required": false,
+      "scoring_relevance": 0.8
+    },
+    "proof_id": {
+      "definition": "Unique identifier for proof",
+      "type": "string",
+      "allowed_values": null,
+      "source": "system_generated",
+      "index_family": ["Identity Fields", "Proof Fields"],
+      "required": true,
+      "scoring_relevance": 0.0
+    },
+    "transaction_id": {
+      "definition": "Unique identifier for transaction",
+      "type": "string",
+      "allowed_values": null,
+      "source": "system_generated",
+      "index_family": ["Identity Fields", "Transaction Fields"],
+      "required": true,
+      "scoring_relevance": 0.0
+    },
+    "proof_type": {
+      "definition": "Type of proof (photo, GPS, signature)",
+      "type": "string",
+      "allowed_values": ["photo", "gps", "signature", "video"],
+      "source": "proof_capture",
+      "index_family": ["Proof Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "photo_before_hash": {
+      "definition": "Hash of before photo",
+      "type": "string",
+      "allowed_values": null,
+      "source": "proof_capture",
+      "index_family": ["Proof Fields"],
+      "required": false,
+      "scoring_relevance": 0.8
+    },
+    "photo_after_hash": {
+      "definition": "Hash of after photo",
+      "type": "string",
+      "allowed_values": null,
+      "source": "proof_capture",
+      "index_family": ["Proof Fields"],
+      "required": false,
+      "scoring_relevance": 0.8
+    },
+    "timestamp": {
+      "definition": "Timestamp of proof",
+      "type": "string",
+      "allowed_values": null,
+      "source": "proof_capture",
+      "index_family": ["Proof Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "geo_hash": {
+      "definition": "Geographic hash of location",
+      "type": "string",
+      "allowed_values": null,
+      "source": "proof_capture",
+      "index_family": ["Proof Fields"],
+      "required": false,
+      "scoring_relevance": 0.6
+    },
+    "condition_delta": {
+      "definition": "Change in condition",
+      "type": "string",
+      "allowed_values": null,
+      "source": "proof_capture",
+      "index_family": ["Proof Fields"],
+      "required": false,
+      "scoring_relevance": 0.8
+    },
+    "attestation_score": {
+      "definition": "Score of proof attestation",
+      "type": "float",
+      "allowed_values": [0.0, 1.0],
+      "source": "proof_verification",
+      "index_family": ["Proof Fields", "Trust Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "host_id": {
+      "definition": "Unique identifier for host",
+      "type": "string",
+      "allowed_values": null,
+      "source": "system_generated",
+      "index_family": ["Identity Fields"],
+      "required": true,
+      "scoring_relevance": 0.0
+    },
+    "requester_id": {
+      "definition": "Unique identifier for requester",
+      "type": "string",
+      "allowed_values": null,
+      "source": "system_generated",
+      "index_family": ["Identity Fields"],
+      "required": true,
+      "scoring_relevance": 0.0
+    },
+    "hero_id": {
+      "definition": "Unique identifier for hero",
+      "type": "string",
+      "allowed_values": null,
+      "source": "system_generated",
+      "index_family": ["Identity Fields"],
+      "required": false,
+      "scoring_relevance": 0.0
+    },
+    "gross_amount": {
+      "definition": "Gross transaction amount",
+      "type": "float",
+      "allowed_values": null,
+      "source": "transaction",
+      "index_family": ["Transaction Fields", "Settlement Fields"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "platform_fee": {
+      "definition": "Platform fee amount",
+      "type": "float",
+      "allowed_values": null,
+      "source": "settlement",
+      "index_family": ["Transaction Fields", "Settlement Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "hero_fee": {
+      "definition": "Hero fee amount",
+      "type": "float",
+      "allowed_values": null,
+      "source": "settlement",
+      "index_family": ["Transaction Fields", "Settlement Fields"],
+      "required": false,
+      "scoring_relevance": 0.7
+    },
+    "insurance_fee": {
+      "definition": "Insurance fee amount",
+      "type": "float",
+      "allowed_values": null,
+      "source": "settlement",
+      "index_family": ["Transaction Fields", "Settlement Fields"],
+      "required": false,
+      "scoring_relevance": 0.7
+    },
+    "payout_amount": {
+      "definition": "Net payout amount to host",
+      "type": "float",
+      "allowed_values": null,
+      "source": "settlement",
+      "index_family": ["Transaction Fields", "Settlement Fields", "Yield Fields"],
+      "required": true,
+      "scoring_relevance": 0.95
+    },
+    "escrow_status": {
+      "definition": "Status of escrow",
+      "type": "string",
+      "allowed_values": ["pending", "held", "released", "refunded"],
+      "source": "settlement",
+      "index_family": ["Transaction Fields", "Settlement Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "settlement_status": {
+      "definition": "Status of settlement",
+      "type": "string",
+      "allowed_values": ["pending", "completed", "failed"],
+      "source": "settlement",
+      "index_family": ["Transaction Fields", "Settlement Fields"],
+      "required": true,
+      "scoring_relevance": 0.9
+    },
+    "refund_status": {
+      "definition": "Status of refund",
+      "type": "string",
+      "allowed_values": ["none", "pending", "partial", "full"],
+      "source": "settlement",
+      "index_family": ["Transaction Fields", "Settlement Fields"],
+      "required": true,
+      "scoring_relevance": 0.7
+    },
+    "dispute_status": {
+      "definition": "Status of dispute",
+      "type": "string",
+      "allowed_values": ["none", "opened", "resolved", "closed"],
+      "source": "settlement",
+      "index_family": ["Transaction Fields", "Settlement Fields", "Trust Fields"],
+      "required": true,
+      "scoring_relevance": 0.8
+    },
+    "created_at": {
+      "definition": "Timestamp when record was created",
+      "type": "string",
+      "allowed_values": null,
+      "source": "system_generated",
+      "index_family": ["Identity Fields"],
+      "required": true,
+      "scoring_relevance": 0.0
+    },
+    "updated_at": {
+      "definition": "Timestamp when record was last updated",
+      "type": "string",
+      "allowed_values": null,
+      "source": "system_generated",
+      "index_family": ["Identity Fields"],
+      "required": true,
+      "scoring_relevance": 0.0
+    }
+  },
+  "master_index_object": {
+    "name": "MembraIndexRecord",
+    "description": "Compressed representation of one liquid household unit",
+    "fields": [
+      "membra_index_id",
+      "node_id",
+      "host_id",
+      "item_id",
+      "utility_unit_id",
+      "sku_id",
+      "canonical_name",
+      "category",
+      "unit_type",
+      "unit_duration",
+      "access_mode",
+      "fulfillment_mode",
+      "minimum_useful_price",
+      "suggested_price",
+      "deposit_required",
+      "risk_grade",
+      "trust_score",
+      "demand_score",
+      "liquidity_score",
+      "yield_score",
+      "owner_approved",
+      "risk_approved",
+      "listed_status",
+      "transaction_status",
+      "proof_required",
+      "settlement_ready",
+      "finance_ready",
+      "created_at",
+      "updated_at"
+    ]
+  },
+  "indexing_pipeline": [
+    "Capture",
+    "Normalize",
+    "Classify",
+    "Fractionalize",
+    "Price",
+    "Risk-score",
+    "Trust-score",
+    "Permission",
+    "Index",
+    "Activate"
+  ],
+  "hypercompressed_claim": "Inventorization turns household reality into fields. Indexing turns those fields into market structure. MEMBRA's moat is the field grammar: every private object, space, service, utility, and time window becomes a searchable, priced, risk-scored, permissioned, and settleable economic unit."
+}
