@@ -11,7 +11,7 @@ HfFolder.save_token(token)
 api = HfApi()
 
 # Space configuration
-space_id = "overandor/membra"  # Change to your username/space-name
+space_id = "luguog/membra"  # Change to your username/space-name
 space_name = "membra"
 
 # Try to create the space
