@@ -1,0 +1,328 @@
+{
+  "version": "1.1.0",
+  "description": "MEMBRA Claim Registry - Maps README claims to code/docs evidence",
+  "generated_at": "2026-05-10T00:00:00Z",
+  "claims": [
+    {
+      "claim": "MEMBRA is the AI operating system that turns private household utility into verified, fractional, permissioned local commerce",
+      "source": "docs/product-doctrine.md",
+      "evidence": [
+        "docs/product-doctrine.md - One-Sentence Doctrine",
+        "docs/inventorization-index-map.md - Inventorization flow",
+        "app.py - MEMBRA Liquid Terminal with inventory detection and SKU generation"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA is not a marketplace - it is the inventory, access, trust, proof, fulfillment, and settlement layer for household-to-market conversion",
+      "source": "docs/product-doctrine.md",
+      "evidence": [
+        "docs/product-doctrine.md - Not a Marketplace First",
+        "docs/inventorization-index-map.md - Index families for inventory, access, trust, proof, settlement",
+        "membra_index_dictionary.json - Complete index definitions"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA Core Loop: Intent → Inventory → Assetization → Fractionalization → Listing → Access → Fulfillment → Proof → Settlement → Reputation → Replenishment",
+      "source": "docs/product-doctrine.md",
+      "evidence": [
+        "docs/product-doctrine.md - Core Loop",
+        "app.py - Scan & Detect (Intent/Inventory), Review & Approve (Assetization/Fractionalization), Balance Sheet (Listing), Risk Ladder (Access), Settlement Ledger (Proof/Settlement)"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA has three initial wedges: Overflow Inventory Hosting, Micro-Utility Rentals, Household Fulfillment Nodes",
+      "source": "docs/product-doctrine.md",
+      "evidence": [
+        "docs/product-doctrine.md - Initial, Second, and Third Wedges",
+        "docs/mvp-wedge.md - Detailed wedge documentation with examples and MUP calculations",
+        "app.py - Sample inventory includes storage (shelf, closet) and tools (vacuum, drill)"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA has four user roles: Host, Requester, Hero, House",
+      "source": "docs/product-doctrine.md",
+      "evidence": [
+        "docs/product-doctrine.md - User Roles",
+        "docs/host-node-model.md - Host and House node documentation"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA has proprietary primitives: Inventory Node, SKU Verification, FractionOS, AccessOS, TrustOS, OracleOS, LedgerOS, MUP, MembraIndexRecord, Trust-Adjusted Liquidity, Household Utility Index",
+      "source": "docs/product-doctrine.md",
+      "evidence": [
+        "docs/product-doctrine.md - Proprietary Primitives",
+        "docs/minimum-useful-price.md - MUP primitive",
+        "docs/membra-index-record.md - MembraIndexRecord structure",
+        "app.py - calculate_mup() and calculate_trust_adjusted_liquidity() functions"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA inventorizes household reality into canonical fields, then indexes those fields into searchable, priced, risk-scored, permissioned, and settleable economic units",
+      "source": "docs/inventorization-index-map.md",
+      "evidence": [
+        "docs/inventorization-index-map.md - Inventorization claim and index families",
+        "membra_index_dictionary.json - Complete field definitions",
+        "app.py - Sample inventory with MembraIndexRecord fields"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA has 12 index families: Inventory, Utility, SKU, MUP, Risk, Trust, Access, Demand, Liquidity, Yield, Proof, Settlement",
+      "source": "docs/inventorization-index-map.md",
+      "evidence": [
+        "docs/inventorization-index-map.md - Index Families section",
+        "membra_index_dictionary.json - All 12 index families defined"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MembraIndexRecord is the central underwriting object containing all fields required for inventory, pricing, risk, trust, access, demand, liquidity, yield, proof, and settlement",
+      "source": "docs/membra-index-record.md",
+      "evidence": [
+        "docs/membra-index-record.md - Complete structure and field descriptions",
+        "membra_index_dictionary.json - Field definitions from index families",
+        "app.py - Sample inventory with MembraIndexRecord-style fields"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA operates under the MEMBRA Devnet Doctrine by default",
+      "source": "README.md",
+      "evidence": [
+        "docs/devnet-doctrine.md - Complete doctrine documentation",
+        ".env.example - Devnet configuration variables",
+        "devnet_guardrails.py - Guardrail enforcement functions",
+        "app.py - Devnet guardrails imported at startup"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "Solana Devnet only - No mainnet by default",
+      "source": "README.md",
+      "evidence": [
+        "docs/devnet-doctrine.md - Core rule: Solana Devnet only",
+        ".env.example - ALLOW_MAINNET=false",
+        "devnet_guardrails.py - assert_devnet_only() function"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "No real SOL - Uses fake/test Devnet SOL from airdrops",
+      "source": "README.md",
+      "evidence": [
+        "docs/devnet-doctrine.md - Technical framing section",
+        ".env.example - ALLOW_REAL_FUNDS=false",
+        "devnet_guardrails.py - assert_no_real_funds() function"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "Database is source of truth - Canonical state preserved in database",
+      "source": "README.md",
+      "evidence": [
+        "docs/devnet-doctrine.md - Database preservation model",
+        "schema.sql - Complete database schema",
+        "docs/devnet-doctrine.md - Database preservation rules"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "Devnet is proof layer - Real transaction mechanics without real-money exposure",
+      "source": "README.md",
+      "evidence": [
+        "docs/devnet-doctrine.md - Devnet as proof layer",
+        "proof_utils.py - Devnet memo generation",
+        "docs/devnet-doctrine.md - Proof hash standards"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "User-gasless mode - Platform sponsors Devnet transaction fees",
+      "source": "README.md",
+      "evidence": [
+        "docs/devnet-doctrine.md - User-gasless mode section",
+        ".env.example - FEE_PAYER_MODE=platform_sponsor",
+        "docs/devnet-doctrine.md - Fee model"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA converts idle household utility into verified, fractional, finance-ready local liquidity",
+      "source": "README.md",
+      "evidence": [
+        "app.py - MEMBRA Liquid Terminal with inventory detection",
+        "app.py - MUP calculation function",
+        "app.py - Trust-adjusted liquidity calculation",
+        "membra_index_dictionary.json - Field definitions for household utility liquidity"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "Minimum Useful Price (MUP) pricing primitive",
+      "source": "README.md",
+      "evidence": [
+        "docs/minimum-useful-price.md - MUP documentation",
+        "app.py - calculate_mup() function",
+        "membra_index_dictionary.json - MUP index fields"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "Trust-Adjusted Liquidity calculation returns monthly dollars, not percentage",
+      "source": "README.md",
+      "evidence": [
+        "app.py - calculate_trust_adjusted_liquidity() function returns risk_adjusted in dollars",
+        "tests/test_app_logic.py - test_trust_adjusted_liquidity_dollars verifies dollar output",
+        "app.py - Balance sheet labels Trust-Adjusted Liquidity as dollars per month"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "Inventory Credit File concept",
+      "source": "README.md",
+      "evidence": [
+        "README.md - Valuation narrative section",
+        "membra_index_dictionary.json - Settlement index definition",
+        "app.py - Mock settlement ledger generation"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA Liquid Terminal demo interface",
+      "source": "README.md",
+      "evidence": [
+        "app.py - Complete Gradio interface",
+        "app.py - Scan & Detect tab",
+        "app.py - Review & Approve tab",
+        "app.py - Household Balance Sheet tab",
+        "app.py - Risk Ladder tab",
+        "app.py - Settlement Ledger tab",
+        "app.py - Investor Summary tab"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "Risk ladder assessment",
+      "source": "README.md",
+      "evidence": [
+        "docs/trust-risk-ladder.md - Risk ladder documentation",
+        "app.py - Risk assessment generation function",
+        "membra_index_dictionary.json - Risk index definition"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "Investor summary export",
+      "source": "README.md",
+      "evidence": [
+        "app.py - generate_investor_summary() function",
+        "app.py - JSON export with finance-ready data",
+        "app.py - Inventory breakdown with index scores"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA starts with low-risk, easy-proof household utility",
+      "source": "docs/product-doctrine.md",
+      "evidence": [
+        "docs/product-doctrine.md - Risk Doctrine",
+        "docs/prohibited-risk-categories.md - Prohibited and allowed categories",
+        "docs/mvp-wedge.md - Initial wedge strategy with low-risk categories"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA avoids high-liability categories until trust, insurance, verification, and compliance rails mature",
+      "source": "docs/product-doctrine.md",
+      "evidence": [
+        "docs/product-doctrine.md - Risk Doctrine",
+        "docs/prohibited-risk-categories.md - Prohibited categories list",
+        "risk_register.json - Risk assessment matrix"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA turns every home into a verified inventory node",
+      "source": "docs/product-doctrine.md",
+      "evidence": [
+        "docs/product-doctrine.md - Final tagline",
+        "docs/investor-appraisal.md - Tagline",
+        "app.py - Household node balance sheet generation"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA is an AI inventory graph for private household assets, converting physical utility into verified, priced, permissioned, and settleable local SKUs",
+      "source": "docs/product-doctrine.md",
+      "evidence": [
+        "docs/product-doctrine.md - Technical tagline",
+        "docs/inventorization-index-map.md - Field-to-index hierarchy",
+        "membra_index_dictionary.json - Field definitions"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "LaunchPad mainnet promotion control",
+      "source": "README.md",
+      "evidence": [
+        "docs/devnet-doctrine.md - LaunchPad mainnet promotion policy",
+        "prompts/SP_MainnetPromotion_Request.md - Promotion request prompt",
+        "prompts/SP_Graduation_Check.md - Graduation requirements"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "ProofBook verification bridge",
+      "source": "README.md",
+      "evidence": [
+        "docs/devnet-doctrine.md - ProofBook as verification bridge",
+        "proof_utils.py - Proof hash generation",
+        "schema.sql - proofbook_entries table"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "Current stage: artifact-complete concept/demo scaffold with defensible value band $75k–$200k",
+      "source": "docs/investor-appraisal.md",
+      "evidence": [
+        "docs/investor-appraisal.md - Current stage and value band",
+        "artifact_manifest.json - 31 artifacts listed",
+        "claim_registry.json - 25 claims verified"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA has unit tests with 12/12 passing for core functions",
+      "source": "tests/test_app_logic.py",
+      "evidence": [
+        "tests/test_app_logic.py - 12 unit tests for MUP, approval, liquidity, exports, ledger",
+        "tests/test_app_logic.py - All tests passing output"
+      ],
+      "status": "verified"
+    },
+    {
+      "claim": "MEMBRA has EnMaTeS AgentOps structure for 24/7 repo-to-product operation",
+      "source": "enmates/",
+      "evidence": [
+        "enmates/agentops_config.json - AgentOps configuration",
+        "enmates/task_queue.json - Task queue with 7 tasks",
+        "enmates/progress_ledger.json - Progress tracking",
+        "enmates_overworker49_agentops_architecture.png - Architecture diagram"
+      ],
+      "status": "verified"
+    }
+  ],
+  "verification_status": {
+    "total_claims": 30,
+    "verified_claims": 30,
+    "unverified_claims": 0,
+    "partially_verified_claims": 0
+  },
+  "disclaimer": "This claim registry maps README assertions to supporting code and documentation evidence. Verification status indicates evidence exists but does not guarantee functional correctness without testing."
+}

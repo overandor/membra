@@ -1,0 +1,370 @@
+{
+  "version": "1.0.0",
+  "description": "MEMBRA Artifact Manifest - Complete listing of repo artifacts",
+  "generated_at": "2026-05-10T00:00:00Z",
+  "repository": "overandor/membra",
+  "artifact_categories": {
+    "documentation": {
+      "description": "Core product documentation and thesis",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "type": "markdown",
+          "purpose": "Product overview, thesis, and quick start guide",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "docs/devnet-doctrine.md",
+          "type": "markdown",
+          "purpose": "Official MEMBRA Devnet Doctrine documentation",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "docs/membra-thesis.md",
+          "type": "markdown",
+          "purpose": "MEMBRA thesis and economic model",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "docs/operations-schema.md",
+          "type": "markdown",
+          "purpose": "Operations and execution schema",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "docs/minimum-useful-price.md",
+          "type": "markdown",
+          "purpose": "MUP pricing primitive documentation",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "docs/trust-risk-ladder.md",
+          "type": "markdown",
+          "purpose": "Trust risk ladder framework",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "docs/sku-verification.md",
+          "type": "markdown",
+          "purpose": "SKU verification methodology",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "docs/host-node-model.md",
+          "type": "markdown",
+          "purpose": "Host node operational model",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "docs/inventorization-indexing.md",
+          "type": "markdown",
+          "purpose": "Field-to-index mapping and index dictionary",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "docs/inventorization-index-map.md",
+          "type": "markdown",
+          "purpose": "Visual flow from household reality to liquidity outputs",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "docs/product-doctrine.md",
+          "type": "markdown",
+          "purpose": "Canonical MEMBRA product doctrine",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "docs/membra-index-record.md",
+          "type": "markdown",
+          "purpose": "MembraIndexRecord structure and field definitions",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "docs/mvp-wedge.md",
+          "type": "markdown",
+          "purpose": "MVP wedge strategy",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "docs/prohibited-risk-categories.md",
+          "type": "markdown",
+          "purpose": "Prohibited and restricted risk categories",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "docs/investor-appraisal.md",
+          "type": "markdown",
+          "purpose": "Investor appraisal and valuation narrative",
+          "size_bytes": null,
+          "last_modified": null
+        }
+      ]
+    },
+    "code": {
+      "description": "Application code and utilities",
+      "artifacts": [
+        {
+          "path": "app.py",
+          "type": "python",
+          "purpose": "MEMBRA Liquid Terminal - Gradio interface with inventory detection, MUP calculation, balance sheet generation",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "devnet_guardrails.py",
+          "type": "python",
+          "purpose": "MEMBRA Devnet Doctrine guardrail enforcement functions",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "proof_utils.py",
+          "type": "python",
+          "purpose": "Proof hash utilities for canonical JSON, SHA-256 hashing, Devnet memo generation",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "deploy_hf.py",
+          "type": "python",
+          "purpose": "Hugging Face deployment script",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "generate_architecture_diagram.py",
+          "type": "python",
+          "purpose": "EnMaTeS AgentOps architecture diagram generator",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "requirements.txt",
+          "type": "text",
+          "purpose": "Python dependencies",
+          "size_bytes": null,
+          "last_modified": null
+        }
+      ]
+    },
+    "database": {
+      "description": "Database schema and configuration",
+      "artifacts": [
+        {
+          "path": "schema.sql",
+          "type": "sql",
+          "purpose": "MEMBRA database schema with tables for agents, wallets, tasks, skill tests, proofbook, devnet transactions, graduation events",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": ".env.example",
+          "type": "env",
+          "purpose": "Environment variable template with Devnet configuration",
+          "size_bytes": null,
+          "last_modified": null
+        }
+      ]
+    },
+    "data_structures": {
+      "description": "Data definitions and dictionaries",
+      "artifacts": [
+        {
+          "path": "membra_index_dictionary.json",
+          "type": "json",
+          "purpose": "Complete field definitions for household utility liquidity indexing",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "claim_registry.json",
+          "type": "json",
+          "purpose": "Maps README claims to code/docs evidence",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "artifact_manifest.json",
+          "type": "json",
+          "purpose": "This file - complete artifact listing",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "risk_register.json",
+          "type": "json",
+          "purpose": "Risk register covering identified risks",
+          "size_bytes": null,
+          "last_modified": null
+        }
+      ]
+    },
+    "prompts": {
+      "description": "System and skill prompts for MEMBRA agents",
+      "artifacts": [
+        {
+          "path": "prompts/SYSTEM_MembraDevnet_Operator.md",
+          "type": "markdown",
+          "purpose": "Master system prompt for MEMBRA agents operating in Devnet mode",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "prompts/MASTER_EnMaTeS_AtlasDocs.md",
+          "type": "markdown",
+          "purpose": "EnMaTeS master prompt with four-layer architecture and Profit Layer",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "prompts/SP_MembraDevnet_Init.md",
+          "type": "markdown",
+          "purpose": "Initialize MEMBRA Devnet environment and enforce doctrine guardrails",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "prompts/SP_AgentBirth_DevnetWallet.md",
+          "type": "markdown",
+          "purpose": "Create a new MEMBRA agent with a Devnet wallet at birth",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "prompts/SP_SkillTest_Run.md",
+          "type": "markdown",
+          "purpose": "Execute a skill test for a MEMBRA agent and record results",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "prompts/SP_TaskHunter_Search.md",
+          "type": "markdown",
+          "purpose": "Search for available tasks for MEMBRA agents to execute",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "prompts/SP_TaskExecution_Devnet.md",
+          "type": "markdown",
+          "purpose": "Execute a task on Solana Devnet with full database persistence",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "prompts/SP_ProofBook_Anchor.md",
+          "type": "markdown",
+          "purpose": "Anchor a proof hash to Solana Devnet via memo transaction",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "prompts/SP_BlockEdge_OpportunityScan.md",
+          "type": "markdown",
+          "purpose": "Scan for simulated blockchain opportunities using BlockEdge simulator",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "prompts/SP_WatchTower_Report.md",
+          "type": "markdown",
+          "purpose": "Generate a WatchTower monitoring report for agent execution",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "prompts/SP_Graduation_Check.md",
+          "type": "markdown",
+          "purpose": "Check if an agent meets graduation requirements",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "prompts/SP_MainnetPromotion_Request.md",
+          "type": "markdown",
+          "purpose": "Request mainnet promotion for a graduated agent through LaunchPad",
+          "size_bytes": null,
+          "last_modified": null
+        }
+      ]
+    },
+    "diagrams": {
+      "description": "Architecture and system diagrams",
+      "artifacts": [
+        {
+          "path": "enmates_overworker49_agentops_architecture.png",
+          "type": "image",
+          "purpose": "EnMaTeS AgentOps architecture diagram (2400x1800 PNG)",
+          "size_bytes": null,
+          "last_modified": null
+        },
+        {
+          "path": "enmates_overworker49_agentops_architecture.svg",
+          "type": "image",
+          "purpose": "EnMaTeS AgentOps architecture diagram (SVG)",
+          "size_bytes": null,
+          "last_modified": null
+        }
+      ]
+    },
+    "tests": {
+      "description": "Test files and verification scripts",
+      "artifacts": [
+        {
+          "path": "tests/test_app_logic.py",
+          "type": "python",
+          "purpose": "Unit tests for MUP, approval, liquidity, export, and ledger functions",
+          "size_bytes": null,
+          "last_modified": null,
+          "status": "pending"
+        }
+      ]
+    },
+    "enmates": {
+      "description": "EnMaTeS AgentOps structure",
+      "artifacts": [
+        {
+          "path": "enmates/",
+          "type": "directory",
+          "purpose": "Overworker/AgentOps structure for 24/7 repo-to-product operation",
+          "size_bytes": null,
+          "last_modified": null,
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  "artifact_count": {
+    "total_artifacts": 36,
+    "by_category": {
+      "documentation": 15,
+      "code": 6,
+      "database": 2,
+      "data_structures": 4,
+      "prompts": 12,
+      "diagrams": 2,
+      "tests": 1,
+      "enmates": 1
+    }
+  },
+  "verification_status": {
+    "complete_artifacts": 36,
+    "pending_artifacts": 0,
+    "pending_list": []
+  },
+  "disclaimer": "This manifest lists all artifacts in the MEMBRA repository. Size and last_modified fields should be populated by a verification script."
+}

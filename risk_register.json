@@ -1,0 +1,291 @@
+{
+  "version": "1.0.0",
+  "description": "MEMBRA Risk Register - Identified risks and mitigation strategies",
+  "generated_at": "2026-05-10T00:00:00Z",
+  "risk_categories": [
+    {
+      "category": "Financial Risks",
+      "risks": [
+        {
+          "id": "RISK-001",
+          "name": "Real Funds Exposure",
+          "description": "Risk of accidentally using real SOL or real customer funds instead of Devnet test SOL",
+          "likelihood": "Low",
+          "impact": "Critical",
+          "mitigation": [
+            "Devnet guardrails enforced at startup (devnet_guardrails.py)",
+            "ALLOW_REAL_FUNDS=false by default in .env.example",
+            "assert_no_real_funds() function checks environment variables",
+            "Database as source of truth prevents accidental mainnet transactions",
+            "LaunchPad requires explicit human approval for mainnet promotion"
+          ],
+          "status": "mitigated",
+          "residual_risk": "Low"
+        },
+        {
+          "id": "RISK-002",
+          "name": "Mainnet Accidental Activation",
+          "description": "Risk of agents accidentally executing on mainnet instead of Devnet",
+          "likelihood": "Low",
+          "impact": "Critical",
+          "mitigation": [
+            "ALLOW_MAINNET=false by default",
+            "assert_devnet_only() function enforces Devnet-only mode",
+            "Separate environment files for Devnet vs mainnet",
+            "LaunchPad controlled promotion path with human approval gates"
+          ],
+          "status": "mitigated",
+          "residual_risk": "Low"
+        },
+        {
+          "id": "RISK-003",
+          "name": "Live Trading Without Compliance",
+          "description": "Risk of agents engaging in live trading before compliance review",
+          "likelihood": "Low",
+          "impact": "Critical",
+          "mitigation": [
+            "ALLOW_LIVE_TRADING=false by default",
+            "assert_no_live_trading() function checks environment",
+            "Graduation does not equal mainnet access",
+            "LaunchPad requires compliance review before mainnet promotion"
+          ],
+          "status": "mitigated",
+          "residual_risk": "Low"
+        }
+      ]
+    },
+    {
+      "category": "Privacy and Security Risks",
+      "risks": [
+        {
+          "id": "RISK-004",
+          "name": "Home Access Privacy",
+          "description": "Risk of exposing private home information through inventory detection",
+          "likelihood": "Medium",
+          "impact": "High",
+          "mitigation": [
+            "Access mode classification (No Entry, Door Handoff, Meet Halfway)",
+            "Privacy risk scoring in membra_index_dictionary.json",
+            "Home entry required flag for risk assessment",
+            "User-gasless mode reduces need for home entry"
+          ],
+          "status": "mitigated",
+          "residual_risk": "Medium"
+        },
+        {
+          "id": "RISK-005",
+          "name": "Credential Exposure",
+          "description": "Risk of exposing API keys, tokens, or other credentials in code or logs",
+          "likelihood": "Low",
+          "impact": "Critical",
+          "mitigation": [
+            ".env.example template without real secrets",
+            "Hashed API key storage in database schema",
+            "Structured logging that excludes secrets",
+            "Security warning in architecture diagram to rotate credentials"
+          ],
+          "status": "mitigated",
+          "residual_risk": "Low"
+        },
+        {
+          "id": "RISK-006",
+          "name": "Household Data Leakage",
+          "description": "Risk of leaking household inventory data through logs or exports",
+          "likelihood": "Medium",
+          "impact": "Medium",
+          "mitigation": [
+            "Structured logging with request IDs",
+            "No logging of raw inventory data in production",
+            "Controlled export functions with user consent",
+            "Data retention policies in documentation"
+          ],
+          "status": "partially_mitigated",
+          "residual_risk": "Medium"
+        }
+      ]
+    },
+    {
+      "category": "Operational Risks",
+      "risks": [
+        {
+          "id": "RISK-007",
+          "name": "Insurance Coverage Gaps",
+          "description": "Risk of insufficient insurance for high-risk inventory items",
+          "likelihood": "Medium",
+          "impact": "High",
+          "mitigation": [
+            "Risk grade classification (Low, Medium, High, Prohibited)",
+            "Insurance required flag in risk index",
+            "Prohibited flag for uninsurable items",
+            "Deposit requirements for medium-risk items"
+          ],
+          "status": "mitigated",
+          "residual_risk": "Medium"
+        },
+        {
+          "id": "RISK-008",
+          "name": "Prohibited Categories",
+          "description": "Risk of listing prohibited or regulated items",
+          "likelihood": "Low",
+          "impact": "Critical",
+          "mitigation": [
+            "Regulatory risk scoring in membra_index_dictionary.json",
+            "Prohibited flag in risk index",
+            "Regulatory risk assessment in graduation checks",
+            "Manual review for high-regulatory-risk categories",
+            "docs/prohibited-risk-categories.md defines prohibited categories: vehicles, firearms, hazardous materials, medical devices, prescription medications, smart home devices with cameras, food/alcohol storage, entire home access, bedroom/bathroom access"
+          ],
+          "status": "mitigated",
+          "residual_risk": "Low"
+        },
+        {
+          "id": "RISK-009",
+          "name": "Asset Damage or Theft",
+          "description": "Risk of damage or theft during rental transactions",
+          "likelihood": "Medium",
+          "impact": "High",
+          "mitigation": [
+            "Damage risk and theft risk scoring",
+            "Proof requirement for transactions",
+            "Return photo verification",
+            "Deposit requirements based on risk level",
+            "ProofBook for cryptographic evidence"
+          ],
+          "status": "mitigated",
+          "residual_risk": "Medium"
+        }
+      ]
+    },
+    {
+      "category": "Technical Risks",
+      "risks": [
+        {
+          "id": "RISK-010",
+          "name": "Database State Loss",
+          "description": "Risk of losing canonical database state if Devnet resets",
+          "likelihood": "Low",
+          "impact": "Critical",
+          "mitigation": [
+            "Database as source of truth doctrine",
+            "ProofBook entries can replay proof anchors",
+            "Backup strategy documented in roadmap",
+            "Database preservation rules in devnet-doctrine.md"
+          ],
+          "status": "mitigated",
+          "residual_risk": "Low"
+        },
+        {
+          "id": "RISK-011",
+          "name": "Proof Hash Collisions",
+          "description": "Risk of SHA-256 hash collisions in proof verification",
+          "likelihood": "Very Low",
+          "impact": "High",
+          "mitigation": [
+            "SHA-256 is cryptographically secure",
+            "Canonical JSON serialization for consistency",
+            "ProofBook stores full proof data for verification",
+            "Explorer URLs for independent verification"
+          ],
+          "status": "mitigated",
+          "residual_risk": "Very Low"
+        },
+        {
+          "id": "RISK-012",
+          "name": "App Logic Bugs",
+          "description": "Risk of bugs in approval flow, liquidity calculations, or exports",
+          "likelihood": "Medium",
+          "impact": "Medium",
+          "mitigation": [
+            "Unit tests for core functions (test_app_logic.py)",
+            "Claim registry maps README claims to code evidence",
+            "Verification firewall pass identified and fixed approval bug",
+            "Fixed Trust-Adjusted Liquidity calculation to output dollars"
+          ],
+          "status": "mitigated",
+          "residual_risk": "Low"
+        }
+      ]
+    },
+    {
+      "category": "Market and Legal Risks",
+      "risks": [
+        {
+          "id": "RISK-013",
+          "name": "Fake Traction Claims",
+          "description": "Risk of claiming real users, revenue, or transactions when only simulation exists",
+          "likelihood": "Medium",
+          "impact": "Critical",
+          "mitigation": [
+            "README clearly states 'Pre-user. Post-thesis. Artifact-complete.'",
+            "All demo data marked as simulation/mock",
+            "Settlement ledger labeled 'MOCK SETTLEMENT LEDGER (DEMO/DRY-RUN ONLY)'",
+            "Investor summary includes disclaimer about simulation",
+            "No claims of live trading without compliance"
+          ],
+          "status": "mitigated",
+          "residual_risk": "Low"
+        },
+        {
+          "id": "RISK-014",
+          "name": "Regulatory Non-Compliance",
+          "description": "Risk of violating financial or data regulations in target markets",
+          "likelihood": "Medium",
+          "impact": "Critical",
+          "mitigation": [
+            "Regulatory risk scoring in index dictionary",
+            "Compliance review required for mainnet promotion",
+            "LaunchPad includes compliance checks",
+            "Legal review in roadmap as operational upgrade"
+          ],
+          "status": "partially_mitigated",
+          "residual_risk": "Medium"
+        },
+        {
+          "id": "RISK-015",
+          "name": "Intellectual Property Infringement",
+          "description": "Risk of infringing on existing product IP or branding",
+          "likelihood": "Low",
+          "impact": "High",
+          "mitigation": [
+            "Original branding, copy, and implementation",
+            "No proprietary content from existing platforms",
+            "Original data in sample inventory",
+            "Clear differentiation from competitors in thesis"
+          ],
+          "status": "mitigated",
+          "residual_risk": "Low"
+        }
+      ]
+    }
+  ],
+  "risk_summary": {
+    "total_risks": 15,
+    "by_status": {
+      "mitigated": 12,
+      "partially_mitigated": 3,
+      "unmitigated": 0
+    },
+    "by_likelihood": {
+      "very_low": 1,
+      "low": 6,
+      "medium": 7,
+      "high": 1,
+      "critical": 0
+    },
+    "by_impact": {
+      "low": 0,
+      "medium": 4,
+      "high": 6,
+      "critical": 5
+    },
+    "highest_priority_risks": [
+      "RISK-001: Real Funds Exposure",
+      "RISK-002: Mainnet Accidental Activation",
+      "RISK-003: Live Trading Without Compliance",
+      "RISK-005: Credential Exposure",
+      "RISK-008: Prohibited Categories",
+      "RISK-013: Fake Traction Claims"
+    ]
+  },
+  "disclaimer": "This risk register documents identified risks and mitigation strategies. Residual risk assessments are based on current implementation and may change with deployment or regulatory changes."
+}

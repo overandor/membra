@@ -1,0 +1,83 @@
+{
+  "version": "1.0.0",
+  "description": "EnMaTeS AgentOps Configuration for Overworker/49",
+  "generated_at": "2026-05-10T00:00:00Z",
+  "project": {
+    "name": "MEMBRA",
+    "repository": "overandor/membra",
+    "mission": "repo-to-product transformation with 24/7 AgentOps loop"
+  },
+  "operating_parameters": {
+    "daily_cycles": 10,
+    "cycle_duration_hours": 2,
+    "target_daily_hours": 20,
+    "capacity_mode": "adaptive",
+    "repair_priority": "highest",
+    "profit_layer": "enabled"
+  },
+  "system_instruction_components": {
+    "smf": "semantic_graph_schema.json",
+    "fpm": "operating_mode.json",
+    "fps": "agent_role_specialization.json",
+    "pic": "mission_purpose_constraints.json"
+  },
+  "initiation_package_components": {
+    "sg": "persistent_project_memory.json",
+    "sda": "source_documents_artifacts.json",
+    "sp": "starting_prompt.md",
+    "um": "operator_manual.md"
+  },
+  "chat_configurations": {
+    "base_config": "chat_config_base.json",
+    "role_configs": {
+      "enmates_architect": "fps_enmates_architect.json",
+      "agent_developer": "fps_agent_developer.json",
+      "domain_expert": "fps_domain_expert.json",
+      "tester_ai": "fps_tester_ai.json",
+      "verification_firewall": "fps_verification_firewall.json",
+      "release_manager": "fps_release_manager.json"
+    }
+  },
+  "cafet_plus_o": {
+    "enabled": true,
+    "concept": "messy work → verified package",
+    "asset": "repo files, docs, prompts, reports",
+    "flow": "ingest → verify → score → package → deploy",
+    "engine": "app.py, workers, analyzers, exporters, CI",
+    "theme": "EnMaTeS AgentOps",
+    "o": "pricing, pilots, deployment, operations"
+  },
+  "planfix_integration": {
+    "enabled": false,
+    "status": "optional_later",
+    "description": "Optional later integration: Overworker SG task queue → Planfix tasks → 20-hour AgentOps cycles → human review gates → package/release checklist"
+  },
+  "quality_gates": {
+    "app_launch": "required",
+    "tests_pass": "required",
+    "zip_export": "required",
+    "claims_source_supported": "required",
+    "secrets_redacted": "required",
+    "repo_input_validated": "required",
+    "clone_timeout_active": "required",
+    "readme_claims_match_code": "required"
+  },
+  "security_warnings": [
+    "Rotate any pasted Twilio, Telegram, Hugging Face, or API credentials before deployment"
+  ],
+  "output_package": {
+    "directory": "enmates/",
+    "artifacts": [
+      "00_system_overview/",
+      "01_system_instruction/",
+      "02_initiation_package/",
+      "10_chat_configurations/",
+      "agentops_config.json",
+      "task_queue.json",
+      "progress_ledger.json",
+      "risk_register.json",
+      "claim_registry.json",
+      "artifact_manifest.json"
+    ]
+  }
+}

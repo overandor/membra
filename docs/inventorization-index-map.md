@@ -1,8 +1,10 @@
-# MEMBRA Liquid Inventorization Index Map
+# MEMBRA Inventorization Index Map
+
+MEMBRA inventorizes household reality into canonical fields, then indexes those fields into searchable, priced, risk-scored, permissioned, and settleable economic units.
 
 ## The Flow
 
-Household Reality → Inventorization Layer → Index Families → MembraIndexRecord → Liquidity Outputs
+Household Reality → Inventorization Layer → Canonical Field Record → Index Families → MembraIndexRecord → Liquidity Outputs
 
 ## Household Reality
 

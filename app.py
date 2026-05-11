@@ -255,7 +255,7 @@ def calculate_mup(item):
     return mup
 
 def calculate_trust_adjusted_liquidity(approved_items):
-    """Calculate trust-adjusted liquidity score"""
+    """Calculate trust-adjusted liquidity in monthly dollars"""
     if not approved_items:
         return 0.0
     
@@ -270,7 +270,7 @@ def calculate_trust_adjusted_liquidity(approved_items):
         risk_factor = 1.0 if item['risk_level'] == 'Low' else 0.7 if item['risk_level'] == 'Medium' else 0.4
         risk_adjusted += monthly_value * risk_factor
     
-    return risk_adjusted if gross_value == 0 else (risk_adjusted / gross_value) * 100
+    return risk_adjusted
 
 def calculate_node_yield_score(approved_items):
     """Calculate node yield score"""
@@ -313,8 +313,18 @@ def generate_liquid_cards():
 
 def update_inventory_status(approved_indices):
     """Update approval status for selected items"""
+    # Parse selected strings to extract indices (format: "1. Vacuum Cleaner")
+    approved_index_numbers = []
+    for selection in approved_indices:
+        # Extract the number before the first period
+        try:
+            index = int(selection.split('.')[0]) - 1  # Convert to 0-based index
+            approved_index_numbers.append(index)
+        except (ValueError, IndexError):
+            continue
+    
     for i, item in enumerate(SAMPLE_INVENTORY):
-        SAMPLE_INVENTORY[i]['approved'] = i in approved_indices
+        SAMPLE_INVENTORY[i]['approved'] = i in approved_index_numbers
     return generate_liquid_cards()
 
 def generate_household_balance_sheet():

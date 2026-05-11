@@ -1,0 +1,102 @@
+{
+  "version": "1.0.0",
+  "description": "EnMaTeS Overworker/49 Task Queue",
+  "generated_at": "2026-05-10T00:00:00Z",
+  "queue_status": "active",
+  "current_cycle": 1,
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "title": "Complete verification firewall pass",
+      "description": "Fix approval flow bug, correct Trust-Adjusted Liquidity calculation, add claim registry, artifact manifest, risk register, and tests",
+      "status": "completed",
+      "priority": "high",
+      "assigned_to": "VerificationFirewall",
+      "created_at": "2026-05-10T00:00:00Z",
+      "completed_at": "2026-05-10T00:00:00Z",
+      "profit_drivers": ["Trust", "Cost Reduction", "Sales Enablement"],
+      "cycle": 1
+    },
+    {
+      "id": "TASK-002",
+      "title": "Add EnMaTeS AgentOps structure",
+      "description": "Create enmates/ directory with system overview, system instruction, initiation package, and chat configurations",
+      "status": "in_progress",
+      "priority": "medium",
+      "assigned_to": "EnMaTeSArchitect",
+      "created_at": "2026-05-10T00:00:00Z",
+      "profit_drivers": ["Operational Leverage", "Sales Enablement"],
+      "cycle": 1
+    },
+    {
+      "id": "TASK-003",
+      "title": "Add system instruction components",
+      "description": "Create SMF, FPM, FPS, and PIC configuration files for system instruction layer",
+      "status": "pending",
+      "priority": "medium",
+      "assigned_to": "EnMaTeSArchitect",
+      "profit_drivers": ["Operational Leverage"],
+      "cycle": 2
+    },
+    {
+      "id": "TASK-004",
+      "title": "Add initiation package components",
+      "description": "Create SG, SDA, SP, and UM files for initiation package layer",
+      "status": "pending",
+      "priority": "medium",
+      "assigned_to": "DomainExpert",
+      "profit_drivers": ["Activation", "Retention"],
+      "cycle": 2
+    },
+    {
+      "id": "TASK-005",
+      "title": "Add chat configurations",
+      "description": "Create role-specific chat configurations for each agent role",
+      "status": "pending",
+      "priority": "medium",
+      "assigned_to": "AgentDeveloper",
+      "profit_drivers": ["Operational Leverage"],
+      "cycle": 3
+    },
+    {
+      "id": "TASK-006",
+      "title": "Add progress ledger",
+      "description": "Create progress_ledger.json to track cycle-by-cycle progress",
+      "status": "pending",
+      "priority": "medium",
+      "assigned_to": "ReleaseManager",
+      "profit_drivers": ["Operational Leverage"],
+      "cycle": 3
+    },
+    {
+      "id": "TASK-007",
+      "title": "Add Planfix integration scaffold",
+      "description": "Create optional Planfix integration for task queue and review gates",
+      "status": "pending",
+      "priority": "low",
+      "assigned_to": "ReleaseManager",
+      "profit_drivers": ["Operational Leverage"],
+      "cycle": 4
+    }
+  ],
+  "task_statistics": {
+    "total_tasks": 7,
+    "by_status": {
+      "completed": 1,
+      "in_progress": 1,
+      "pending": 5
+    },
+    "by_priority": {
+      "high": 1,
+      "medium": 5,
+      "low": 1
+    },
+    "by_cycle": {
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 1
+    }
+  },
+  "next_task_id": "TASK-003"
+}
