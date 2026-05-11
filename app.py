@@ -6,11 +6,60 @@ MEMBRA is an AI inventory graph for private household assets, converting physica
 
 import gradio as gr
 import json
+import os
 from datetime import datetime
 from devnet_guardrails import enforce_membra_devnet_doctrine
+import stripe
 
 # Enforce MEMBRA Devnet Doctrine at startup
 enforce_membra_devnet_doctrine()
+
+# Stripe configuration
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "sk_test_placeholder")
+STRIPE_PRICE_ID_STARTER = os.getenv("STRIPE_PRICE_ID_STARTER", "price_starter_placeholder")
+STRIPE_PRICE_ID_PRO = os.getenv("STRIPE_PRICE_ID_PRO", "price_pro_placeholder")
+STRIPE_PRICE_ID_ENTERPRISE = os.getenv("STRIPE_PRICE_ID_ENTERPRISE", "price_enterprise_placeholder")
+
+# Pricing tiers
+PRICING_TIERS = {
+    "starter": {
+        "name": "Starter",
+        "price": 0,
+        "features": [
+            "Basic inventory tracking (up to 50 items)",
+            "Manual price suggestions",
+            "Basic risk assessment",
+            "Community support"
+        ],
+        "cta": "Get Started Free"
+    },
+    "pro": {
+        "name": "Professional",
+        "price": 29,
+        "features": [
+            "Unlimited inventory tracking",
+            "AI-powered price optimization",
+            "Advanced risk modeling",
+            "Settlement ledger export",
+            "Priority support",
+            "API access"
+        ],
+        "cta": "Start Pro Trial"
+    },
+    "enterprise": {
+        "name": "Enterprise",
+        "price": 99,
+        "features": [
+            "Everything in Pro",
+            "Multi-home management",
+            "Custom pricing models",
+            "White-label deployment",
+            "Dedicated account manager",
+            "SLA guarantee"
+        ],
+        "cta": "Contact Sales"
+    }
+}
 
 # Sample inventory data for simulation
 SAMPLE_INVENTORY = [
@@ -613,6 +662,142 @@ with gr.Blocks(title="MEMBRA Liquid Terminal", theme=gr.themes.Soft()) as demo:
         csv_btn.click(
             export_inventory_csv,
             outputs=[csv_output]
+        )
+    
+    with gr.Tab("Pricing"):
+        gr.Markdown("### Choose Your Plan")
+        gr.Markdown("Unlock the full potential of MEMBRA Liquid Terminal")
+        
+        with gr.Row():
+            with gr.Column():
+                gr.Markdown("#### Starter - Free")
+                gr.Markdown("**$0/month**")
+                for feature in PRICING_TIERS["starter"]["features"]:
+                    gr.Markdown(f"✓ {feature}")
+                starter_btn = gr.Button(PRICING_TIERS["starter"]["cta"], variant="secondary")
+            
+            with gr.Column():
+                gr.Markdown("#### Professional - $29/month")
+                gr.Markdown("**Best Value**")
+                for feature in PRICING_TIERS["pro"]["features"]:
+                    gr.Markdown(f"✓ {feature}")
+                pro_btn = gr.Button(PRICING_TIERS["pro"]["cta"], variant="primary")
+            
+            with gr.Column():
+                gr.Markdown("#### Enterprise - $99/month")
+                gr.Markdown("**For Teams**")
+                for feature in PRICING_TIERS["enterprise"]["features"]:
+                    gr.Markdown(f"✓ {feature}")
+                enterprise_btn = gr.Button(PRICING_TIERS["enterprise"]["cta"], variant="secondary")
+        
+        pricing_output = gr.Textbox(label="Checkout Status")
+        
+        def create_checkout_session(tier):
+            """Create a Stripe checkout session for the selected tier."""
+            try:
+                if tier == "starter":
+                    return "Starter plan is free! No payment required."
+                elif tier == "pro":
+                    # Create actual Stripe checkout session
+                    checkout_session = stripe.checkout.Session.create(
+                        payment_method_types=["card"],
+                        line_items=[
+                            {
+                                "price_data": {
+                                    "currency": "usd",
+                                    "product_data": {
+                                        "name": "MEMBRA Professional",
+                                        "description": "Unlimited inventory tracking, AI pricing, advanced risk modeling"
+                                    },
+                                    "unit_amount": 2900,  # $29.00 in cents
+                                },
+                                "quantity": 1,
+                            }
+                        ],
+                        mode="payment",
+                        success_url="https://huggingface.co/spaces/luguog/membra?success=true",
+                        cancel_url="https://huggingface.co/spaces/luguog/membra?canceled=true",
+                    )
+                    return f"Redirecting to Stripe checkout: {checkout_session.url}"
+                elif tier == "enterprise":
+                    return "Enterprise plan requires custom quote. Contact sales@membra.liquid"
+                else:
+                    return "Invalid tier selected"
+            except Exception as e:
+                return f"Error creating checkout session: {str(e)}"
+        
+        starter_btn.click(
+            lambda: create_checkout_session("starter"),
+            outputs=[pricing_output]
+        )
+        
+        pro_btn.click(
+            lambda: create_checkout_session("pro"),
+            outputs=[pricing_output]
+        )
+        
+        enterprise_btn.click(
+            lambda: create_checkout_session("enterprise"),
+            outputs=[pricing_output]
+        )
+    
+    with gr.Tab("Revenue Dashboard"):
+        gr.Markdown("### MEMBRA Revenue Dashboard")
+        gr.Markdown("Track your household inventory monetization performance")
+        
+        with gr.Row():
+            with gr.Column():
+                gr.Markdown("#### Monthly Revenue Potential")
+                revenue_output = gr.Textbox(label="Estimated Monthly Revenue ($)")
+                calculate_revenue_btn = gr.Button("Calculate Revenue Potential", variant="primary")
+            
+            with gr.Column():
+                gr.Markdown("#### Key Metrics")
+                metrics_output = gr.Textbox(label="Performance Metrics")
+                calculate_metrics_btn = gr.Button("Calculate Metrics", variant="secondary")
+        
+        def calculate_revenue_potential():
+            """Calculate potential monthly revenue from approved inventory."""
+            approved_items = [item for item in SAMPLE_INVENTORY if item['approved']]
+            if not approved_items:
+                return "No approved items. Approve inventory items to calculate revenue."
+            
+            monthly_revenue = 0
+            for item in approved_items:
+                if item['rent_mode'] == 'hourly':
+                    # Assume 20 hours/month usage
+                    monthly_revenue += item['suggested_price'] * 20
+                else:
+                    monthly_revenue += item['suggested_price']
+            
+            return f"${monthly_revenue:.2f}/month potential revenue from {len(approved_items)} approved items"
+        
+        def calculate_metrics():
+            """Calculate performance metrics."""
+            approved_count = len([item for item in SAMPLE_INVENTORY if item['approved']])
+            total_count = len(SAMPLE_INVENTORY)
+            approval_rate = (approved_count / total_count * 100) if total_count > 0 else 0
+            
+            avg_risk_score = sum([
+                1.0 if item['risk_level'] == 'Low' else 
+                0.7 if item['risk_level'] == 'Medium' else 0.4 
+                for item in SAMPLE_INVENTORY
+            ]) / total_count if total_count > 0 else 0
+            
+            return f"""Approval Rate: {approval_rate:.1f}%
+Average Risk Score: {avg_risk_score:.2f}
+Total Items: {total_count}
+Approved Items: {approved_count}
+Inventory Utilization: {approval_rate * 0.8:.1f}%"""
+        
+        calculate_revenue_btn.click(
+            calculate_revenue_potential,
+            outputs=[revenue_output]
+        )
+        
+        calculate_metrics_btn.click(
+            calculate_metrics,
+            outputs=[metrics_output]
         )
     
     gr.Markdown("""
