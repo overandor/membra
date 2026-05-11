@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+pydantic
+python-multipart
+httpx
+twilio
+python-telegram-bot
+huggingface-hub
+python-dotenv
+replicate
+solana
+solders
+base58
+sqlalchemy
