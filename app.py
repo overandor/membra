@@ -1,6 +1,7 @@
 """
 MEMBRA Liquid Terminal
-The liquidity layer for real-world household utility
+MEMBRA turns every home into a verified inventory node.
+MEMBRA is an AI inventory graph for private household assets, converting physical utility into verified, priced, permissioned, and settleable local SKUs.
 """
 
 import gradio as gr

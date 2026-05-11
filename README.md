@@ -2,13 +2,7 @@
 
 MEMBRA turns every home into a verified inventory node.
 
-## The Pitch
-
-MEMBRA is the AI operating system that turns private household utility into verified, fractional, permissioned local commerce.
-
-It starts with low-risk household utility: storage, tools, appliances, charging/workspace access, and local fulfillment.
-
-Its moat is not listings. Its moat is the field grammar: every private object, space, service, utility, and time window becomes a searchable, priced, risk-scored, permissioned, and settleable economic unit.
+MEMBRA is an AI inventory graph for private household assets, converting physical utility into verified, priced, permissioned, and settleable local SKUs.
 
 ## Quick Start
 
