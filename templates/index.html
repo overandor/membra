@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEMBRA Liquid Terminal</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #666;
+            margin: 0;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 0 5px 5px 5px;
+            border: 1px solid #ddd;
+            border-top: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .btn {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        textarea, pre {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .inventory-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .inventory-item input {
+            margin-right: 10px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e7f3ff;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>MEMBRA Liquid Terminal</h1>
+        <p>MEMBRA turns every home into a verified inventory node.</p>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('scan')">Scan & Detect</div>
+        <div class="tab" onclick="showTab('approve')">Review & Approve</div>
+        <div class="tab" onclick="showTab('balance')">Balance Sheet</div>
+        <div class="tab" onclick="showTab('risk')">Risk Ladder</div>
+        <div class="tab" onclick="showTab('ledger')">Settlement Ledger</div>
+        <div class="tab" onclick="showTab('investor')">Investor Summary</div>
+        <div class="tab" onclick="showTab('export')">Export</div>
+    </div>
+
+    <div id="scan" class="tab-content active">
+        <h2>Step 1: Upload Room Image</h2>
+        <p>Upload a room photo to detect utility units.</p>
+        <input type="file" id="imageInput" accept="image/*">
+        <br><br>
+        <button class="btn" onclick="detect()">Detect Utility Units</button>
+        <div id="detectResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div id="approve" class="tab-content">
+        <h2>Step 2: Review Detected Utility Units</h2>
+        <p>Select utility units to approve for liquidity:</p>
+        <div id="inventoryList"></div>
+        <br>
+        <button class="btn" onclick="approveItems()">Update Approval Status</button>
+        <div id="approveResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div id="balance" class="tab-content">
+        <h2>Step 3: Generate Household Balance Sheet</h2>
+        <p>View your household as a liquidity node:</p>
+        <button class="btn" onclick="generateBalanceSheet()">Generate Balance Sheet</button>
+        <div id="balanceResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div id="risk" class="tab-content">
+        <h2>Step 4: Risk Assessment</h2>
+        <p>View risk ladder for approved utility units:</p>
+        <button class="btn" onclick="generateRiskAssessment()">Generate Risk Assessment</button>
+        <div id="riskResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div id="ledger" class="tab-content">
+        <h2>Step 5: Mock Settlement Ledger</h2>
+        <p><em>This is a demonstration. No actual transactions will occur.</em></p>
+        <button class="btn" onclick="generateSettlementLedger()">Generate Mock Ledger</button>
+        <div id="ledgerResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div id="investor" class="tab-content">
+        <h2>Step 6: Export Investor Summary</h2>
+        <p>Generate finance-ready inventory summary for investors:</p>
+        <button class="btn" onclick="generateInvestorSummary()">Generate Investor Summary</button>
+        <div id="investorResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div id="export" class="tab-content">
+        <h2>Step 7: Export Data</h2>
+        <button class="btn" onclick="exportJSON()">Export JSON</button>
+        <button class="btn btn-secondary" onclick="exportCSV()">Export CSV</button>
+        <div id="exportResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="footer">
+        <p><strong>MEMBRA Liquid</strong> converts idle household utility into verified, fractional, finance-ready local liquidity.</p>
+        <p><em>This is a simulator. Real deployment requires AI vision detection and live market data.</em></p>
+        <p><strong>Pre-user. Post-thesis. Artifact-complete.</strong></p>
+    </div>
+
+    <script>
+        let inventory = {{ inventory | tojson }};
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function loadInventory() {
+            const container = document.getElementById('inventoryList');
+            container.innerHTML = '';
+            inventory.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'inventory-item';
+                div.innerHTML = `
+                    <input type="checkbox" id="item-${index}" ${item.approved ? 'checked' : ''}>
+                    <label for="item-${index}">
+                        <strong>${item.name}</strong> - ${item.category} - ${item.type}<br>
+                        Unit Type: ${item.unit_type || 'N/A'} | Confidence: ${(item.confidence * 100).toFixed(0)}% | Risk: ${item.risk_level}<br>
+                        MUP: $${item.minimum_useful_price || 'N/A'}/${item.rent_mode} | Suggested: $${item.suggested_price}/${item.rent_mode}<br>
+                        Access: ${item.access_mode || item.space_mode} | Fulfillment: ${item.fulfillment_mode || 'Host Handoff'}<br>
+                        Trust: ${item.trust_score || 'N/A'} | Liquidity: ${item.liquidity_score || 'N/A'} | Yield: ${item.yield_score || 'N/A'}
+                    </label>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function detect() {
+            const result = await fetch('/api/detect', { method: 'POST' }).then(r => r.json());
+            document.getElementById('detectResult').style.display = 'block';
+            document.getElementById('detectResult').textContent = result.message;
+        }
+
+        async function approveItems() {
+            const approvedIndices = [];
+            inventory.forEach((item, index) => {
+                if (document.getElementById(`item-${index}`).checked) {
+                    approvedIndices.push(index);
+                }
+            });
+            
+            const result = await fetch('/api/approve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ approved_indices: approvedIndices })
+            }).then(r => r.json());
+            
+            document.getElementById('approveResult').style.display = 'block';
+            document.getElementById('approveResult').textContent = result.message;
+            
+            const updated = await fetch('/api/inventory').then(r => r.json());
+            inventory = updated.inventory;
+            loadInventory();
+        }
+
+        async function generateBalanceSheet() {
+            const result = await fetch('/api/balance-sheet').then(r => r.json());
+            document.getElementById('balanceResult').style.display = 'block';
+            document.getElementById('balanceResult').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function generateRiskAssessment() {
+            const result = await fetch('/api/risk-assessment').then(r => r.json());
+            document.getElementById('riskResult').style.display = 'block';
+            document.getElementById('riskResult').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function generateSettlementLedger() {
+            const result = await fetch('/api/settlement-ledger').then(r => r.json());
+            document.getElementById('ledgerResult').style.display = 'block';
+            document.getElementById('ledgerResult').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function generateInvestorSummary() {
+            const result = await fetch('/api/investor-summary').then(r => r.json());
+            document.getElementById('investorResult').style.display = 'block';
+            document.getElementById('investorResult').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function exportJSON() {
+            const result = await fetch('/api/export/json').then(r => r.json());
+            document.getElementById('exportResult').style.display = 'block';
+            document.getElementById('exportResult').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+        async function exportCSV() {
+            const result = await fetch('/api/export/csv').then(r => r.json());
+            document.getElementById('exportResult').style.display = 'block';
+            document.getElementById('exportResult').innerHTML = `<pre>${result.csv}</pre>`;
+        }
+
+        loadInventory();
+    </script>
+</body>
+</html>
