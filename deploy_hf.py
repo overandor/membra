@@ -30,11 +30,10 @@ except Exception as e:
         print(f"Space already exists: {space_id}")
         print("Proceeding with file upload...")
     else:
-        print(f"Error creating space: {e}")
-        print("Please create the space manually at: https://huggingface.co/spaces/new")
-        print("Choose 'Gradio' as SDK and name it 'membra'")
-        exit(1)
-print("")
+        print(f"Space does not exist: {space_id}")
+    print("Please create the space manually at: https://huggingface.co/spaces/new")
+    print("Choose 'Docker' as SDK and name it 'membra'")
+    print("Then run this script again.")
 
 # Files to upload
 files_to_upload = [
@@ -81,5 +80,5 @@ for file in files_to_upload:
     else:
         print(f"✗ File not found: {file}")
 
-print(f"\n✓ Deployment complete!")
+print("\n✓ Deployment complete!")
 print(f"View your Space at: https://huggingface.co/spaces/{space_id}")
