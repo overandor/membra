@@ -40,7 +40,8 @@ files_to_upload = [
     "app.py",
     "requirements.txt",
     "README.md",
-    ".env.example"
+    ".env.example",
+    "Dockerfile"
 ]
 
 # Upload docs directory
