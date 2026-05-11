@@ -1,3 +1,12 @@
+---
+title: MEMBRA Liquid Terminal
+emoji: 🏠
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+---
+
 # MEMBRA
 
 MEMBRA turns every home into a verified inventory node.
