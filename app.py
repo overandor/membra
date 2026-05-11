@@ -6,6 +6,10 @@ The liquidity layer for real-world household utility
 import gradio as gr
 import json
 from datetime import datetime
+from devnet_guardrails import enforce_membra_devnet_doctrine
+
+# Enforce MEMBRA Devnet Doctrine at startup
+enforce_membra_devnet_doctrine()
 
 # Sample inventory data for simulation
 SAMPLE_INVENTORY = [
