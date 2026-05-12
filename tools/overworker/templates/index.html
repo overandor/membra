@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overworker - AI Execution Layer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .neoglassic-dark { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
+        .neoglassic-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.18); }
+        .gradient-text { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); transition: all 0.3s ease; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(102,126,234,0.4); }
+        .input-field { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); transition: all 0.3s ease; }
+        .input-field:focus { background: rgba(255,255,255,0.2); outline: none; }
+    </style>
+</head>
+<body class="min-h-screen neoglassic-dark">
+    <nav class="neoglassic-card px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <span class="text-2xl font-bold text-white">Overworker</span>
+            <div class="flex items-center space-x-6">
+                <a href="#features" class="text-gray-300 hover:text-white transition">Features</a>
+                <a href="#pricing" class="text-gray-300 hover:text-white transition">Pricing</a>
+                <button class="btn-primary px-6 py-2 rounded-lg text-white font-semibold">Get Started</button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="py-20 px-6">
+        <div class="max-w-7xl mx-auto text-center">
+            <h1 class="text-5xl md:text-7xl font-bold text-white mb-6">
+                Transform <span class="gradient-text">Messy Repos</span> Into <span class="gradient-text">Verified Assets</span>
+            </h1>
+            <div class="max-w-2xl mx-auto mb-8">
+                <div class="neoglassic-card rounded-2xl p-6">
+                    <div class="flex space-x-4">
+                        <input type="text" id="repoUrl" placeholder="https://github.com/owner/repo"
+                            class="input-field flex-1 px-6 py-4 rounded-xl text-white placeholder-gray-400"
+                            value="https://github.com/overandor/overworker">
+                        <button onclick="analyzeRepo()" class="btn-primary px-8 py-4 rounded-xl text-white font-semibold">Analyze</button>
+                    </div>
+                </div>
+            </div>
+            <div id="results" class="hidden max-w-4xl mx-auto">
+                <div class="neoglassic-card rounded-2xl p-8 text-left">
+                    <h2 class="text-2xl font-bold text-white mb-6">Analysis Results</h2>
+                    <div class="mb-8">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-300">Overwork Score</span>
+                            <span id="scoreValue" class="text-3xl font-bold gradient-text">0.00</span>
+                        </div>
+                        <div class="w-full h-4 bg-gray-700 rounded-full overflow-hidden">
+                            <div id="scoreBar" class="h-full rounded-full transition-all duration-1000" style="width:0%;background:linear-gradient(90deg,#667eea,#764ba2)"></div>
+                        </div>
+                        <p id="scoreBand" class="text-gray-400 mt-2">SCAFFOLD</p>
+                    </div>
+                    <div class="neoglassic-card rounded-lg p-4">
+                        <p class="text-gray-400 text-sm">Weakest Link</p>
+                        <p id="weakestLink" class="text-lg font-bold text-white">None</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="neoglassic-card py-8 px-6 mt-20">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-300">2026 Overworker. AI execution layer for GitHub repositories.</p>
+        </div>
+    </footer>
+
+    <script>
+        let currentZipUrl = '';
+        let currentFilename = '';
+
+        async function analyzeRepo() {
+            const repoUrl = document.getElementById('repoUrl').value;
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: repoUrl })
+                });
+                const data = await response.json();
+                if (data.error) { alert(data.error); return; }
+                document.getElementById('results').classList.remove('hidden');
+                document.getElementById('scoreValue').textContent = data.score.toFixed(2);
+                document.getElementById('scoreBar').style.width = `${data.score * 100}%`;
+                document.getElementById('scoreBand').textContent = data.band.toUpperCase();
+                document.getElementById('weakestLink').textContent = data.weakest_link;
+                currentZipUrl = data.zip_url;
+                currentFilename = data.filename;
+            } catch (error) {
+                alert('Analysis failed: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
