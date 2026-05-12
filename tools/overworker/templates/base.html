@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overworker - AI Execution Layer</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <nav class="top-nav glass-container">
+        <div class="nav-content">
+            <div class="logo"><h1>OVERWORKER</h1></div>
+            <div class="nav-categories">
+                <a href="/" class="nav-pill">Home</a>
+                <a href="/features" class="nav-pill">Features</a>
+                <a href="/pricing" class="nav-pill">Pricing</a>
+                <a href="/about" class="nav-pill">About</a>
+                <a href="/docs" class="nav-pill">Docs</a>
+            </div>
+        </div>
+    </nav>
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
