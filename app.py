@@ -1,813 +1,658 @@
-"""
-MEMBRA Liquid Terminal
-MEMBRA turns every home into a verified inventory node.
-MEMBRA is an AI inventory graph for private household assets, converting physical utility into verified, priced, permissioned, and settleable local SKUs.
-"""
+'''
+Membra Institutional KPI Generator — Hugging Face Spaces app.py
+
+Single-file FastAPI + Gradio production runtime with Groq KPI generation,
+Stripe webhook entitlement hooks, SQLite quota tracking, dataset profiling,
+and JSON/CSV exports.
+
+Recommended requirements.txt:
+  gradio>=4.44.1
+  fastapi>=0.111.0
+  uvicorn>=0.30.0
+  pandas>=2.2.0
+  groq>=0.9.0
+  stripe>=10.0.0
+  openpyxl>=3.1.0
+  pyarrow>=15.0.0
+  python-multipart>=0.0.9
+
+Required Hugging Face Space secrets:
+  GROQ_API_KEY
+  STRIPE_SECRET_KEY
+  STRIPE_WEBHOOK_SECRET
+  STRIPE_PRICE_ID
+  APP_BASE_URL
+
+Optional:
+  GROQ_MODEL, REQUIRE_STRIPE, FREE_DAILY_KPI_LIMIT, PAID_DAILY_KPI_LIMIT,
+  APP_DB_PATH, APP_EXPORT_DIR, ADMIN_API_TOKEN, AUTO_INSTALL_DEPS
+'''
+
+from __future__ import annotations
+
+import datetime as dt
+import hashlib
+import importlib.util
+import json
+import logging
+import os
+import re
+import sqlite3
+import subprocess
+import sys
+import uuid
+from pathlib import Path
+from typing import Any
+
+
+def ensure_runtime_dependencies() -> None:
+    required = {
+        'gradio': 'gradio>=4.44.1',
+        'fastapi': 'fastapi>=0.111.0',
+        'uvicorn': 'uvicorn>=0.30.0',
+        'pandas': 'pandas>=2.2.0',
+        'groq': 'groq>=0.9.0',
+        'stripe': 'stripe>=10.0.0',
+        'openpyxl': 'openpyxl>=3.1.0',
+        'pyarrow': 'pyarrow>=15.0.0',
+        'multipart': 'python-multipart>=0.0.9',
+    }
+    missing = [pkg for module, pkg in required.items() if importlib.util.find_spec(module) is None]
+    if not missing:
+        return
+    if os.getenv('AUTO_INSTALL_DEPS', 'true').strip().lower() not in {'1', 'true', 'yes', 'on'}:
+        raise RuntimeError('Missing dependencies: ' + ', '.join(missing))
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--quiet', *missing])
+
+
+ensure_runtime_dependencies()
 
 import gradio as gr
-import json
-import os
-from datetime import datetime
-from devnet_guardrails import enforce_membra_devnet_doctrine
+import pandas as pd
 import stripe
+import uvicorn
+from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi.responses import JSONResponse, PlainTextResponse
+from groq import Groq
+from pydantic import BaseModel
 
-# Enforce MEMBRA Devnet Doctrine at startup
-enforce_membra_devnet_doctrine()
+APP_NAME = 'Membra Institutional KPI Generator'
+APP_VERSION = '1.0.0'
+LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO').upper()
+logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s %(levelname)s %(name)s: %(message)s')
+log = logging.getLogger('membra-kpi')
 
-# Stripe configuration
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "sk_test_placeholder")
-STRIPE_PRICE_ID_STARTER = os.getenv("STRIPE_PRICE_ID_STARTER", "price_starter_placeholder")
-STRIPE_PRICE_ID_PRO = os.getenv("STRIPE_PRICE_ID_PRO", "price_pro_placeholder")
-STRIPE_PRICE_ID_ENTERPRISE = os.getenv("STRIPE_PRICE_ID_ENTERPRISE", "price_enterprise_placeholder")
+DB_PATH = Path(os.getenv('APP_DB_PATH', '/tmp/membra_kpi.sqlite3'))
+EXPORT_DIR = Path(os.getenv('APP_EXPORT_DIR', '/tmp/membra_kpi_exports'))
+EXPORT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Pricing tiers
-PRICING_TIERS = {
-    "starter": {
-        "name": "Starter",
-        "price": 0,
-        "features": [
-            "Basic inventory tracking (up to 50 items)",
-            "Manual price suggestions",
-            "Basic risk assessment",
-            "Community support"
-        ],
-        "cta": "Get Started Free"
-    },
-    "pro": {
-        "name": "Professional",
-        "price": 29,
-        "features": [
-            "Unlimited inventory tracking",
-            "AI-powered price optimization",
-            "Advanced risk modeling",
-            "Settlement ledger export",
-            "Priority support",
-            "API access"
-        ],
-        "cta": "Start Pro Trial"
-    },
-    "enterprise": {
-        "name": "Enterprise",
-        "price": 99,
-        "features": [
-            "Everything in Pro",
-            "Multi-home management",
-            "Custom pricing models",
-            "White-label deployment",
-            "Dedicated account manager",
-            "SLA guarantee"
-        ],
-        "cta": "Contact Sales"
+GROQ_MODEL = os.getenv('GROQ_MODEL', 'llama3-70b-8192')
+GROQ_API_KEY = os.getenv('GROQ_API_KEY', '')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
+STRIPE_PRICE_ID = os.getenv('STRIPE_PRICE_ID', '')
+APP_BASE_URL = os.getenv('APP_BASE_URL', 'http://localhost:7860').rstrip('/')
+REQUIRE_STRIPE = os.getenv('REQUIRE_STRIPE', 'false').strip().lower() in {'1', 'true', 'yes', 'on'}
+FREE_DAILY_KPI_LIMIT = int(os.getenv('FREE_DAILY_KPI_LIMIT', '25'))
+PAID_DAILY_KPI_LIMIT = int(os.getenv('PAID_DAILY_KPI_LIMIT', '1000'))
+ADMIN_API_TOKEN = os.getenv('ADMIN_API_TOKEN', '')
+stripe.api_key = STRIPE_SECRET_KEY or None
+
+api = FastAPI(title=APP_NAME, version=APP_VERSION)
+
+
+class CheckoutRequest(BaseModel):
+    email: str
+    success_url: str | None = None
+    cancel_url: str | None = None
+
+
+class PortalRequest(BaseModel):
+    email: str
+    return_url: str | None = None
+
+
+class AdminGrantRequest(BaseModel):
+    email: str
+    tier: str = 'pro'
+    status: str = 'active'
+    daily_limit: int | None = None
+
+
+def now_utc() -> str:
+    return dt.datetime.now(dt.timezone.utc).isoformat()
+
+
+def today_key() -> str:
+    return dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d')
+
+
+def normalize_email(email: str) -> str:
+    email = (email or '').strip().lower()
+    if not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', email):
+        raise ValueError('A valid email address is required.')
+    return email
+
+
+def db() -> sqlite3.Connection:
+    conn = sqlite3.connect(DB_PATH, timeout=30, isolation_level=None)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def init_db() -> None:
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with db() as conn:
+        conn.executescript('''
+            PRAGMA journal_mode=WAL;
+            CREATE TABLE IF NOT EXISTS entitlements (
+                email TEXT PRIMARY KEY,
+                tier TEXT NOT NULL DEFAULT 'free',
+                status TEXT NOT NULL DEFAULT 'inactive',
+                daily_limit INTEGER NOT NULL DEFAULT 25,
+                stripe_customer_id TEXT,
+                stripe_subscription_id TEXT,
+                current_period_end TEXT,
+                updated_at TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS usage_daily (
+                email TEXT NOT NULL,
+                day TEXT NOT NULL,
+                kpis_generated INTEGER NOT NULL DEFAULT 0,
+                updated_at TEXT NOT NULL,
+                PRIMARY KEY(email, day)
+            );
+            CREATE TABLE IF NOT EXISTS generation_events (
+                id TEXT PRIMARY KEY,
+                email TEXT NOT NULL,
+                dataset_fingerprint TEXT,
+                kpi_count INTEGER NOT NULL,
+                model TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_entitlements_customer ON entitlements(stripe_customer_id);
+            CREATE INDEX IF NOT EXISTS idx_entitlements_subscription ON entitlements(stripe_subscription_id);
+        ''')
+
+
+init_db()
+
+
+def get_entitlement(email: str) -> dict[str, Any]:
+    email = normalize_email(email)
+    with db() as conn:
+        row = conn.execute('SELECT * FROM entitlements WHERE email=?', (email,)).fetchone()
+        used = conn.execute('SELECT kpis_generated FROM usage_daily WHERE email=? AND day=?', (email, today_key())).fetchone()
+    if row:
+        ent = dict(row)
+    else:
+        ent = {
+            'email': email,
+            'tier': 'free',
+            'status': 'active' if not REQUIRE_STRIPE else 'inactive',
+            'daily_limit': FREE_DAILY_KPI_LIMIT,
+            'stripe_customer_id': None,
+            'stripe_subscription_id': None,
+            'current_period_end': None,
+            'updated_at': None,
+        }
+    ent['used_today'] = int(used['kpis_generated']) if used else 0
+    ent['remaining_today'] = max(0, int(ent['daily_limit']) - ent['used_today'])
+    ent['require_stripe'] = REQUIRE_STRIPE
+    return ent
+
+
+def upsert_entitlement(
+    email: str,
+    *,
+    tier: str,
+    status: str,
+    daily_limit: int,
+    stripe_customer_id: str | None = None,
+    stripe_subscription_id: str | None = None,
+    current_period_end: str | None = None,
+) -> None:
+    email = normalize_email(email)
+    with db() as conn:
+        conn.execute(
+            '''
+            INSERT INTO entitlements(email, tier, status, daily_limit, stripe_customer_id,
+                                     stripe_subscription_id, current_period_end, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(email) DO UPDATE SET
+              tier=excluded.tier,
+              status=excluded.status,
+              daily_limit=excluded.daily_limit,
+              stripe_customer_id=COALESCE(excluded.stripe_customer_id, entitlements.stripe_customer_id),
+              stripe_subscription_id=COALESCE(excluded.stripe_subscription_id, entitlements.stripe_subscription_id),
+              current_period_end=COALESCE(excluded.current_period_end, entitlements.current_period_end),
+              updated_at=excluded.updated_at
+            ''',
+            (email, tier, status, daily_limit, stripe_customer_id, stripe_subscription_id, current_period_end, now_utc()),
+        )
+
+
+def increment_usage(email: str, kpi_count: int) -> None:
+    with db() as conn:
+        conn.execute(
+            '''
+            INSERT INTO usage_daily(email, day, kpis_generated, updated_at)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(email, day) DO UPDATE SET
+              kpis_generated = usage_daily.kpis_generated + excluded.kpis_generated,
+              updated_at = excluded.updated_at
+            ''',
+            (normalize_email(email), today_key(), int(kpi_count), now_utc()),
+        )
+
+
+def require_admin(authorization: str | None) -> None:
+    if not ADMIN_API_TOKEN:
+        raise HTTPException(404, 'Admin endpoint disabled. Set ADMIN_API_TOKEN to enable it.')
+    if authorization != f'Bearer {ADMIN_API_TOKEN}':
+        raise HTTPException(401, 'Invalid admin token')
+
+
+def subscription_period_end(subscription: Any) -> str | None:
+    raw = None
+    if subscription is not None:
+        raw = subscription.get('current_period_end') if hasattr(subscription, 'get') else getattr(subscription, 'current_period_end', None)
+    if not raw:
+        return None
+    return dt.datetime.fromtimestamp(int(raw), tz=dt.timezone.utc).isoformat()
+
+
+def set_subscription_entitlement(email: str, customer_id: str | None, subscription: Any | None, active: bool) -> None:
+    sub_id = subscription.get('id') if subscription is not None and hasattr(subscription, 'get') else getattr(subscription, 'id', None)
+    status = subscription.get('status') if subscription is not None and hasattr(subscription, 'get') else getattr(subscription, 'status', 'inactive')
+    if active and status in {'active', 'trialing'}:
+        upsert_entitlement(
+            email,
+            tier='pro',
+            status=status,
+            daily_limit=PAID_DAILY_KPI_LIMIT,
+            stripe_customer_id=customer_id,
+            stripe_subscription_id=sub_id,
+            current_period_end=subscription_period_end(subscription),
+        )
+    else:
+        upsert_entitlement(
+            email,
+            tier='free',
+            status=status or 'inactive',
+            daily_limit=FREE_DAILY_KPI_LIMIT,
+            stripe_customer_id=customer_id,
+            stripe_subscription_id=sub_id,
+            current_period_end=subscription_period_end(subscription),
+        )
+
+
+def load_dataframe(file_path: str) -> pd.DataFrame:
+    if not file_path:
+        raise ValueError('Upload a CSV, Excel, JSON, JSONL, or Parquet file first.')
+    p = Path(file_path)
+    suffix = p.suffix.lower()
+    if suffix == '.csv':
+        df = pd.read_csv(p)
+    elif suffix in {'.xlsx', '.xls'}:
+        df = pd.read_excel(p)
+    elif suffix == '.jsonl':
+        df = pd.read_json(p, lines=True)
+    elif suffix == '.json':
+        df = pd.read_json(p)
+    elif suffix == '.parquet':
+        df = pd.read_parquet(p)
+    else:
+        raise ValueError(f'Unsupported file type: {suffix}')
+    if df.empty:
+        raise ValueError('Dataset is empty.')
+    if len(df) > 250_000:
+        df = df.sample(250_000, random_state=7)
+    if len(df.columns) > 150:
+        df = df.iloc[:, :150]
+    df.columns = [str(c).strip()[:120] or f'column_{i}' for i, c in enumerate(df.columns)]
+    return df
+
+
+def dataframe_profile(df: pd.DataFrame) -> str:
+    sample = df.head(10).to_dict(orient='records')
+    cols: list[dict[str, Any]] = []
+    for col in df.columns:
+        s = df[col]
+        entry: dict[str, Any] = {
+            'name': col,
+            'dtype': str(s.dtype),
+            'null_pct': round(float(s.isna().mean() * 100), 2),
+            'unique': int(s.nunique(dropna=True)),
+        }
+        if pd.api.types.is_numeric_dtype(s):
+            desc = s.describe(percentiles=[0.25, 0.5, 0.75]).to_dict()
+            entry['stats'] = {k: round(float(v), 4) for k, v in desc.items() if pd.notna(v)}
+        else:
+            entry['top_values'] = {str(k)[:80]: int(v) for k, v in s.dropna().astype(str).value_counts().head(5).to_dict().items()}
+        cols.append(entry)
+    return '\n\n'.join([
+        f'Rows: {len(df):,}',
+        f'Columns: {len(df.columns):,}',
+        'Column profile JSON:\n' + json.dumps(cols, ensure_ascii=False, default=str),
+        'Sample rows JSON:\n' + json.dumps(sample, ensure_ascii=False, default=str),
+    ])
+
+
+def fingerprint_df(df: pd.DataFrame) -> str:
+    h = hashlib.sha256()
+    h.update(str(df.shape).encode())
+    h.update('|'.join(map(str, df.columns)).encode())
+    h.update(pd.util.hash_pandas_object(df.head(1000), index=True).values.tobytes())
+    return h.hexdigest()[:16]
+
+
+def extract_json(text: str) -> dict[str, Any]:
+    text = (text or '').strip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        match = re.search(r'\{.*\}', text, flags=re.S)
+        if not match:
+            raise ValueError('Model did not return JSON.')
+        return json.loads(match.group(0))
+
+
+def groq_client() -> Groq:
+    if not GROQ_API_KEY:
+        raise RuntimeError('GROQ_API_KEY is not configured in Space secrets.')
+    return Groq(api_key=GROQ_API_KEY)
+
+
+def generate_kpi_payload(profile: str, business_context: str, kpi_count: int) -> list[dict[str, Any]]:
+    system = (
+        'You are an institutional KPI designer. Return only valid compact JSON. '
+        'No markdown. No prose outside JSON. Create metrics that are auditable, calculable, '
+        'non-duplicative, and useful for executives, operators, finance, risk, compliance, and product leaders.'
+    )
+    user = {
+        'task': 'Generate production-grade KPIs from this dataset profile.',
+        'kpi_count': int(kpi_count),
+        'business_context': business_context or 'General institutional operations and performance management.',
+        'required_output_schema': {
+            'kpis': [
+                {
+                    'name': 'string',
+                    'category': 'growth|finance|operations|risk|quality|customer|workforce|compliance',
+                    'definition': 'string',
+                    'formula': 'string using dataset columns where possible',
+                    'required_columns': ['column names'],
+                    'calculation_notes': 'string',
+                    'owner': 'string',
+                    'frequency': 'daily|weekly|monthly|quarterly',
+                    'decision_use': 'string',
+                    'thresholds': {'green': 'string', 'yellow': 'string', 'red': 'string'},
+                    'risk_notes': 'string',
+                }
+            ]
+        },
+        'dataset_profile': profile,
     }
-}
+    res = groq_client().chat.completions.create(
+        model=GROQ_MODEL,
+        temperature=0.25,
+        max_tokens=4096,
+        messages=[{'role': 'system', 'content': system}, {'role': 'user', 'content': json.dumps(user, ensure_ascii=False)}],
+        response_format={'type': 'json_object'},
+    )
+    data = extract_json(res.choices[0].message.content or '{}')
+    kpis = data.get('kpis', [])
+    if not isinstance(kpis, list):
+        raise ValueError('Model JSON had no kpis array.')
+    return [k for k in kpis if isinstance(k, dict) and k.get('name')]
 
-# Sample inventory data for simulation
-SAMPLE_INVENTORY = [
-    {
-        "name": "Vacuum Cleaner",
-        "category": "Appliance",
-        "type": "Cleaning",
-        "confidence": 0.92,
-        "risk_level": "Low",
-        "rent_mode": "hourly",
-        "space_mode": "pickup",
-        "suggested_price": 7.50,
-        "condition": "Good",
-        "approved": False,
-        "mup_calculation": {
-            "hourly_depreciation": 0.14,
-            "setup_overhead": 4.00,
-            "risk_premium": 0.08,
-            "market_adjustment": 1.50,
-            "platform_margin": 1.78
-        },
-        # MembraIndexRecord fields
-        "membra_index_id": "MI-LIVINGROOM-0001",
-        "unit_type": "20-minute use",
-        "access_mode": "Door Handoff",
-        "fulfillment_mode": "Host Handoff",
-        "minimum_useful_price": 5.00,
-        "trust_score": 93.7,
-        "demand_score": 81.4,
-        "liquidity_score": 72.8,
-        "yield_score": 64.2
-    },
-    {
-        "name": "Shelf Space (3ft)",
-        "category": "Storage",
-        "type": "Shelf",
-        "confidence": 0.88,
-        "risk_level": "Low",
-        "rent_mode": "monthly",
-        "space_mode": "onsite",
-        "suggested_price": 15.00,
-        "condition": "Excellent",
-        "approved": False,
-        "mup_calculation": {
-            "hourly_depreciation": 0.00,
-            "setup_overhead": 2.50,
-            "risk_premium": 0.00,
-            "market_adjustment": 0.50,
-            "platform_margin": 3.00
-        },
-        "membra_index_id": "MI-LIVINGROOM-0002",
-        "unit_type": "cubic-foot/month",
-        "access_mode": "On-Premise Use",
-        "fulfillment_mode": "Self-Service",
-        "minimum_useful_price": 12.00,
-        "trust_score": 95.2,
-        "demand_score": 75.3,
-        "liquidity_score": 78.5,
-        "yield_score": 71.4
-    },
-    {
-        "name": "Power Drill",
-        "category": "Tool",
-        "type": "Power Tool",
-        "confidence": 0.85,
-        "risk_level": "Low",
-        "rent_mode": "hourly",
-        "space_mode": "pickup",
-        "suggested_price": 8.00,
-        "condition": "Good",
-        "approved": False,
-        "mup_calculation": {
-            "hourly_depreciation": 0.15,
-            "setup_overhead": 5.00,
-            "risk_premium": 0.09,
-            "market_adjustment": 2.00,
-            "platform_margin": 0.76
-        },
-        "membra_index_id": "MI-LIVINGROOM-0003",
-        "unit_type": "hourly use",
-        "access_mode": "Door Handoff",
-        "fulfillment_mode": "Host Handoff",
-        "minimum_useful_price": 6.50,
-        "trust_score": 89.1,
-        "demand_score": 83.7,
-        "liquidity_score": 75.2,
-        "yield_score": 68.9
-    },
-    {
-        "name": "Folding Chair",
-        "category": "Furniture",
-        "type": "Chair",
-        "confidence": 0.95,
-        "risk_level": "Low",
-        "rent_mode": "hourly",
-        "space_mode": "pickup",
-        "suggested_price": 3.00,
-        "condition": "Excellent",
-        "approved": False,
-        "mup_calculation": {
-            "hourly_depreciation": 0.03,
-            "setup_overhead": 2.00,
-            "risk_premium": 0.00,
-            "market_adjustment": 0.50,
-            "platform_margin": 0.47
-        },
-        "membra_index_id": "MI-LIVINGROOM-0004",
-        "unit_type": "hourly seating",
-        "access_mode": "Door Handoff",
-        "fulfillment_mode": "Host Handoff",
-        "minimum_useful_price": 2.50,
-        "trust_score": 96.4,
-        "demand_score": 79.2,
-        "liquidity_score": 82.1,
-        "yield_score": 74.3
-    },
-    {
-        "name": "Ring Light",
-        "category": "Appliance",
-        "type": "Lighting",
-        "confidence": 0.90,
-        "risk_level": "Low",
-        "rent_mode": "hourly",
-        "space_mode": "pickup",
-        "suggested_price": 5.00,
-        "condition": "Good",
-        "approved": False,
-        "mup_calculation": {
-            "hourly_depreciation": 0.08,
-            "setup_overhead": 3.00,
-            "risk_premium": 0.05,
-            "market_adjustment": 1.00,
-            "platform_margin": 0.87
-        },
-        "membra_index_id": "MI-LIVINGROOM-0005",
-        "unit_type": "hourly lighting",
-        "access_mode": "Door Handoff",
-        "fulfillment_mode": "Host Handoff",
-        "minimum_useful_price": 4.00,
-        "trust_score": 91.8,
-        "demand_score": 86.5,
-        "liquidity_score": 79.4,
-        "yield_score": 73.1
-    },
-    {
-        "name": "Closet Space (5ft)",
-        "category": "Storage",
-        "type": "Closet",
-        "confidence": 0.87,
-        "risk_level": "Low",
-        "rent_mode": "monthly",
-        "space_mode": "onsite",
-        "suggested_price": 25.00,
-        "condition": "Excellent",
-        "approved": False,
-        "mup_calculation": {
-            "hourly_depreciation": 0.00,
-            "setup_overhead": 3.00,
-            "risk_premium": 0.00,
-            "market_adjustment": 1.00,
-            "platform_margin": 5.00
-        },
-        "membra_index_id": "MI-LIVINGROOM-0006",
-        "unit_type": "cubic-foot/month",
-        "access_mode": "On-Premise Use",
-        "fulfillment_mode": "Self-Service",
-        "minimum_useful_price": 20.00,
-        "trust_score": 94.3,
-        "demand_score": 77.8,
-        "liquidity_score": 80.7,
-        "yield_score": 76.5
-    },
-    {
-        "name": "Extension Cord (25ft)",
-        "category": "Tool",
-        "type": "Accessory",
-        "confidence": 0.93,
-        "risk_level": "Low",
-        "rent_mode": "hourly",
-        "space_mode": "pickup",
-        "suggested_price": 2.00,
-        "condition": "Excellent",
-        "approved": False,
-        "mup_calculation": {
-            "hourly_depreciation": 0.01,
-            "setup_overhead": 1.50,
-            "risk_premium": 0.00,
-            "market_adjustment": 0.25,
-            "platform_margin": 0.24
-        },
-        "membra_index_id": "MI-LIVINGROOM-0007",
-        "unit_type": "hourly use",
-        "access_mode": "Door Handoff",
-        "fulfillment_mode": "Host Handoff",
-        "minimum_useful_price": 1.75,
-        "trust_score": 97.1,
-        "demand_score": 72.4,
-        "liquidity_score": 84.3,
-        "yield_score": 69.8
-    },
-    {
-        "name": "Phone Charger",
-        "category": "Appliance",
-        "type": "Charger",
-        "confidence": 0.91,
-        "risk_level": "Low",
-        "rent_mode": "hourly",
-        "space_mode": "pickup",
-        "suggested_price": 1.50,
-        "condition": "Good",
-        "approved": False,
-        "mup_calculation": {
-            "hourly_depreciation": 0.01,
-            "setup_overhead": 1.00,
-            "risk_premium": 0.00,
-            "market_adjustment": 0.25,
-            "platform_margin": 0.24
-        },
-        "membra_index_id": "MI-LIVINGROOM-0008",
-        "unit_type": "hourly charging",
-        "access_mode": "Door Handoff",
-        "fulfillment_mode": "Host Handoff",
-        "minimum_useful_price": 1.25,
-        "trust_score": 92.6,
-        "demand_score": 85.9,
-        "liquidity_score": 81.2,
-        "yield_score": 70.5
+
+def safe_csv_value(value: Any) -> Any:
+    if isinstance(value, str) and value[:1] in {'=', '+', '-', '@'}:
+        return "'" + value
+    return value
+
+
+def flatten_kpi(k: dict[str, Any], csv_safe: bool = False) -> dict[str, Any]:
+    row = {
+        'name': k.get('name', ''),
+        'category': k.get('category', ''),
+        'definition': k.get('definition', ''),
+        'formula': k.get('formula', ''),
+        'required_columns': ', '.join(map(str, k.get('required_columns', []))) if isinstance(k.get('required_columns'), list) else str(k.get('required_columns', '')),
+        'calculation_notes': k.get('calculation_notes', ''),
+        'owner': k.get('owner', ''),
+        'frequency': k.get('frequency', ''),
+        'decision_use': k.get('decision_use', ''),
+        'thresholds': json.dumps(k.get('thresholds', {}), ensure_ascii=False),
+        'risk_notes': k.get('risk_notes', ''),
     }
-]
+    return {key: safe_csv_value(value) for key, value in row.items()} if csv_safe else row
 
-def simulate_detection(image):
-    """Simulate AI detection from uploaded image"""
-    if image is None:
-        return "Please upload a room image to begin."
-    
-    return f"Detected {len(SAMPLE_INVENTORY)} utility units in your space. Review and approve to generate household balance sheet."
 
-def calculate_mup(item):
-    """Calculate Minimum Useful Price for an item"""
-    calc = item.get('mup_calculation', {})
-    base = calc.get('hourly_depreciation', 0) + calc.get('setup_overhead', 0) + calc.get('risk_premium', 0) + calc.get('market_adjustment', 0)
-    mup = base * 1.2  # Platform margin
-    return mup
+def dedupe(kpis: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    seen: set[str] = set()
+    out: list[dict[str, Any]] = []
+    for k in kpis:
+        key = re.sub(r'[^a-z0-9]+', '', str(k.get('name', '')).lower())
+        if key and key not in seen:
+            seen.add(key)
+            out.append(k)
+    return out
 
-def calculate_trust_adjusted_liquidity(approved_items):
-    """Calculate trust-adjusted liquidity in monthly dollars"""
-    if not approved_items:
-        return 0.0
-    
-    gross_value = 0
-    risk_adjusted = 0
-    
-    for item in approved_items:
-        monthly_value = item['suggested_price'] * 20 if item['rent_mode'] == 'hourly' else item['suggested_price']
-        gross_value += monthly_value
-        
-        # Risk adjustment factor
-        risk_factor = 1.0 if item['risk_level'] == 'Low' else 0.7 if item['risk_level'] == 'Medium' else 0.4
-        risk_adjusted += monthly_value * risk_factor
-    
-    return risk_adjusted
 
-def calculate_node_yield_score(approved_items):
-    """Calculate node yield score"""
-    if not approved_items:
-        return 0.0
-    
-    # Factors: inventory diversity, confidence avg, risk profile, pricing quality
-    diversity = len(set(item['category'] for item in approved_items)) / len(approved_items)
-    avg_confidence = sum(item['confidence'] for item in approved_items) / len(approved_items)
-    risk_score = sum(1 if item['risk_level'] == 'Low' else 0.5 for item in approved_items) / len(approved_items)
-    
-    score = (diversity * 30) + (avg_confidence * 40) + (risk_score * 30)
-    return score
+def export_files(kpis: list[dict[str, Any]]) -> tuple[str, str]:
+    stem = f"kpis_{dt.datetime.now(dt.timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
+    json_path = EXPORT_DIR / f'{stem}.json'
+    csv_path = EXPORT_DIR / f'{stem}.csv'
+    json_path.write_text(json.dumps(kpis, indent=2, ensure_ascii=False), encoding='utf-8')
+    pd.DataFrame([flatten_kpi(k, csv_safe=True) for k in kpis]).to_csv(csv_path, index=False)
+    return str(json_path), str(csv_path)
 
-def generate_liquid_cards():
-    """Generate liquid asset cards from detected inventory"""
-    cards = []
-    for item in SAMPLE_INVENTORY:
-        mup = calculate_mup(item)
-        card = f"""
-**{item['name']}**
-- Index ID: {item.get('membra_index_id', 'N/A')}
-- Category: {item['category']}
-- Type: {item['type']}
-- Unit Type: {item.get('unit_type', 'N/A')}
-- Detection Confidence: {item['confidence']:.0%}
-- Risk Level: {item['risk_level']}
-- Access Mode: {item.get('access_mode', item['space_mode'])}
-- Fulfillment Mode: {item.get('fulfillment_mode', 'Host Handoff')}
-- MUP: ${item.get('minimum_useful_price', mup):.2f}/{item['rent_mode']}
-- Suggested Price: ${item['suggested_price']:.2f}/{item['rent_mode']}
-- Trust Score: {item.get('trust_score', 0):.1f}
-- Liquidity Score: {item.get('liquidity_score', 0):.1f}
-- Yield Score: {item.get('yield_score', 0):.1f}
-- Condition: {item['condition']}
-- Status: {'✓ Approved' if item['approved'] else '○ Pending'}
-"""
-        cards.append(card)
-    return "\n\n---\n\n".join(cards)
 
-def update_inventory_status(approved_indices):
-    """Update approval status for selected items"""
-    # Parse selected strings to extract indices (format: "1. Vacuum Cleaner")
-    approved_index_numbers = []
-    for selection in approved_indices:
-        # Extract the number before the first period
-        try:
-            index = int(selection.split('.')[0]) - 1  # Convert to 0-based index
-            approved_index_numbers.append(index)
-        except (ValueError, IndexError):
-            continue
-    
-    for i, item in enumerate(SAMPLE_INVENTORY):
-        SAMPLE_INVENTORY[i]['approved'] = i in approved_index_numbers
-    return generate_liquid_cards()
+def gradio_load(file_path: str) -> tuple[str, str]:
+    try:
+        df = load_dataframe(file_path)
+        return dataframe_profile(df), f'Loaded dataset: {len(df):,} rows x {len(df.columns):,} columns'
+    except Exception as e:
+        return '', f'Load error: {e}'
 
-def generate_household_balance_sheet():
-    """Generate household balance sheet from approved inventory"""
-    approved_items = [item for item in SAMPLE_INVENTORY if item['approved']]
-    
-    if not approved_items:
-        return "No approved items to generate balance sheet."
-    
-    gross_value = 0
-    for item in approved_items:
-        monthly_value = item['suggested_price'] * 20 if item['rent_mode'] == 'hourly' else item['suggested_price']
-        gross_value += monthly_value
-    
-    trust_adjusted = calculate_trust_adjusted_liquidity(approved_items)
-    node_yield = calculate_node_yield_score(approved_items)
-    risk_grade = "Low" if all(item['risk_level'] == 'Low' for item in approved_items) else "Low-Medium"
-    
-    # Calculate average scores
-    avg_trust = sum(item.get('trust_score', 0) for item in approved_items) / len(approved_items)
-    avg_liquidity = sum(item.get('liquidity_score', 0) for item in approved_items) / len(approved_items)
-    avg_yield = sum(item.get('yield_score', 0) for item in approved_items) / len(approved_items)
-    
-    top_units = ", ".join([item['name'] for item in approved_items[:5]])
-    
-    return f"""**Household Node Balance Sheet**
 
-Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+def gradio_generate(email: str, file_path: str, business_context: str, kpi_count: int) -> tuple[pd.DataFrame, str, str, str, list[dict[str, Any]]]:
+    try:
+        email = normalize_email(email)
+    except Exception as e:
+        return pd.DataFrame(), str(e), '', '', []
+    ent = get_entitlement(email)
+    desired = max(1, min(int(kpi_count or 10), 50))
+    if REQUIRE_STRIPE and ent['status'] not in {'active', 'trialing'}:
+        return pd.DataFrame(), 'Stripe entitlement required. Use checkout or disable REQUIRE_STRIPE.', '', '', []
+    if ent['remaining_today'] < desired:
+        return pd.DataFrame(), f"Daily quota exceeded. Remaining today: {ent['remaining_today']} KPI(s).", '', '', []
+    try:
+        df = load_dataframe(file_path)
+        kpis = dedupe(generate_kpi_payload(dataframe_profile(df), business_context, desired))[:desired]
+        if not kpis:
+            raise RuntimeError('No KPIs returned by model.')
+        increment_usage(email, len(kpis))
+        with db() as conn:
+            conn.execute(
+                'INSERT INTO generation_events(id, email, dataset_fingerprint, kpi_count, model, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+                (uuid.uuid4().hex, email, fingerprint_df(df), len(kpis), GROQ_MODEL, now_utc()),
+            )
+        json_path, csv_path = export_files(kpis)
+        status = f"Generated {len(kpis)} KPI(s). Tier={ent['tier']}; remaining before run={ent['remaining_today']}."
+        return pd.DataFrame([flatten_kpi(k) for k in kpis]), status, json_path, csv_path, kpis
+    except Exception as e:
+        log.exception('generation failed')
+        return pd.DataFrame(), f'Generation error: {e}', '', '', []
 
-**Node Metrics:**
-- Detected Utility Units: {len(SAMPLE_INVENTORY)}
-- Approved Liquid Units: {len(approved_items)}
-- Gross Utility Value: ${gross_value:.2f}/month
-- Trust-Adjusted Liquidity: ${trust_adjusted:.2f}/month
-- Node Yield Score: {node_yield:.1f}
-- Risk Grade: {risk_grade}
 
-**Index Scores (Average):**
-- Trust Score: {avg_trust:.1f}
-- Liquidity Score: {avg_liquidity:.1f}
-- Yield Score: {avg_yield:.1f}
+def gradio_checkout_link(email: str) -> str:
+    try:
+        email = normalize_email(email)
+    except Exception as e:
+        return str(e)
+    if not STRIPE_SECRET_KEY or not STRIPE_PRICE_ID:
+        return 'Stripe checkout is not configured. Set STRIPE_SECRET_KEY and STRIPE_PRICE_ID.'
+    session = stripe.checkout.Session.create(
+        mode='subscription',
+        customer_email=email,
+        line_items=[{'price': STRIPE_PRICE_ID, 'quantity': 1}],
+        success_url=f'{APP_BASE_URL}/?checkout=success&session_id={{CHECKOUT_SESSION_ID}}',
+        cancel_url=f'{APP_BASE_URL}/?checkout=cancelled',
+        metadata={'email': email},
+    )
+    return f'Checkout URL: {session.url}'
 
-**Top Liquid Units:**
-{top_units}
 
-**Risk Ladder:**
-{len([item for item in approved_items if item['risk_level'] == 'Low'])} Low Risk
-{len([item for item in approved_items if item['risk_level'] == 'Medium'])} Medium Risk
-{len([item for item in approved_items if item['risk_level'] == 'High'])} High Risk
-
-*This is a simulation. Real deployment requires AI vision detection and live market data.*
-"""
-
-def generate_mock_settlement_ledger():
-    """Generate mock settlement ledger (demo/dry-run only)"""
-    approved_items = [item for item in SAMPLE_INVENTORY if item['approved']]
-    
-    if not approved_items:
-        return "No approved items to generate settlement ledger."
-    
-    ledger = "**MOCK SETTLEMENT LEDGER (DEMO/DRY-RUN ONLY)**\n\n"
-    ledger += "This ledger is for demonstration purposes only. No actual transactions will occur.\n\n"
-    
-    # Generate mock transactions
-    ledger += "**Recent Transactions (Simulated)**\n\n"
-    
-    for i, item in enumerate(approved_items[:3]):
-        ledger += f"TX-{1000+i}: {item['name']}\n"
-        ledger += f"- SKU ID: SKU-{i+1:04d}\n"
-        ledger += f"- Price: ${item['suggested_price']:.2f}\n"
-        ledger += "- Status: COMPLETED\n"
-        ledger += "- Proof: PHOTO_VERIFIED\n"
-        ledger += "- Settlement: PAYOUT_COMPLETE\n\n"
-    
-    ledger += "*All data shown is simulated. Real deployment requires live transaction processing.*"
-    return ledger
-
-def generate_investor_summary():
-    """Generate exportable investor summary"""
-    approved_items = [item for item in SAMPLE_INVENTORY if item['approved']]
-    
-    if not approved_items:
-        return "No approved items to generate investor summary."
-    
-    gross_value = sum(item['suggested_price'] * 20 if item['rent_mode'] == 'hourly' else item['suggested_price'] for item in approved_items)
-    trust_adjusted = calculate_trust_adjusted_liquidity(approved_items)
-    node_yield = calculate_node_yield_score(approved_items)
-    
-    # Calculate average scores
-    avg_trust = sum(item.get('trust_score', 0) for item in approved_items) / len(approved_items)
-    avg_liquidity = sum(item.get('liquidity_score', 0) for item in approved_items) / len(approved_items)
-    avg_yield = sum(item.get('yield_score', 0) for item in approved_items) / len(approved_items)
-    
-    summary = {
-        "generated_at": datetime.now().isoformat(),
-        "household_node": {
-            "detected_units": len(SAMPLE_INVENTORY),
-            "approved_liquid_units": len(approved_items),
-            "gross_utility_value_monthly": gross_value,
-            "trust_adjusted_liquidity_monthly": trust_adjusted,
-            "node_yield_score": node_yield,
-            "risk_grade": "Low" if all(item['risk_level'] == 'Low' for item in approved_items) else "Low-Medium",
-            "average_trust_score": avg_trust,
-            "average_liquidity_score": avg_liquidity,
-            "average_yield_score": avg_yield
-        },
-        "inventory_breakdown": [
-            {
-                "membra_index_id": item.get('membra_index_id'),
-                "name": item['name'],
-                "category": item['category'],
-                "unit_type": item.get('unit_type'),
-                "mup": item.get('minimum_useful_price', calculate_mup(item)),
-                "suggested_price": item['suggested_price'],
-                "rent_mode": item['rent_mode'],
-                "risk_level": item['risk_level'],
-                "confidence": item['confidence'],
-                "trust_score": item.get('trust_score'),
-                "liquidity_score": item.get('liquidity_score'),
-                "yield_score": item.get('yield_score'),
-                "access_mode": item.get('access_mode'),
-                "fulfillment_mode": item.get('fulfillment_mode')
-            }
-            for item in approved_items
-        ],
-        "disclaimer": "This is a simulation. Real deployment requires AI vision detection and live market data."
+@api.get('/api/health')
+def health() -> dict[str, Any]:
+    return {
+        'ok': True,
+        'app': APP_NAME,
+        'version': APP_VERSION,
+        'model': GROQ_MODEL,
+        'require_stripe': REQUIRE_STRIPE,
+        'stripe_configured': bool(STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET and STRIPE_PRICE_ID),
+        'groq_configured': bool(GROQ_API_KEY),
     }
-    
-    return json.dumps(summary, indent=2)
 
-def export_inventory_json():
-    """Export inventory as JSON"""
-    approved_items = [item for item in SAMPLE_INVENTORY if item['approved']]
-    export_data = {
-        "generated_at": datetime.now().isoformat(),
-        "total_items": len(approved_items),
-        "inventory": approved_items
-    }
-    return json.dumps(export_data, indent=2)
 
-def export_inventory_csv():
-    """Export inventory as CSV"""
-    approved_items = [item for item in SAMPLE_INVENTORY if item['approved']]
-    
-    if not approved_items:
-        return "No approved items to export."
-    
-    output = ["name,category,type,confidence,risk_level,rent_mode,space_mode,suggested_price,condition,approved"]
-    for item in approved_items:
-        output.append(f"{item['name']},{item['category']},{item['type']},{item['confidence']},{item['risk_level']},{item['rent_mode']},{item['space_mode']},{item['suggested_price']},{item['condition']},{item['approved']}")
-    
-    return "\n".join(output)
+@api.get('/api/entitlement')
+def entitlement(email: str) -> dict[str, Any]:
+    try:
+        return get_entitlement(email)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
 
-# Gradio Interface - MEMBRA Liquid Terminal
-with gr.Blocks(title="MEMBRA Liquid Terminal", theme=gr.themes.Soft()) as demo:
-    gr.Markdown("""
-    # MEMBRA Liquid Terminal
-    ### The liquidity layer for real-world household utility
-    """)
-    
-    with gr.Tab("Scan & Detect"):
-        gr.Markdown("### Step 1: Upload Room Image")
-        image_input = gr.Image(label="Upload room photo", type="filepath")
-        detect_btn = gr.Button("Detect Utility Units", variant="primary")
-        detect_output = gr.Textbox(label="Detection Result")
-        
-        detect_btn.click(
-            simulate_detection,
-            inputs=[image_input],
-            outputs=[detect_output]
+
+@api.post('/api/admin/grant')
+def admin_grant(payload: AdminGrantRequest, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+    require_admin(authorization)
+    if payload.tier not in {'free', 'pro'}:
+        raise HTTPException(400, 'tier must be free or pro')
+    limit = payload.daily_limit if payload.daily_limit is not None else (PAID_DAILY_KPI_LIMIT if payload.tier == 'pro' else FREE_DAILY_KPI_LIMIT)
+    upsert_entitlement(payload.email, tier=payload.tier, status=payload.status, daily_limit=limit)
+    return {'ok': True, 'entitlement': get_entitlement(payload.email)}
+
+
+@api.post('/api/stripe/create-checkout-session')
+def create_checkout_session(payload: CheckoutRequest) -> dict[str, Any]:
+    if not STRIPE_SECRET_KEY or not STRIPE_PRICE_ID:
+        raise HTTPException(500, 'Stripe checkout is not configured.')
+    try:
+        email = normalize_email(payload.email)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    session = stripe.checkout.Session.create(
+        mode='subscription',
+        customer_email=email,
+        line_items=[{'price': STRIPE_PRICE_ID, 'quantity': 1}],
+        success_url=payload.success_url or f'{APP_BASE_URL}/?checkout=success&session_id={{CHECKOUT_SESSION_ID}}',
+        cancel_url=payload.cancel_url or f'{APP_BASE_URL}/?checkout=cancelled',
+        metadata={'email': email},
+    )
+    return {'url': session.url, 'id': session.id}
+
+
+@api.post('/api/stripe/create-portal-session')
+def create_portal_session(payload: PortalRequest) -> dict[str, Any]:
+    if not STRIPE_SECRET_KEY:
+        raise HTTPException(500, 'Stripe is not configured.')
+    ent = get_entitlement(payload.email)
+    customer_id = ent.get('stripe_customer_id')
+    if not customer_id:
+        raise HTTPException(404, 'No Stripe customer is linked to that email yet.')
+    session = stripe.billing_portal.Session.create(customer=customer_id, return_url=payload.return_url or APP_BASE_URL)
+    return {'url': session.url, 'id': session.id}
+
+
+@api.post('/api/stripe/webhook')
+async def stripe_webhook(request: Request, stripe_signature: str | None = Header(default=None)) -> JSONResponse:
+    if not STRIPE_WEBHOOK_SECRET:
+        raise HTTPException(500, 'STRIPE_WEBHOOK_SECRET is not configured.')
+    body = await request.body()
+    try:
+        event = stripe.Webhook.construct_event(body, stripe_signature, STRIPE_WEBHOOK_SECRET)
+    except Exception as e:
+        raise HTTPException(400, f'Invalid Stripe webhook: {e}')
+
+    event_type = event['type']
+    obj = event['data']['object']
+    log.info('stripe webhook received: %s', event_type)
+
+    if event_type == 'checkout.session.completed':
+        email = normalize_email(obj.get('customer_details', {}).get('email') or obj.get('customer_email') or obj.get('metadata', {}).get('email', ''))
+        customer_id = obj.get('customer')
+        sub_id = obj.get('subscription')
+        subscription = stripe.Subscription.retrieve(sub_id) if sub_id else None
+        set_subscription_entitlement(email, customer_id, subscription, active=True)
+
+    elif event_type in {'customer.subscription.created', 'customer.subscription.updated', 'customer.subscription.deleted'}:
+        customer_id = obj.get('customer')
+        customer = stripe.Customer.retrieve(customer_id) if customer_id else None
+        email = normalize_email((customer or {}).get('email', ''))
+        set_subscription_entitlement(email, customer_id, obj, active=event_type != 'customer.subscription.deleted')
+
+    elif event_type in {'invoice.payment_succeeded', 'invoice.paid'}:
+        customer_id = obj.get('customer')
+        sub_id = obj.get('subscription')
+        customer = stripe.Customer.retrieve(customer_id) if customer_id else None
+        email = normalize_email((customer or {}).get('email', ''))
+        subscription = stripe.Subscription.retrieve(sub_id) if sub_id else None
+        set_subscription_entitlement(email, customer_id, subscription, active=True)
+
+    return JSONResponse({'received': True})
+
+
+@api.get('/api')
+def api_index() -> PlainTextResponse:
+    return PlainTextResponse('\n'.join([
+        'Membra Institutional KPI Generator API',
+        'GET  /api/health',
+        'GET  /api/entitlement?email=user@example.com',
+        'POST /api/stripe/create-checkout-session',
+        'POST /api/stripe/create-portal-session',
+        'POST /api/stripe/webhook',
+        'POST /api/admin/grant',
+    ]))
+
+
+def build_ui() -> gr.Blocks:
+    with gr.Blocks(title=APP_NAME) as demo:
+        gr.Markdown(
+            f'# {APP_NAME}\n'
+            'Production KPI generation with Groq, Stripe entitlement hooks, SQLite usage tracking, CSV/JSON exports, and Hugging Face Spaces deployment.'
         )
-    
-    with gr.Tab("Review & Approve"):
-        gr.Markdown("### Step 2: Review Detected Utility Units")
-        gr.Markdown("Select utility units to approve for liquidity:")
-        
-        liquid_cards = gr.Textbox(label="Detected Liquid Asset Cards", value=generate_liquid_cards(), lines=20)
-        
-        gr.Markdown("### Approve Utility Units")
-        approve_checkboxes = gr.CheckboxGroup(
-            choices=[f"{i+1}. {item['name']}" for i, item in enumerate(SAMPLE_INVENTORY)],
-            label="Select utility units to approve",
-            value=[]
-        )
-        
-        approve_btn = gr.Button("Update Approval Status", variant="primary")
-        
-        approve_btn.click(
-            update_inventory_status,
-            inputs=[approve_checkboxes],
-            outputs=[liquid_cards]
-        )
-    
-    with gr.Tab("Household Balance Sheet"):
-        gr.Markdown("### Step 3: Generate Household Balance Sheet")
-        gr.Markdown("View your household as a liquidity node:")
-        
-        balance_btn = gr.Button("Generate Balance Sheet", variant="primary")
-        balance_output = gr.Markdown(label="Household Node Balance Sheet")
-        
-        balance_btn.click(
-            generate_household_balance_sheet,
-            outputs=[balance_output]
-        )
-    
-    with gr.Tab("Risk Ladder"):
-        gr.Markdown("### Step 4: Risk Assessment")
-        gr.Markdown("View risk ladder for approved utility units:")
-        
-        risk_btn = gr.Button("Generate Risk Assessment", variant="primary")
-        risk_output = gr.Markdown(label="Risk Ladder Assessment")
-        
-        def generate_risk_assessment():
-            approved_items = [item for item in SAMPLE_INVENTORY if item['approved']]
-            if not approved_items:
-                return "No approved items to assess."
-            
-            low_risk = [item for item in approved_items if item['risk_level'] == 'Low']
-            medium_risk = [item for item in approved_items if item['risk_level'] == 'Medium']
-            high_risk = [item for item in approved_items if item['risk_level'] == 'High']
-            
-            assessment = f"""**Risk Ladder Assessment**
-
-**Low Risk Units ({len(low_risk)}):**
-{', '.join([item['name'] for item in low_risk]) if low_risk else 'None'}
-
-**Medium Risk Units ({len(medium_risk)}):**
-{', '.join([item['name'] for item in medium_risk]) if medium_risk else 'None'}
-
-**High Risk Units ({len(high_risk)}):**
-{', '.join([item['name'] for item in high_risk]) if high_risk else 'None'}
-
-**Overall Risk Grade:**
-{'LOW' if len(high_risk) == 0 and len(medium_risk) == 0 else 'LOW-MEDIUM' if len(high_risk) == 0 else 'MEDIUM'}
-
-*Risk assessment based on asset type, condition, and access mode.*
-"""
-            return assessment
-        
-        risk_btn.click(
-            generate_risk_assessment,
-            outputs=[risk_output]
-        )
-    
-    with gr.Tab("Settlement Ledger"):
-        gr.Markdown("### Step 5: Mock Settlement Ledger")
-        gr.Markdown("*This is a demonstration. No actual transactions will occur.*")
-        
-        ledger_btn = gr.Button("Generate Mock Ledger", variant="primary")
-        ledger_output = gr.Markdown(label="Mock Settlement Ledger")
-        
-        ledger_btn.click(
-            generate_mock_settlement_ledger,
-            outputs=[ledger_output]
-        )
-    
-    with gr.Tab("Investor Summary"):
-        gr.Markdown("### Step 6: Export Investor Summary")
-        gr.Markdown("Generate finance-ready inventory summary for investors:")
-        
-        investor_btn = gr.Button("Generate Investor Summary", variant="primary")
-        investor_output = gr.Textbox(label="Investor Summary (JSON)")
-        
-        investor_btn.click(
-            generate_investor_summary,
-            outputs=[investor_output]
-        )
-    
-    with gr.Tab("Export"):
-        gr.Markdown("### Step 7: Export Data")
-        
         with gr.Row():
-            json_btn = gr.Button("Export JSON", variant="secondary")
-            csv_btn = gr.Button("Export CSV", variant="secondary")
-        
+            email = gr.Textbox(label='Account email', placeholder='you@example.com')
+            file_in = gr.File(label='Dataset', file_types=['.csv', '.xlsx', '.xls', '.json', '.jsonl', '.parquet'], type='filepath')
+        business_context = gr.Textbox(label='Business context / KPI mandate', lines=4, placeholder='Example: B2B SaaS finance/operations executive scorecard...')
+        kpi_count = gr.Slider(label='KPI count', minimum=1, maximum=50, value=10, step=1)
         with gr.Row():
-            json_output = gr.Textbox(label="JSON Export")
-            csv_output = gr.Textbox(label="CSV Export")
-        
-        json_btn.click(
-            export_inventory_json,
-            outputs=[json_output]
-        )
-        
-        csv_btn.click(
-            export_inventory_csv,
-            outputs=[csv_output]
-        )
-    
-    with gr.Tab("Pricing"):
-        gr.Markdown("### Choose Your Plan")
-        gr.Markdown("Unlock the full potential of MEMBRA Liquid Terminal")
-        
+            load_btn = gr.Button('Profile dataset')
+            gen_btn = gr.Button('Generate KPIs', variant='primary')
+            checkout_btn = gr.Button('Create Stripe checkout link')
+        status = gr.Textbox(label='Status', interactive=False)
+        profile = gr.Textbox(label='Dataset profile', lines=12, interactive=False)
+        table = gr.Dataframe(label='Generated KPI catalog', interactive=False, wrap=True)
         with gr.Row():
-            with gr.Column():
-                gr.Markdown("#### Starter - Free")
-                gr.Markdown("**$0/month**")
-                for feature in PRICING_TIERS["starter"]["features"]:
-                    gr.Markdown(f"✓ {feature}")
-                starter_btn = gr.Button(PRICING_TIERS["starter"]["cta"], variant="secondary")
-            
-            with gr.Column():
-                gr.Markdown("#### Professional - $29/month")
-                gr.Markdown("**Best Value**")
-                for feature in PRICING_TIERS["pro"]["features"]:
-                    gr.Markdown(f"✓ {feature}")
-                pro_btn = gr.Button(PRICING_TIERS["pro"]["cta"], variant="primary")
-            
-            with gr.Column():
-                gr.Markdown("#### Enterprise - $99/month")
-                gr.Markdown("**For Teams**")
-                for feature in PRICING_TIERS["enterprise"]["features"]:
-                    gr.Markdown(f"✓ {feature}")
-                enterprise_btn = gr.Button(PRICING_TIERS["enterprise"]["cta"], variant="secondary")
-        
-        pricing_output = gr.Textbox(label="Checkout Status")
-        
-        def create_checkout_session(tier):
-            """Create a Stripe checkout session for the selected tier."""
-            try:
-                if tier == "starter":
-                    return "Starter plan is free! No payment required."
-                elif tier == "pro":
-                    # Create actual Stripe checkout session
-                    checkout_session = stripe.checkout.Session.create(
-                        payment_method_types=["card"],
-                        line_items=[
-                            {
-                                "price_data": {
-                                    "currency": "usd",
-                                    "product_data": {
-                                        "name": "MEMBRA Professional",
-                                        "description": "Unlimited inventory tracking, AI pricing, advanced risk modeling"
-                                    },
-                                    "unit_amount": 2900,  # $29.00 in cents
-                                },
-                                "quantity": 1,
-                            }
-                        ],
-                        mode="payment",
-                        success_url="https://huggingface.co/spaces/luguog/membra?success=true",
-                        cancel_url="https://huggingface.co/spaces/luguog/membra?canceled=true",
-                    )
-                    return f"Redirecting to Stripe checkout: {checkout_session.url}"
-                elif tier == "enterprise":
-                    return "Enterprise plan requires custom quote. Contact sales@membra.liquid"
-                else:
-                    return "Invalid tier selected"
-            except Exception as e:
-                return f"Error creating checkout session: {str(e)}"
-        
-        starter_btn.click(
-            lambda: create_checkout_session("starter"),
-            outputs=[pricing_output]
-        )
-        
-        pro_btn.click(
-            lambda: create_checkout_session("pro"),
-            outputs=[pricing_output]
-        )
-        
-        enterprise_btn.click(
-            lambda: create_checkout_session("enterprise"),
-            outputs=[pricing_output]
-        )
-    
-    with gr.Tab("Revenue Dashboard"):
-        gr.Markdown("### MEMBRA Revenue Dashboard")
-        gr.Markdown("Track your household inventory monetization performance")
-        
-        with gr.Row():
-            with gr.Column():
-                gr.Markdown("#### Monthly Revenue Potential")
-                revenue_output = gr.Textbox(label="Estimated Monthly Revenue ($)")
-                calculate_revenue_btn = gr.Button("Calculate Revenue Potential", variant="primary")
-            
-            with gr.Column():
-                gr.Markdown("#### Key Metrics")
-                metrics_output = gr.Textbox(label="Performance Metrics")
-                calculate_metrics_btn = gr.Button("Calculate Metrics", variant="secondary")
-        
-        def calculate_revenue_potential():
-            """Calculate potential monthly revenue from approved inventory."""
-            approved_items = [item for item in SAMPLE_INVENTORY if item['approved']]
-            if not approved_items:
-                return "No approved items. Approve inventory items to calculate revenue."
-            
-            monthly_revenue = 0
-            for item in approved_items:
-                if item['rent_mode'] == 'hourly':
-                    # Assume 20 hours/month usage
-                    monthly_revenue += item['suggested_price'] * 20
-                else:
-                    monthly_revenue += item['suggested_price']
-            
-            return f"${monthly_revenue:.2f}/month potential revenue from {len(approved_items)} approved items"
-        
-        def calculate_metrics():
-            """Calculate performance metrics."""
-            approved_count = len([item for item in SAMPLE_INVENTORY if item['approved']])
-            total_count = len(SAMPLE_INVENTORY)
-            approval_rate = (approved_count / total_count * 100) if total_count > 0 else 0
-            
-            avg_risk_score = sum([
-                1.0 if item['risk_level'] == 'Low' else 
-                0.7 if item['risk_level'] == 'Medium' else 0.4 
-                for item in SAMPLE_INVENTORY
-            ]) / total_count if total_count > 0 else 0
-            
-            return f"""Approval Rate: {approval_rate:.1f}%
-Average Risk Score: {avg_risk_score:.2f}
-Total Items: {total_count}
-Approved Items: {approved_count}
-Inventory Utilization: {approval_rate * 0.8:.1f}%"""
-        
-        calculate_revenue_btn.click(
-            calculate_revenue_potential,
-            outputs=[revenue_output]
-        )
-        
-        calculate_metrics_btn.click(
-            calculate_metrics,
-            outputs=[metrics_output]
-        )
-    
-    gr.Markdown("""
-    ---
-    **MEMBRA Liquid** converts idle household utility into verified, fractional, finance-ready local liquidity.
-    
-    *This is a simulator. Real deployment requires AI vision detection and live market data.*
-    
-    **Pre-user. Post-thesis. Artifact-complete.**
-    """)
+            json_file = gr.File(label='JSON export')
+            csv_file = gr.File(label='CSV export')
+        checkout_out = gr.Textbox(label='Checkout', interactive=False)
+        state = gr.State([])
 
-if __name__ == "__main__":
-    demo.launch()
+        load_btn.click(gradio_load, inputs=[file_in], outputs=[profile, status])
+        gen_btn.click(gradio_generate, inputs=[email, file_in, business_context, kpi_count], outputs=[table, status, json_file, csv_file, state])
+        checkout_btn.click(gradio_checkout_link, inputs=[email], outputs=[checkout_out])
+        gr.Markdown('Set Stripe webhook URL to `/api/stripe/webhook`. Set Space secrets before enabling `REQUIRE_STRIPE=true`.')
+    return demo
+
+
+demo = build_ui()
+app = gr.mount_gradio_app(api, demo, path='/')
+
+
+if __name__ == '__main__':
+    uvicorn.run(app, host='0.0.0.0', port=int(os.getenv('PORT', '7860')), log_level=LOG_LEVEL.lower())
