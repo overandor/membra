@@ -1,0 +1,50 @@
+name: MEMBRA CI
+
+on:
+  push:
+    branches:
+      - main
+      - clean-main
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Syntax validation
+        run: |
+          python -m py_compile app.py
+
+      - name: Validate module registry
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('infra/module-registry.json')
+          data = json.loads(path.read_text())
+          assert 'modules' in data
+          assert isinstance(data['modules'], list)
+          print('module registry valid')
+          PY
+
+      - name: Validate environment schema
+        run: |
+          test -f infra/env.schema.example
+
+      - name: Repository summary
+        run: |
+          echo "MEMBRA CI completed"
