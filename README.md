@@ -11,7 +11,7 @@ pinned: false
 
 MEMBRA is organized as **one operating system with specialized repos**.
 
-The root repo, `overandor/membra`, is now the command center for the MEMBRA ecosystem. It reads `modules/registry.json`, displays every module, exposes registry APIs, and gives Replit-friendly bootstrap instructions.
+The root repo, `overandor/membra`, is now the command center for the MEMBRA ecosystem. It reads `modules/registry.json`, displays every module, exposes registry APIs, gives Replit-friendly bootstrap instructions, and can run the root OS plus the primary KPI product in one workspace command.
 
 ## Product thesis
 
@@ -42,18 +42,10 @@ real photo/data upload
 → wallet/payout eligibility
 ```
 
-## Root command center
-
-Run this repo:
+## Root command center only
 
 ```bash
 pip install -r requirements.txt
-uvicorn app:app --host 0.0.0.0 --port 8000
-```
-
-Or in Replit, just press Run. `.replit` starts:
-
-```bash
 uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
@@ -61,13 +53,39 @@ Open:
 
 ```text
 /
+/workspace
+/docs
 /api/health
 /api/registry
 /api/modules
 /api/replit-plan
 /api/health-check-modules
-/docs
 ```
+
+## Full Replit workspace mode
+
+In Replit, press Run. `.replit` now runs:
+
+```bash
+python scripts/run_workspace.py
+```
+
+That starts:
+
+```text
+MEMBRA OS root dashboard: http://localhost:8000
+MEMBRA KPI product:       http://localhost:8001   # after modules are bootstrapped
+```
+
+First-time setup:
+
+```bash
+python scripts/bootstrap_modules.py
+python scripts/status_modules.py
+python scripts/run_workspace.py
+```
+
+If `modules/Membra_kpi` is not present, the workspace runner still starts the root OS and tells you to run the bootstrap command.
 
 ## Bootstrap all modules locally
 
@@ -117,7 +135,18 @@ Each module declares:
 
 ## Module contracts
 
-Every specialized repo now has a `MEMBRA_MODULE.md` contract explaining its role, inputs, outputs, health route, Replit role, and production boundary.
+Every specialized repo has a `MEMBRA_MODULE.md` contract explaining its role, inputs, outputs, health route, Replit role, and production boundary.
+
+## Root APIs
+
+```text
+GET /api/health
+GET /api/registry
+GET /api/modules
+GET /api/modules/{module_id}
+GET /api/replit-plan
+GET /api/health-check-modules
+```
 
 ## Production boundary
 
