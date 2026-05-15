@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MEMBRA OS Docs</title><style>body{background:#080807;color:#f8edda;font-family:Inter,system-ui,sans-serif;margin:0}.shell{width:min(960px,92vw);margin:auto;padding:40px 0}a{color:#d8b45d}.card{background:#15130f;border:1px solid rgba(216,180,93,.24);border-radius:24px;padding:24px;margin:18px 0}code,pre{background:#060605;border:1px solid rgba(216,180,93,.24);border-radius:12px;padding:12px;display:block;color:#ead8ab;white-space:pre-wrap}h1{font-size:54px;letter-spacing:-.05em}.muted{color:#a89d88}</style></head>
+<body><main class="shell"><a href="/">← MEMBRA OS</a><h1>Developer Docs</h1><p class="muted">Root command center for developing the MEMBRA repo family as one operating system.</p><div class="card"><h2>Primary rule</h2><p>Develop against <code>modules/registry.json</code>. Each module must keep a <code>MEMBRA_MODULE.md</code> contract.</p></div><div class="card"><h2>Bootstrap workspace</h2><pre>python scripts/bootstrap_modules.py
+python scripts/status_modules.py</pre></div><div class="card"><h2>Primary deployable</h2><p><code>Membra_kpi</code> is the first full Replit deployable product. It owns the photo/data → SKU → KPI → ProofBook → draft → owner-confirmed marketplace → payout eligibility loop.</p></div><div class="card"><h2>APIs</h2><pre>GET /api/health
+GET /api/registry
+GET /api/modules
+GET /api/modules/{module_id}
+GET /api/replit-plan</pre></div><div class="card"><h2>Boundary</h2><p>MEMBRA records proof, listings, reports, and payout eligibility. MEMBRA does not custody funds. External rails settle money.</p></div></main></body></html>
