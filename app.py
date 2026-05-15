@@ -2,7 +2,7 @@
 
 Root orchestrator for the MEMBRA repo family. This app does not replace the
 specialized modules. It reads modules/registry.json and exposes a Replit-friendly
-command-center website and registry APIs.
+command-center website, registry APIs, workspace plan, and module health checks.
 """
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 
 APP_NAME = "MEMBRA OS Command Center"
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.1.0"
 ROOT = Path(__file__).resolve().parent
 REGISTRY_PATH = ROOT / "modules" / "registry.json"
 templates = Jinja2Templates(directory=str(ROOT / "templates"))
@@ -37,11 +37,53 @@ def modules() -> list[dict[str, Any]]:
     return sorted(data.get("modules", []), key=lambda item: int(item.get("priority", 999)))
 
 
+def module_presence(module: dict[str, Any]) -> str:
+    local_path = ROOT / module["local_path"]
+    if (local_path / ".git").exists():
+        return "cloned"
+    if local_path.exists():
+        return "present"
+    return "missing"
+
+
+def enriched_modules() -> list[dict[str, Any]]:
+    out = []
+    for module in modules():
+        item = dict(module)
+        item["presence"] = module_presence(module)
+        item["absolute_path"] = str(ROOT / module["local_path"])
+        out.append(item)
+    return out
+
+
+async def check_runtime_modules() -> list[dict[str, Any]]:
+    results: list[dict[str, Any]] = []
+    timeout = httpx.Timeout(2.0)
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        for module in enriched_modules():
+            port = module.get("default_port")
+            health_path = module.get("health_path")
+            if not port or not health_path:
+                results.append({"id": module["id"], "presence": module["presence"], "status": "not_runtime_service", "ok": None})
+                continue
+            url = f"http://127.0.0.1:{port}{health_path}"
+            try:
+                response = await client.get(url)
+                results.append({"id": module["id"], "presence": module["presence"], "url": url, "status": response.status_code, "ok": response.status_code < 400})
+            except Exception as exc:
+                results.append({"id": module["id"], "presence": module["presence"], "url": url, "status": "offline", "ok": False, "error": str(exc)})
+    return results
+
+
 @app.get("/", response_class=HTMLResponse)
-def home(request: Request):
-    mods = modules()
+async def home(request: Request):
+    mods = enriched_modules()
     runtime_services = [m for m in mods if m.get("health_path")]
     primary = next((m["id"] for m in mods if m.get("replit_style") == "primary_deployable"), "n/a")
+    health = await check_runtime_modules()
+    health_map = {item["id"]: item for item in health}
+    for module in mods:
+        module["runtime"] = health_map.get(module["id"], {})
     return templates.TemplateResponse(
         "os_home.html",
         {
@@ -50,6 +92,7 @@ def home(request: Request):
             "module_count": len(mods),
             "service_count": len(runtime_services),
             "primary_module": primary,
+            "online_count": sum(1 for item in health if item.get("ok") is True),
         },
     )
 
@@ -57,6 +100,11 @@ def home(request: Request):
 @app.get("/docs", response_class=HTMLResponse)
 def docs(request: Request):
     return templates.TemplateResponse("os_docs.html", {"request": request})
+
+
+@app.get("/workspace", response_class=HTMLResponse)
+def workspace(request: Request):
+    return templates.TemplateResponse("workspace.html", {"request": request, "modules": enriched_modules()})
 
 
 @app.get("/api/health")
@@ -71,12 +119,12 @@ def registry():
 
 @app.get("/api/modules")
 def api_modules():
-    return {"modules": modules()}
+    return {"modules": enriched_modules()}
 
 
 @app.get("/api/modules/{module_id}")
 def api_module(module_id: str):
-    for module in modules():
+    for module in enriched_modules():
         if module.get("id") == module_id:
             return module
     raise HTTPException(status_code=404, detail="module not found")
@@ -84,39 +132,24 @@ def api_module(module_id: str):
 
 @app.get("/api/replit-plan")
 def replit_plan():
-    primary = [m for m in modules() if m.get("replit_style") == "primary_deployable"]
-    services = [m for m in modules() if m.get("replit_style") == "service"]
+    primary = [m for m in enriched_modules() if m.get("replit_style") == "primary_deployable"]
+    services = [m for m in enriched_modules() if m.get("replit_style") == "service"]
     return {
-        "recommended_mode": "single-product first, OS workspace second",
+        "recommended_mode": "run root workspace runner; bootstrap modules first for full local OS",
         "primary_deployable": primary,
         "service_modules": services,
-        "bootstrap_commands": [
-            "python scripts/bootstrap_modules.py",
-            "python scripts/status_modules.py",
-            "cd modules/Membra_kpi && python scripts/apply_migrations.py && uvicorn app:app --host 0.0.0.0 --port 8001",
-        ],
+        "commands": {
+            "bootstrap": "python scripts/bootstrap_modules.py",
+            "status": "python scripts/status_modules.py",
+            "workspace": "python scripts/run_workspace.py",
+            "primary_product_only": "cd modules/Membra_kpi && python scripts/apply_migrations.py && uvicorn app:app --host 0.0.0.0 --port 8001",
+        },
     }
 
 
 @app.get("/api/health-check-modules")
 async def health_check_modules():
-    """Best-effort local health check for modules already running on their default ports."""
-    results: list[dict[str, Any]] = []
-    timeout = httpx.Timeout(2.0)
-    async with httpx.AsyncClient(timeout=timeout) as client:
-        for module in modules():
-            port = module.get("default_port")
-            health_path = module.get("health_path")
-            if not port or not health_path:
-                results.append({"id": module["id"], "status": "not_runtime_service"})
-                continue
-            url = f"http://127.0.0.1:{port}{health_path}"
-            try:
-                response = await client.get(url)
-                results.append({"id": module["id"], "url": url, "status": response.status_code, "ok": response.status_code < 400})
-            except Exception as exc:
-                results.append({"id": module["id"], "url": url, "status": "offline", "ok": False, "error": str(exc)})
-    return {"results": results}
+    return {"results": await check_runtime_modules()}
 
 
 if __name__ == "__main__":
