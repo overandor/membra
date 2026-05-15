@@ -3,16 +3,16 @@ seeds = true
 skip-lint = false
 
 [programs.localnet]
-membra_core = "Membr1Core1111111111111111111111111111111111"
-membra_tokenomics = "Tok3nom1csMEMBRAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+membra_core = "2F3SqkpMfqnMQDxA75R6gEXYq9HQmKfEFMyH4F2fKJ7M"
+membra_tokenomics = "38tgbireEP2AFq5YQBroNN9wQTqAECUuDNYmRjkogKca"
 
 [programs.devnet]
-membra_core = "Membr1Core1111111111111111111111111111111111"
-membra_tokenomics = "Tok3nom1csMEMBRAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+membra_core = "2F3SqkpMfqnMQDxA75R6gEXYq9HQmKfEFMyH4F2fKJ7M"
+membra_tokenomics = "38tgbireEP2AFq5YQBroNN9wQTqAECUuDNYmRjkogKca"
 
 [programs.mainnet]
-membra_core = "Membr1Core1111111111111111111111111111111111"
-membra_tokenomics = "Tok3nom1csMEMBRAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+membra_core = "2F3SqkpMfqnMQDxA75R6gEXYq9HQmKfEFMyH4F2fKJ7M"
+membra_tokenomics = "38tgbireEP2AFq5YQBroNN9wQTqAECUuDNYmRjkogKca"
 
 [registry]
 url = "https://api.apr.dev"

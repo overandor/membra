@@ -10,7 +10,7 @@ import * as anchor from "@coral-xyz/anchor";
 // ============================================================================
 
 export const TOKENOMICS_PROGRAM_ID = new PublicKey(
-  "Tok3nom1csMEMBRAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  "38tgbireEP2AFq5YQBroNN9wQTqAECUuDNYmRjkogKca"
 );
 
 export const SPLITS = {
@@ -86,6 +86,43 @@ export enum RebateClaimStatus {
   Claimed = 2,
   Expired = 3,
   Denied = 4,
+}
+
+export interface ContributionQuote {
+  baseTokens: number;
+  bonusTokens: number;
+  totalTokens: number;
+  bonusBps: number;
+  priceAtContribution: number;
+}
+
+export interface SplitQuote {
+  treasury: number;
+  protocol: number;
+  validator: number;
+  earlyReward: number;
+}
+
+export interface InitializeSaleParams {
+  basePriceLamports: number;
+  slopeBps: number;
+  maxBonusBps: number;
+  saleDurationSec: number;
+  earlyRewardCapLamports: number;
+  maxRebatePerBuyerLamports: number;
+  rebateRateBps: number;
+  hardCapLamports: number;
+  minContributionLamports: number;
+  treasury: PublicKey;
+  protocolWallet: PublicKey;
+  validatorPool: PublicKey;
+}
+
+export interface ContributeParams {
+  buyer: Keypair;
+  saleId: number;
+  amountLamports: number;
+  contributionIndex?: number;
 }
 
 // ============================================================================
@@ -389,6 +426,30 @@ export class MembraTokenomicsClient {
       .rpc();
   }
 
+  async pauseSale(authority: Keypair, saleId: number) {
+    const [salePda] = this.tokenSalePda(saleId);
+    return this.program.methods
+      .setSalePause(true)
+      .accounts({
+        authority: authority.publicKey,
+        tokenSale: salePda,
+      } as any)
+      .signers([authority])
+      .rpc();
+  }
+
+  async resumeSale(authority: Keypair, saleId: number) {
+    const [salePda] = this.tokenSalePda(saleId);
+    return this.program.methods
+      .setSalePause(false)
+      .accounts({
+        authority: authority.publicKey,
+        tokenSale: salePda,
+      } as any)
+      .signers([authority])
+      .rpc();
+  }
+
   // ==========================================================================
   // Fetch Helpers
   // ==========================================================================
@@ -412,6 +473,21 @@ export class MembraTokenomicsClient {
     try {
       const raw = await this.program.account.buyerReceipt.fetch(receiptPda);
       return this.mapBuyerReceipt(raw);
+    } catch {
+      return null;
+    }
+  }
+
+  async fetchContribution(
+    saleId: number,
+    buyer: PublicKey,
+    index: number
+  ): Promise<ContributionData | null> {
+    const [salePda] = this.tokenSalePda(saleId);
+    const [contribPda] = this.contributionPda(salePda, buyer, index);
+    try {
+      const raw = await this.program.account.contribution.fetch(contribPda);
+      return this.mapContribution(raw);
     } catch {
       return null;
     }
@@ -444,6 +520,21 @@ export class MembraTokenomicsClient {
     };
   }
 
+  private mapContribution(raw: any): ContributionData {
+    return {
+      sale: raw.sale,
+      buyer: raw.buyer,
+      amountLamports: raw.amountLamports.toNumber(),
+      baseTokens: raw.baseTokens.toNumber(),
+      bonusTokens: raw.bonusTokens.toNumber(),
+      totalTokens: raw.totalTokens.toNumber(),
+      bonusBps: raw.bonusBps,
+      priceAtContribution: raw.priceAtContribution.toNumber(),
+      contributionIndex: raw.contributionIndex.toNumber(),
+      createdAt: raw.createdAt.toNumber(),
+    };
+  }
+
   private mapBuyerReceipt(raw: any): BuyerReceiptData {
     return {
       sale: raw.sale,
@@ -454,5 +545,19 @@ export class MembraTokenomicsClient {
       rebateClaimStatus: raw.rebateClaimStatus,
       lastUpdatedAt: raw.lastUpdatedAt.toNumber(),
     };
+  }
+
+  /**
+   * Generate a Solana explorer URL for a transaction or account.
+   */
+  getExplorerUrl(
+    signatureOrAddress: string,
+    cluster: "mainnet-beta" | "devnet" | "localnet" = "devnet"
+  ): string {
+    const base =
+      cluster === "mainnet-beta"
+        ? "https://explorer.solana.com"
+        : `https://explorer.solana.com/?cluster=${cluster}`;
+    return `${base}/tx/${signatureOrAddress}`;
   }
 }

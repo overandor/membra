@@ -17,7 +17,7 @@ use anchor_lang::solana_program::{system_instruction, program::{invoke, invoke_s
 // 7. Authority finalizes the sale → liquidity migrated → claims enabled.
 // =============================================================================
 
-declare_id!("11111111111111111111111111111111"); // TODO: replace with deployed program ID
+declare_id!("38tgbireEP2AFq5YQBroNN9wQTqAECUuDNYmRjkogKca"); // TODO: replace with deployed program ID
 
 #[program]
 pub mod membra_tokenomics {
@@ -26,10 +26,11 @@ pub mod membra_tokenomics {
     // =========================================================================
     // 1. Initialize Token Sale
     // =========================================================================
+    #[allow(clippy::too_many_arguments)]
     pub fn initialize_sale(
         ctx: Context<InitializeSale>,
         sale_id: u64,
-        sale_id_bytes: [u8; 8],
+        _sale_id_bytes: [u8; 8],
         base_price_lamports: u64,
         slope_bps: u64,
         max_bonus_bps: u16,
@@ -57,8 +58,20 @@ pub mod membra_tokenomics {
             MembraTokenomicsError::InvalidDuration
         );
         require!(
+            hard_cap_lamports > 0,
+            MembraTokenomicsError::InvalidHardCap
+        );
+        require!(
             hard_cap_lamports >= early_reward_cap_lamports,
             MembraTokenomicsError::InvalidHardCap
+        );
+        require!(
+            early_reward_cap_lamports > 0,
+            MembraTokenomicsError::InvalidHardCap
+        );
+        require!(
+            max_rebate_per_buyer_lamports > 0,
+            MembraTokenomicsError::RebateTooHigh
         );
         require!(
             min_contribution_lamports > 0,
@@ -106,15 +119,21 @@ pub mod membra_tokenomics {
         sale.bump = ctx.bumps.token_sale;
         sale.early_reward_pool_bump = ctx.bumps.early_reward_pool;
 
+        let clock = Clock::get()?;
         emit!(SaleInitialized {
             sale: sale.key(),
             authority: sale.authority,
             sale_id,
             base_price_lamports,
+            slope_bps,
             max_bonus_bps,
-            early_reward_cap_lamports,
+            sale_duration_sec,
             hard_cap_lamports,
             min_contribution_lamports,
+            early_reward_cap_lamports,
+            max_rebate_per_buyer_lamports,
+            rebate_rate_bps,
+            timestamp: clock.unix_timestamp,
         });
 
         Ok(())
@@ -317,11 +336,28 @@ pub mod membra_tokenomics {
         emit!(ContributionRecorded {
             sale: sale.key(),
             buyer: ctx.accounts.buyer.key(),
+            contribution: contribution.key(),
             amount_lamports,
             base_tokens,
             bonus_tokens,
+            total_tokens,
             bonus_bps,
+            price_at_contribution: current_price,
             contribution_index: contribution.contribution_index,
+            treasury_amount: to_treasury,
+            protocol_amount: to_protocol,
+            validator_amount: to_validator,
+            early_reward_amount: to_early_reward,
+            timestamp: clock.unix_timestamp,
+        });
+        emit!(BuyerReceiptRecorded {
+            sale: sale.key(),
+            buyer: ctx.accounts.buyer.key(),
+            receipt: receipt.key(),
+            total_contributed_lamports: receipt.total_contributed_lamports,
+            total_tokens_allocated: receipt.total_tokens_allocated,
+            rebate_eligible: receipt.rebate_claim_status == RebateClaimStatus::Eligible as u8,
+            timestamp: clock.unix_timestamp,
         });
 
         Ok(())
@@ -415,7 +451,8 @@ pub mod membra_tokenomics {
         emit!(RebateClaimed {
             sale: sale.key(),
             buyer: receipt.buyer,
-            rebate_lamports: rebate,
+            amount_lamports: rebate,
+            timestamp: clock.unix_timestamp,
         });
 
         Ok(())
@@ -433,11 +470,13 @@ pub mod membra_tokenomics {
 
         sale.status = SaleStatus::Finalized as u8;
 
+        let clock = Clock::get()?;
         emit!(SaleFinalized {
             sale: sale.key(),
             total_raised_lamports: sale.total_raised_lamports,
             total_tokens_allocated: sale.total_tokens_allocated,
             contribution_count: sale.contribution_count,
+            timestamp: clock.unix_timestamp,
         });
 
         Ok(())
@@ -455,10 +494,12 @@ pub mod membra_tokenomics {
 
         sale.status = SaleStatus::LiquidityMigrated as u8;
 
+        let clock = Clock::get()?;
         emit!(LiquidityMigrated {
             sale: sale.key(),
             treasury: sale.treasury,
             total_raised_lamports: sale.total_raised_lamports,
+            timestamp: clock.unix_timestamp,
         });
 
         Ok(())
@@ -478,9 +519,11 @@ pub mod membra_tokenomics {
 
         sale.status = SaleStatus::Cancelled as u8;
 
+        let clock = Clock::get()?;
         emit!(SaleCancelled {
             sale: sale.key(),
             total_raised_lamports: sale.total_raised_lamports,
+            timestamp: clock.unix_timestamp,
         });
 
         Ok(())
@@ -674,7 +717,7 @@ pub struct InitializeSale<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + 0, // minimal account, holds lamports
+        space = 8, // minimal account, holds lamports
         seeds = [b"early_reward_pool", token_sale.key().as_ref()],
         bump
     )]
@@ -786,10 +829,15 @@ pub struct SaleInitialized {
     pub authority: Pubkey,
     pub sale_id: u64,
     pub base_price_lamports: u64,
+    pub slope_bps: u64,
     pub max_bonus_bps: u16,
-    pub early_reward_cap_lamports: u64,
+    pub sale_duration_sec: u64,
     pub hard_cap_lamports: u64,
     pub min_contribution_lamports: u64,
+    pub early_reward_cap_lamports: u64,
+    pub max_rebate_per_buyer_lamports: u64,
+    pub rebate_rate_bps: u16,
+    pub timestamp: i64,
 }
 
 #[event]
@@ -803,18 +851,38 @@ pub struct SaleActivated {
 pub struct ContributionRecorded {
     pub sale: Pubkey,
     pub buyer: Pubkey,
+    pub contribution: Pubkey,
     pub amount_lamports: u64,
     pub base_tokens: u64,
     pub bonus_tokens: u64,
+    pub total_tokens: u64,
     pub bonus_bps: u16,
+    pub price_at_contribution: u64,
     pub contribution_index: u64,
+    pub treasury_amount: u64,
+    pub protocol_amount: u64,
+    pub validator_amount: u64,
+    pub early_reward_amount: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct BuyerReceiptRecorded {
+    pub sale: Pubkey,
+    pub buyer: Pubkey,
+    pub receipt: Pubkey,
+    pub total_contributed_lamports: u64,
+    pub total_tokens_allocated: u64,
+    pub rebate_eligible: bool,
+    pub timestamp: i64,
 }
 
 #[event]
 pub struct RebateClaimed {
     pub sale: Pubkey,
     pub buyer: Pubkey,
-    pub rebate_lamports: u64,
+    pub amount_lamports: u64,
+    pub timestamp: i64,
 }
 
 #[event]
@@ -823,6 +891,7 @@ pub struct SaleFinalized {
     pub total_raised_lamports: u64,
     pub total_tokens_allocated: u64,
     pub contribution_count: u64,
+    pub timestamp: i64,
 }
 
 #[event]
@@ -830,12 +899,14 @@ pub struct LiquidityMigrated {
     pub sale: Pubkey,
     pub treasury: Pubkey,
     pub total_raised_lamports: u64,
+    pub timestamp: i64,
 }
 
 #[event]
 pub struct SaleCancelled {
     pub sale: Pubkey,
     pub total_raised_lamports: u64,
+    pub timestamp: i64,
 }
 
 #[event]

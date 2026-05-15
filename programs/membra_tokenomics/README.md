@@ -169,6 +169,29 @@ anchor test
 - PDA seeds are validated via Anchor constraints.
 - `has_one = authority` enforces admin ownership on `ManageSale`.
 
+## Production Boundaries
+
+**MEMBRA tokenomics does NOT guarantee:**
+
+- Profit, yield, appreciation, or redemption.
+- Infinite or passive rewards.
+- Liquidity or exit opportunities.
+
+**Cashback / rebate terms:**
+
+- Rebate is **capped** per buyer (`max_rebate_per_buyer_lamports`).
+- Rebate is **pool-limited** (`early_reward_cap_lamports`).
+- Claims are **available only if funded** — the early-reward-pool must hold sufficient SOL.
+- Claims are **available only after finalization**.
+- Token ownership does **not** imply equity, voting rights, or revenue share.
+
+**Contribution risk:**
+
+- Contributions may be **irreversible**.
+- Mainnet transactions cost **real SOL**.
+- Buyer must **accept risk disclosure** before signing.
+- UI must show **estimated quote** and require **final wallet confirmation**.
+
 ## License
 
 MIT
