@@ -64,9 +64,12 @@ describe("membra_tokenomics", () => {
   });
 
   it("Initialize token sale", async () => {
+    const saleIdBytes = Buffer.alloc(8);
+    saleIdBytes.writeBigUInt64LE(BigInt(SALE_ID), 0);
     const tx = await program.methods
       .initializeSale(
         new anchor.BN(SALE_ID),
+        Array.from(saleIdBytes),
         new anchor.BN(100_000), // base_price = 0.0001 SOL
         new anchor.BN(100), // slope_bps
         2000, // max_bonus_bps = 20%
@@ -144,8 +147,11 @@ describe("membra_tokenomics", () => {
     const validatorBefore = await provider.connection.getBalance(validatorPool.publicKey);
 
     const amount = 1 * anchor.web3.LAMPORTS_PER_SOL;
+    const idx1 = 1;
+    const idx1Bytes = Buffer.alloc(8);
+    idx1Bytes.writeBigUInt64LE(BigInt(idx1), 0);
     await program.methods
-      .contribute(new anchor.BN(amount))
+      .contribute(new anchor.BN(amount), new anchor.BN(idx1), Array.from(idx1Bytes))
       .accounts({
         buyer: buyer.publicKey,
         tokenSale: salePda,
@@ -199,8 +205,11 @@ describe("membra_tokenomics", () => {
       program.programId
     );
 
+    const idx2 = 2;
+    const idx2Bytes = Buffer.alloc(8);
+    idx2Bytes.writeBigUInt64LE(BigInt(idx2), 0);
     await program.methods
-      .contribute(new anchor.BN(anchor.web3.LAMPORTS_PER_SOL))
+      .contribute(new anchor.BN(anchor.web3.LAMPORTS_PER_SOL), new anchor.BN(idx2), Array.from(idx2Bytes))
       .accounts({
         buyer: buyer.publicKey,
         tokenSale: salePda,
@@ -253,8 +262,11 @@ describe("membra_tokenomics", () => {
 
     // Contribute
     const amount = anchor.web3.LAMPORTS_PER_SOL;
+    const idx3 = 3;
+    const idx3Bytes = Buffer.alloc(8);
+    idx3Bytes.writeBigUInt64LE(BigInt(idx3), 0);
     await program.methods
-      .contribute(new anchor.BN(amount))
+      .contribute(new anchor.BN(amount), new anchor.BN(idx3), Array.from(idx3Bytes))
       .accounts({
         buyer: buyer.publicKey,
         tokenSale: salePda,
@@ -338,8 +350,11 @@ describe("membra_tokenomics", () => {
       program.programId
     );
 
+    const idx4 = 4;
+    const idx4Bytes = Buffer.alloc(8);
+    idx4Bytes.writeBigUInt64LE(BigInt(idx4), 0);
     await program.methods
-      .contribute(new anchor.BN(anchor.web3.LAMPORTS_PER_SOL))
+      .contribute(new anchor.BN(anchor.web3.LAMPORTS_PER_SOL), new anchor.BN(idx4), Array.from(idx4Bytes))
       .accounts({
         buyer: buyer.publicKey,
         tokenSale: salePda,
@@ -354,7 +369,7 @@ describe("membra_tokenomics", () => {
       .signers([buyer])
       .rpc();
 
-    // Finalize (needed since previous test already migrated; we need a new sale ideally, but let's test with existing)
+    // Claim rebate (needed since previous test already migrated; we need a new sale ideally, but let's test with existing)
     // For this test, the sale is already migrated so claims should work.
     await program.methods
       .claimRebate()

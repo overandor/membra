@@ -17,7 +17,7 @@ use anchor_lang::solana_program::{system_instruction, program::{invoke, invoke_s
 // 7. Authority finalizes the sale → liquidity migrated → claims enabled.
 // =============================================================================
 
-declare_id!("Tok3nom1csMEMBRAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"); // TODO: replace with deployed program ID
+declare_id!("11111111111111111111111111111111"); // TODO: replace with deployed program ID
 
 #[program]
 pub mod membra_tokenomics {
@@ -29,6 +29,7 @@ pub mod membra_tokenomics {
     pub fn initialize_sale(
         ctx: Context<InitializeSale>,
         sale_id: u64,
+        sale_id_bytes: [u8; 8],
         base_price_lamports: u64,
         slope_bps: u64,
         max_bonus_bps: u16,
@@ -149,6 +150,8 @@ pub mod membra_tokenomics {
     pub fn contribute(
         ctx: Context<Contribute>,
         amount_lamports: u64,
+        contribution_index: u64,
+        _contribution_index_bytes: [u8; 8],
     ) -> Result<()> {
         require!(amount_lamports > 0, MembraTokenomicsError::ZeroContribution);
 
@@ -241,30 +244,28 @@ pub mod membra_tokenomics {
         );
 
         // ─── Transfer Splits (via safe CPI) ───
-        let sys = ctx.accounts.system_program.to_account_info();
-        transfer_lamports_cpi(
-            &ctx.accounts.buyer.to_account_info(),
-            &ctx.accounts.treasury.to_account_info(),
-            &sys,
-            to_treasury,
+        let buyer_info = ctx.accounts.buyer.to_account_info();
+        let treasury_info = ctx.accounts.treasury.to_account_info();
+        let protocol_info = ctx.accounts.protocol_wallet.to_account_info();
+        let validator_info = ctx.accounts.validator_pool.to_account_info();
+        let pool_info = ctx.accounts.early_reward_pool.to_account_info();
+        let sys_info = ctx.accounts.system_program.to_account_info();
+
+        invoke(
+            &system_instruction::transfer(buyer_info.key, treasury_info.key, to_treasury),
+            &[buyer_info.clone(), treasury_info.clone(), sys_info.clone()],
         )?;
-        transfer_lamports_cpi(
-            &ctx.accounts.buyer.to_account_info(),
-            &ctx.accounts.protocol_wallet.to_account_info(),
-            &sys,
-            to_protocol,
+        invoke(
+            &system_instruction::transfer(buyer_info.key, protocol_info.key, to_protocol),
+            &[buyer_info.clone(), protocol_info.clone(), sys_info.clone()],
         )?;
-        transfer_lamports_cpi(
-            &ctx.accounts.buyer.to_account_info(),
-            &ctx.accounts.validator_pool.to_account_info(),
-            &sys,
-            to_validator,
+        invoke(
+            &system_instruction::transfer(buyer_info.key, validator_info.key, to_validator),
+            &[buyer_info.clone(), validator_info.clone(), sys_info.clone()],
         )?;
-        transfer_lamports_cpi(
-            &ctx.accounts.buyer.to_account_info(),
-            &ctx.accounts.early_reward_pool.to_account_info(),
-            &sys,
-            to_early_reward,
+        invoke(
+            &system_instruction::transfer(buyer_info.key, pool_info.key, to_early_reward),
+            &[buyer_info.clone(), pool_info.clone(), sys_info.clone()],
         )?;
 
         // ─── Update Sale State ───
@@ -289,7 +290,7 @@ pub mod membra_tokenomics {
         contribution.total_tokens = total_tokens;
         contribution.bonus_bps = bonus_bps;
         contribution.price_at_contribution = current_price;
-        contribution.contribution_index = sale.contribution_count;
+        contribution.contribution_index = contribution_index;
         contribution.created_at = clock.unix_timestamp;
         contribution.bump = ctx.bumps.contribution;
 
@@ -305,14 +306,13 @@ pub mod membra_tokenomics {
             .total_tokens_allocated
             .checked_add(total_tokens)
             .unwrap();
-        receipt.rebate_claimed_lamports = receipt.rebate_claimed_lamports; // unchanged
+        // rebate_claimed_lamports unchanged
         receipt.rebate_claim_status = if receipt.rebate_claim_status == RebateClaimStatus::Claimed as u8 {
             RebateClaimStatus::Claimed as u8
         } else {
             RebateClaimStatus::Eligible as u8
         };
         receipt.last_updated_at = clock.unix_timestamp;
-        receipt.bump = ctx.bumps.buyer_receipt;
 
         emit!(ContributionRecorded {
             sale: sale.key(),
@@ -364,7 +364,7 @@ pub mod membra_tokenomics {
             .checked_div(10_000)
             .unwrap() as u64;
 
-        let pool_remaining = sale
+        let _pool_remaining = sale
             .early_reward_cap_lamports
             .saturating_sub(sale.early_reward_distributed_lamports);
         // Note: distributed tracks what went INTO the pool. For claims we need pool balance.
@@ -563,23 +563,6 @@ fn calculate_time_decay_bonus(
     Ok(bonus)
 }
 
-fn transfer_lamports_cpi(
-    from: &AccountInfo,
-    to: &AccountInfo,
-    system_program: &AccountInfo,
-    amount: u64,
-) -> Result<()> {
-    require!(
-        from.lamports() >= amount,
-        MembraTokenomicsError::InsufficientFunds
-    );
-    invoke(
-        &system_instruction::transfer(from.key, to.key, amount),
-        &[from.clone(), to.clone(), system_program.clone()],
-    )?;
-    Ok(())
-}
-
 // =============================================================================
 // ENUMS
 // =============================================================================
@@ -670,7 +653,7 @@ pub struct BuyerReceipt {
 // =============================================================================
 
 #[derive(Accounts)]
-#[instruction(sale_id: u64)]
+#[instruction(sale_id: u64, sale_id_bytes: [u8; 8])]
 pub struct InitializeSale<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -678,7 +661,7 @@ pub struct InitializeSale<'info> {
         init,
         payer = authority,
         space = 8 + TokenSale::INIT_SPACE,
-        seeds = [b"token_sale", &sale_id.to_le_bytes()],
+        seeds = [b"token_sale", sale_id_bytes.as_ref()],
         bump
     )]
     pub token_sale: Account<'info, TokenSale>,
@@ -712,14 +695,10 @@ pub struct ManageSale<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(amount_lamports: u64, contribution_index: u64, contribution_index_bytes: [u8; 8])]
 pub struct Contribute<'info> {
     #[account(mut)]
     pub buyer: Signer<'info>,
-    #[account(
-        mut,
-        seeds = [b"token_sale", &token_sale.sale_id.to_le_bytes()],
-        bump = token_sale.bump,
-    )]
     pub token_sale: Account<'info, TokenSale>,
     /// CHECK: treasury wallet
     #[account(mut, address = token_sale.treasury @ MembraTokenomicsError::InvalidWallet)]
@@ -741,17 +720,11 @@ pub struct Contribute<'info> {
         init,
         payer = buyer,
         space = 8 + Contribution::INIT_SPACE,
-        seeds = [
-            b"contribution",
-            token_sale.key().as_ref(),
-            buyer.key().as_ref(),
-            &(token_sale.contribution_count + 1).to_le_bytes(),
-        ],
+        seeds = [b"contribution", token_sale.key().as_ref(), buyer.key().as_ref(), &contribution_index_bytes],
         bump
     )]
     pub contribution: Account<'info, Contribution>,
     #[account(
-        mut,
         init_if_needed,
         payer = buyer,
         space = 8 + BuyerReceipt::INIT_SPACE,
@@ -766,11 +739,6 @@ pub struct Contribute<'info> {
 pub struct ClaimRebate<'info> {
     #[account(mut)]
     pub buyer: Signer<'info>,
-    #[account(
-        mut,
-        seeds = [b"token_sale", &token_sale.sale_id.to_le_bytes()],
-        bump = token_sale.bump,
-    )]
     pub token_sale: Account<'info, TokenSale>,
     #[account(
         mut,

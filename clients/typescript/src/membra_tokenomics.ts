@@ -260,9 +260,12 @@ export class MembraTokenomicsClient {
   ) {
     const [salePda] = this.tokenSalePda(saleId);
     const [poolPda] = this.earlyRewardPoolPda(salePda);
+    const idBytes = Buffer.alloc(8);
+    idBytes.writeBigUInt64LE(BigInt(saleId), 0);
     return this.program.methods
       .initializeSale(
         new anchor.BN(saleId),
+        Array.from(idBytes) as any,
         new anchor.BN(params.basePriceLamports),
         new anchor.BN(params.slopeBps),
         params.maxBonusBps,
@@ -301,25 +304,23 @@ export class MembraTokenomicsClient {
   async contribute(
     buyer: Keypair,
     saleId: number,
-    amountLamports: number
+    amountLamports: number,
+    contributionIndex?: number
   ) {
     const [salePda] = this.tokenSalePda(saleId);
     const [poolPda] = this.earlyRewardPoolPda(salePda);
     const [receiptPda] = this.buyerReceiptPda(salePda, buyer.publicKey);
-
-    // We need the current contribution count to derive the next contribution PDA.
-    // In practice, fetch the sale account first or pass the index.
-    // Here we use a placeholder index; the caller should fetch sale.contributionCount.
     const saleAccount = await this.program.account.tokenSale.fetch(salePda);
-    const nextIndex = (saleAccount?.contributionCount || 0) + 1;
-    const [contribPda] = this.contributionPda(
-      salePda,
-      buyer.publicKey,
-      nextIndex
-    );
-
+    const nextIndex = contributionIndex ?? ((saleAccount?.contributionCount || 0) + 1);
+    const idxBytes = Buffer.alloc(8);
+    idxBytes.writeBigUInt64LE(BigInt(nextIndex), 0);
+    const [contribPda] = this.contributionPda(salePda, buyer.publicKey, nextIndex);
     return this.program.methods
-      .contribute(new anchor.BN(amountLamports))
+      .contribute(
+        new anchor.BN(amountLamports),
+        new anchor.BN(nextIndex),
+        Array.from(idxBytes) as any
+      )
       .accounts({
         buyer: buyer.publicKey,
         tokenSale: salePda,
