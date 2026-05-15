@@ -1,0 +1,172 @@
+{
+  "membra_os_version": "1.0.0",
+  "doctrine": "One MEMBRA operating system, many specialized modules. Replit develops against this registry as the source of truth.",
+  "production_boundary": "MEMBRA records proof, listings, reports, and payout eligibility. MEMBRA does not custody funds. External rails settle money.",
+  "modules": [
+    {
+      "id": "membra-root",
+      "repo": "https://github.com/overandor/membra",
+      "role": "Umbrella website, command center, repo registry, doctrine, and Replit orchestration hub",
+      "type": "os_hub",
+      "priority": 1,
+      "local_path": "modules/membra",
+      "default_port": 8000,
+      "health_path": "/api/health",
+      "replit_style": "orchestrator"
+    },
+    {
+      "id": "membra-kpi",
+      "repo": "https://github.com/overandor/Membra_kpi",
+      "role": "Main production wedge: photo/data upload to inventory, SKU, KPI, ProofBook, draft listings, marketplace, wallet eligibility",
+      "type": "product_app",
+      "priority": 2,
+      "local_path": "modules/Membra_kpi",
+      "default_port": 8001,
+      "health_path": "/api/health",
+      "replit_style": "primary_deployable"
+    },
+    {
+      "id": "membra-api",
+      "repo": "https://github.com/overandor/Membra_api",
+      "role": "Canonical API gateway for users, assets, listings, campaigns, relay jobs, proofs, wallet events, and payout eligibility",
+      "type": "backend_service",
+      "priority": 3,
+      "local_path": "modules/Membra_api",
+      "default_port": 8002,
+      "health_path": "/api/health",
+      "replit_style": "service"
+    },
+    {
+      "id": "membra-proofbook",
+      "repo": "https://github.com/overandor/Membra_proofbook",
+      "role": "Proof hash ledger, consent scope, review status, audit trail, and exportable proof register",
+      "type": "trust_service",
+      "priority": 4,
+      "local_path": "modules/Membra_proofbook",
+      "default_port": 8003,
+      "health_path": "/api/health",
+      "replit_style": "service"
+    },
+    {
+      "id": "membra-wallet",
+      "repo": "https://github.com/overandor/Membra_wallet",
+      "role": "Ledger, holds, Stripe hooks, payout eligibility, and settlement-safe wallet boundary",
+      "type": "wallet_service",
+      "priority": 5,
+      "local_path": "modules/Membra_wallet",
+      "default_port": 8004,
+      "health_path": "/api/health",
+      "replit_style": "service"
+    },
+    {
+      "id": "membra-admin",
+      "repo": "https://github.com/overandor/Membra_admin-",
+      "role": "Operator review, fraud holds, campaign approval, payout holds, and admin decisions",
+      "type": "operator_console",
+      "priority": 6,
+      "local_path": "modules/Membra_admin-",
+      "default_port": 8005,
+      "health_path": "/api/health",
+      "replit_style": "service"
+    },
+    {
+      "id": "membra-mobile",
+      "repo": "https://github.com/overandor/Membra_mobile",
+      "role": "Owner-side mobile shell for onboarding, asset registration, proof capture, QR/NFC, relay, and wallet readiness",
+      "type": "owner_experience",
+      "priority": 7,
+      "local_path": "modules/Membra_mobile",
+      "default_port": 8006,
+      "health_path": "/api/health",
+      "replit_style": "service"
+    },
+    {
+      "id": "membra-ads",
+      "repo": "https://github.com/overandor/Membra_ads",
+      "role": "Physical proof-media campaigns for car ads, first-floor windows, stickers, signs, QR/NFC surfaces, and local advertisers",
+      "type": "commercial_wedge",
+      "priority": 8,
+      "local_path": "modules/Membra_ads",
+      "default_port": 8007,
+      "health_path": "/api/health",
+      "replit_style": "service"
+    },
+    {
+      "id": "membra-wear",
+      "repo": "https://github.com/overandor/Membra_wear",
+      "role": "Wearable QR/NFC ad media kits for shirts, hoodies, bags, badges, patches, and apparel placements",
+      "type": "commercial_wedge",
+      "priority": 9,
+      "local_path": "modules/Membra_wear",
+      "default_port": 8008,
+      "health_path": "/api/health",
+      "replit_style": "service"
+    },
+    {
+      "id": "membra-relay",
+      "repo": "https://github.com/overandor/membra-relay",
+      "role": "Local handoff and micro-fulfillment for delivery, meet-halfway routes, returns, hubs, and relay proof",
+      "type": "fulfillment_service",
+      "priority": 10,
+      "local_path": "modules/membra-relay",
+      "default_port": 8009,
+      "health_path": "/api/health",
+      "replit_style": "service"
+    },
+    {
+      "id": "membra-qr-gateway",
+      "repo": "https://github.com/overandor/membra-qr-gateway",
+      "role": "QR/NFC artifact gateway, scan records, public hashes, and provenance pages",
+      "type": "provenance_service",
+      "priority": 11,
+      "local_path": "modules/membra-qr-gateway",
+      "default_port": 8010,
+      "health_path": "/api/health",
+      "replit_style": "service"
+    },
+    {
+      "id": "membra-vendor-adapters",
+      "repo": "https://github.com/overandor/Membra_vendor_adapters",
+      "role": "Non-executing vendor package registry for media kits, QR labels, wearable kits, local print, and manual fulfillment",
+      "type": "fulfillment_registry",
+      "priority": 12,
+      "local_path": "modules/Membra_vendor_adapters",
+      "default_port": 8011,
+      "health_path": "/api/health",
+      "replit_style": "service"
+    },
+    {
+      "id": "membra-contracts",
+      "repo": "https://github.com/overandor/Membra_contracts",
+      "role": "Canonical event schemas, policies, consent templates, and Devnet-first proof boundaries",
+      "type": "schema_policy",
+      "priority": 13,
+      "local_path": "modules/Membra_contracts",
+      "default_port": null,
+      "health_path": null,
+      "replit_style": "library"
+    },
+    {
+      "id": "membra-demo-data",
+      "repo": "https://github.com/overandor/Membra_demo_data",
+      "role": "Seed demo universe for owners, advertisers, assets, media kits, proof events, scan events, wallet states, and KPIs",
+      "type": "data_package",
+      "priority": 14,
+      "local_path": "modules/Membra_demo_data",
+      "default_port": null,
+      "health_path": null,
+      "replit_style": "data"
+    },
+    {
+      "id": "membra-investor-room",
+      "repo": "https://github.com/overandor/Membra_investor_room-",
+      "role": "Investor room, executive summary, diligence checklist, roadmap, and buyer narrative",
+      "type": "diligence_package",
+      "priority": 15,
+      "local_path": "modules/Membra_investor_room-",
+      "default_port": null,
+      "health_path": null,
+      "replit_style": "docs"
+    }
+  ]
+}
