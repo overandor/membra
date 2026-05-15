@@ -1,0 +1,22 @@
+{
+  "suite": "MEMBRA",
+  "canonical_runtime": "overandor/membra",
+  "version": "0.1.0",
+  "modules": [
+    {"module_name":"core-runtime","repository":"overandor/membra","service_type":"core_runtime","runtime_language":"python","default_branch":"main","status":"active","deployment_target":"huggingface-or-container"},
+    {"module_name":"ads","repository":"overandor/Membra_ads","service_type":"campaign_service","runtime_language":"python","default_branch":"main","status":"namespace","deployment_target":"service-adapter"},
+    {"module_name":"qr-gateway","repository":"overandor/membra-qr-gateway","service_type":"frontend","runtime_language":"typescript","default_branch":"main","status":"namespace","deployment_target":"static-or-container"},
+    {"module_name":"wallet","repository":"overandor/Membra_wallet","service_type":"wallet_boundary","runtime_language":"python","default_branch":"main","status":"namespace","deployment_target":"service-adapter"},
+    {"module_name":"wear","repository":"overandor/Membra_wear","service_type":"vendor_adapter","runtime_language":"mixed","default_branch":"main","status":"namespace","deployment_target":"adapter"},
+    {"module_name":"kpi","repository":"overandor/Membra_kpi","service_type":"reporting_service","runtime_language":"python","default_branch":"main","status":"namespace","deployment_target":"module-adapter"},
+    {"module_name":"relay","repository":"overandor/membra-relay","service_type":"api_service","runtime_language":"python","default_branch":"main","status":"namespace","deployment_target":"service-adapter"},
+    {"module_name":"proofbook","repository":"overandor/Membra_proofbook","service_type":"proof_ledger","runtime_language":"python","default_branch":"main","status":"namespace","deployment_target":"module-adapter"},
+    {"module_name":"vendor-adapters","repository":"overandor/Membra_vendor_adapters","service_type":"vendor_adapter","runtime_language":"mixed","default_branch":"main","status":"namespace","deployment_target":"adapter"},
+    {"module_name":"admin","repository":"overandor/Membra_admin-","service_type":"api_service","runtime_language":"python","default_branch":"main","status":"namespace","deployment_target":"service-adapter"},
+    {"module_name":"api","repository":"overandor/Membra_api","service_type":"api_service","runtime_language":"python","default_branch":"main","status":"namespace","deployment_target":"service"},
+    {"module_name":"mobile","repository":"overandor/Membra_mobile","service_type":"mobile_client","runtime_language":"typescript","default_branch":"main","status":"namespace","deployment_target":"mobile"},
+    {"module_name":"contracts","repository":"overandor/Membra_contracts","service_type":"contract_devnet","runtime_language":"solidity-or-rust","default_branch":"main","status":"devnet-only","deployment_target":"manual-devnet"},
+    {"module_name":"investor-room","repository":"overandor/Membra_investor_room-","service_type":"reporting_service","runtime_language":"mixed","default_branch":"main","status":"namespace","deployment_target":"module-adapter"},
+    {"module_name":"demo-data","repository":"overandor/Membra_demo_data","service_type":"seed_data","runtime_language":"data","default_branch":"main","status":"namespace","deployment_target":"local-seed"}
+  ]
+}
