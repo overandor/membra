@@ -44,6 +44,8 @@ export interface TokenSaleData {
   earlyRewardDistributedLamports: number;
   maxRebatePerBuyerLamports: number;
   rebateRateBps: number;
+  hardCapLamports: number;
+  minContributionLamports: number;
 }
 
 export interface ContributionData {
@@ -249,6 +251,8 @@ export class MembraTokenomicsClient {
       earlyRewardCapLamports: number;
       maxRebatePerBuyerLamports: number;
       rebateRateBps: number;
+      hardCapLamports: number;
+      minContributionLamports: number;
       treasury: PublicKey;
       protocolWallet: PublicKey;
       validatorPool: PublicKey;
@@ -265,7 +269,9 @@ export class MembraTokenomicsClient {
         new anchor.BN(params.saleDurationSec),
         new anchor.BN(params.earlyRewardCapLamports),
         new anchor.BN(params.maxRebatePerBuyerLamports),
-        params.rebateRateBps
+        params.rebateRateBps,
+        new anchor.BN(params.hardCapLamports),
+        new anchor.BN(params.minContributionLamports)
       )
       .accounts({
         authority: authority.publicKey,
@@ -432,6 +438,8 @@ export class MembraTokenomicsClient {
         raw.earlyRewardDistributedLamports.toNumber(),
       maxRebatePerBuyerLamports: raw.maxRebatePerBuyerLamports.toNumber(),
       rebateRateBps: raw.rebateRateBps,
+      hardCapLamports: raw.hardCapLamports.toNumber(),
+      minContributionLamports: raw.minContributionLamports.toNumber(),
     };
   }
 

@@ -71,9 +71,11 @@ describe("membra_tokenomics", () => {
         new anchor.BN(100), // slope_bps
         2000, // max_bonus_bps = 20%
         new anchor.BN(3600), // 1 hour duration
-        new anchor.BN(10 * anchor.web3.LAMPORTS_PER_SOL), // cap 10 SOL
+        new anchor.BN(10 * anchor.web3.LAMPORTS_PER_SOL), // early reward cap 10 SOL
         new anchor.BN(1 * anchor.web3.LAMPORTS_PER_SOL), // max rebate 1 SOL
-        500 // rebate_rate_bps = 5%
+        500, // rebate_rate_bps = 5%
+        new anchor.BN(100 * anchor.web3.LAMPORTS_PER_SOL), // hard_cap 100 SOL
+        new anchor.BN(anchor.web3.LAMPORTS_PER_SOL / 100) // min_contribution 0.01 SOL
       )
       .accounts({
         authority: authority.publicKey,
@@ -94,6 +96,12 @@ describe("membra_tokenomics", () => {
     expect(sale.maxBonusBps).to.equal(2000);
     expect(sale.earlyRewardCapLamports.toNumber()).to.equal(
       10 * anchor.web3.LAMPORTS_PER_SOL
+    );
+    expect(sale.hardCapLamports.toNumber()).to.equal(
+      100 * anchor.web3.LAMPORTS_PER_SOL
+    );
+    expect(sale.minContributionLamports.toNumber()).to.equal(
+      anchor.web3.LAMPORTS_PER_SOL / 100
     );
   });
 

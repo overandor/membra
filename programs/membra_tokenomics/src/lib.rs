@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::{system_instruction, program::invoke_signed};
+use anchor_lang::solana_program::{system_instruction, program::{invoke, invoke_signed}};
 
 // =============================================================================
 // MEMBRA Early-Risk Curve / QR Tokenomics Protocol — Solana Program v0.1
@@ -36,6 +36,8 @@ pub mod membra_tokenomics {
         early_reward_cap_lamports: u64,
         max_rebate_per_buyer_lamports: u64,
         rebate_rate_bps: u16,
+        hard_cap_lamports: u64,
+        min_contribution_lamports: u64,
     ) -> Result<()> {
         require!(
             base_price_lamports > 0,
@@ -52,6 +54,14 @@ pub mod membra_tokenomics {
         require!(
             sale_duration_sec > 0,
             MembraTokenomicsError::InvalidDuration
+        );
+        require!(
+            hard_cap_lamports >= early_reward_cap_lamports,
+            MembraTokenomicsError::InvalidHardCap
+        );
+        require!(
+            min_contribution_lamports > 0,
+            MembraTokenomicsError::InvalidMinContribution
         );
 
         let sale = &mut ctx.accounts.token_sale;
@@ -89,6 +99,8 @@ pub mod membra_tokenomics {
         sale.early_reward_distributed_lamports = 0;
         sale.max_rebate_per_buyer_lamports = max_rebate_per_buyer_lamports;
         sale.rebate_rate_bps = rebate_rate_bps;
+        sale.hard_cap_lamports = hard_cap_lamports;
+        sale.min_contribution_lamports = min_contribution_lamports;
 
         sale.bump = ctx.bumps.token_sale;
         sale.early_reward_pool_bump = ctx.bumps.early_reward_pool;
@@ -100,6 +112,8 @@ pub mod membra_tokenomics {
             base_price_lamports,
             max_bonus_bps,
             early_reward_cap_lamports,
+            hard_cap_lamports,
+            min_contribution_lamports,
         });
 
         Ok(())
@@ -149,6 +163,18 @@ pub mod membra_tokenomics {
         require!(
             clock.unix_timestamp <= sale.end_time,
             MembraTokenomicsError::SaleExpired
+        );
+        require!(
+            amount_lamports >= sale.min_contribution_lamports,
+            MembraTokenomicsError::ContributionTooSmall
+        );
+        let new_total = sale
+            .total_raised_lamports
+            .checked_add(amount_lamports)
+            .unwrap();
+        require!(
+            new_total <= sale.hard_cap_lamports,
+            MembraTokenomicsError::HardCapReached
         );
 
         // ─── Terms & Risk Disclosure Acknowledgment ───
@@ -214,11 +240,7 @@ pub mod membra_tokenomics {
             MembraTokenomicsError::EarlyRewardCapReached
         );
 
-        // ─── Transfer Splits ───
-        let sale_key = sale.key();
-        let seeds = &[b"token_sale", &sale.sale_id.to_le_bytes(), &[sale.bump]];
-        let signer = &[&seeds[..]];
-
+        // ─── Transfer Splits (via safe CPI) ───
         let sys = ctx.accounts.system_program.to_account_info();
         transfer_lamports_cpi(
             &ctx.accounts.buyer.to_account_info(),
@@ -469,18 +491,27 @@ pub mod membra_tokenomics {
     // =========================================================================
     pub fn set_sale_pause(ctx: Context<ManageSale>, paused: bool) -> Result<()> {
         let sale = &mut ctx.accounts.token_sale;
+        let clock = Clock::get()?;
         if paused {
             require!(
                 sale.status == SaleStatus::Active as u8,
                 MembraTokenomicsError::InvalidSaleStatus
             );
             sale.status = SaleStatus::Paused as u8;
+            emit!(SalePaused {
+                sale: sale.key(),
+                timestamp: clock.unix_timestamp,
+            });
         } else {
             require!(
                 sale.status == SaleStatus::Paused as u8,
                 MembraTokenomicsError::InvalidSaleStatus
             );
             sale.status = SaleStatus::Active as u8;
+            emit!(SaleResumed {
+                sale: sale.key(),
+                timestamp: clock.unix_timestamp,
+            });
         }
         Ok(())
     }
@@ -601,6 +632,8 @@ pub struct TokenSale {
     pub early_reward_distributed_lamports: u64,
     pub max_rebate_per_buyer_lamports: u64,
     pub rebate_rate_bps: u16,
+    pub hard_cap_lamports: u64,
+    pub min_contribution_lamports: u64,
     pub bump: u8,
     pub early_reward_pool_bump: u8,
 }
@@ -762,7 +795,7 @@ pub struct ClaimRebate<'info> {
 
 impl TokenSale {
     pub const INIT_SPACE: usize =
-        32 + 8 + 1 + 8 + 8 + 2 + 8 + 8 + 8 + 8 + 8 + 8 + 32 + 32 + 32 + 2 + 2 + 2 + 2 + 8 + 8 + 8 + 2 + 1 + 1;
+        32 + 8 + 1 + 8 + 8 + 2 + 8 + 8 + 8 + 8 + 8 + 8 + 32 + 32 + 32 + 2 + 2 + 2 + 2 + 8 + 8 + 8 + 2 + 8 + 8 + 1 + 1;
 }
 
 impl Contribution {
@@ -787,6 +820,8 @@ pub struct SaleInitialized {
     pub base_price_lamports: u64,
     pub max_bonus_bps: u16,
     pub early_reward_cap_lamports: u64,
+    pub hard_cap_lamports: u64,
+    pub min_contribution_lamports: u64,
 }
 
 #[event]
@@ -835,6 +870,18 @@ pub struct SaleCancelled {
     pub total_raised_lamports: u64,
 }
 
+#[event]
+pub struct SalePaused {
+    pub sale: Pubkey,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct SaleResumed {
+    pub sale: Pubkey,
+    pub timestamp: i64,
+}
+
 // =============================================================================
 // ERRORS
 // =============================================================================
@@ -879,4 +926,12 @@ pub enum MembraTokenomicsError {
     ClaimWindowClosed,
     #[msg("No rebate available")]
     NoRebateAvailable,
+    #[msg("Invalid hard cap")]
+    InvalidHardCap,
+    #[msg("Invalid minimum contribution")]
+    InvalidMinContribution,
+    #[msg("Hard cap reached")]
+    HardCapReached,
+    #[msg("Contribution too small")]
+    ContributionTooSmall,
 }
