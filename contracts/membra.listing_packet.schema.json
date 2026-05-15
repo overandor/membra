@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "membra.listing_packet.schema.json",
+  "title": "MEMBRA Listing Packet",
+  "type": "object",
+  "required": [
+    "packet_id",
+    "listing_id",
+    "inventory_item_id",
+    "sku",
+    "proprietary_asset_class",
+    "proof_score",
+    "valuation_score",
+    "risk_tier",
+    "review_actions",
+    "packet_hash"
+  ],
+  "properties": {
+    "packet_id": {
+      "type": "string"
+    },
+    "listing_id": {
+      "type": "string"
+    },
+    "inventory_item_id": {
+      "type": "string"
+    },
+    "sku": {
+      "type": "string"
+    },
+    "sku_family": {
+      "type": "string"
+    },
+    "proprietary_asset_class": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "proof_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "proof_grade": {
+      "type": "string"
+    },
+    "liquidity_score": {
+      "type": "integer"
+    },
+    "compliance_score": {
+      "type": "integer"
+    },
+    "operator_score": {
+      "type": "integer"
+    },
+    "valuation_score": {
+      "type": "integer"
+    },
+    "risk_tier": {
+      "type": "string"
+    },
+    "review_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "missing_proof": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "required_owner_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "commercial_profile": {
+      "type": "object"
+    },
+    "pricing": {
+      "type": "object"
+    },
+    "seo": {
+      "type": "object"
+    },
+    "proof_manifest": {
+      "type": "array"
+    },
+    "proprietary_tags": {
+      "type": "array"
+    },
+    "packet_hash": {
+      "type": "string"
+    }
+  }
+}
