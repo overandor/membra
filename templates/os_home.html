@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MEMBRA OS</title>
+  <style>
+    :root{--bg:#080807;--card:#15130f;--gold:#d8b45d;--muted:#a89d88;--text:#f8edda;--line:rgba(216,180,93,.24)}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0,rgba(216,180,93,.16),transparent 32%),radial-gradient(circle at 85% 12%,rgba(255,190,70,.12),transparent 30%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}.shell{width:min(1180px,92vw);margin:auto}.nav{display:flex;justify-content:space-between;align-items:center;padding:22px 0}.brand{font-weight:900;letter-spacing:.08em;color:var(--gold)}.links{display:flex;gap:16px;flex-wrap:wrap}.links a{color:var(--muted);text-decoration:none}.hero{padding:60px 0 40px;display:grid;grid-template-columns:1.1fr .9fr;gap:28px}.badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:8px 14px;color:var(--gold);background:rgba(216,180,93,.08)}h1{font-size:clamp(44px,7vw,84px);line-height:.9;margin:22px 0;letter-spacing:-.06em}.lead{font-size:19px;line-height:1.7;color:#dfd4c0}.card{background:linear-gradient(145deg,rgba(28,25,19,.94),rgba(10,10,8,.98));border:1px solid var(--line);border-radius:28px;padding:24px;box-shadow:18px 18px 42px rgba(0,0,0,.55),-8px -8px 24px rgba(255,255,255,.04)}.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.stat b{font-size:34px;color:var(--gold);display:block}.stat span{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.module h3{margin:.4rem 0}.module small,.muted{color:var(--muted)}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 10px;color:var(--gold);font-size:12px}.btn{display:inline-flex;margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;color:var(--text);text-decoration:none}.primary{background:linear-gradient(145deg,#e3bf68,#765116);color:#100d07;font-weight:800}pre{white-space:pre-wrap;background:#060605;border:1px solid var(--line);border-radius:18px;padding:16px;color:#ead8ab;overflow:auto}footer{padding:34px 0;color:var(--muted);border-top:1px solid var(--line);margin-top:50px}@media(max-width:900px){.hero,.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <nav class="shell nav"><div class="brand">MEMBRA OS</div><div class="links"><a href="/api/health">Health</a><a href="/api/registry">Registry</a><a href="/api/modules">Modules</a><a href="/docs">Docs</a></div></nav>
+  <main class="shell">
+    <section class="hero">
+      <div><span class="badge">One operating system • many specialized repos</span><h1>MEMBRA command center.</h1><p class="lead">The root repo orchestrates the MEMBRA ecosystem: KPI, API, ProofBook, Wallet, Admin, Mobile, Ads, Wear, Relay, QR Gateway, Vendor Adapters, Contracts, Demo Data, and Investor Room.</p><a class="btn primary" href="/api/registry">Open Registry</a></div>
+      <div class="card"><h2>System posture</h2><div class="stats"><div class="stat"><b>{{ module_count }}</b><span>registered modules</span></div><div class="stat"><b>{{ service_count }}</b><span>runtime services</span></div><div class="stat"><b>{{ primary_module }}</b><span>primary wedge</span></div><div class="stat"><b>OS</b><span>registry control plane</span></div></div><p class="muted">Production boundary: MEMBRA records proof, listings, reports, and payout eligibility. MEMBRA does not custody funds. External rails settle money.</p></div>
+    </section>
+    <section><h2>Registered modules</h2><div class="grid">{% for m in modules %}<div class="card module"><span class="pill">{{ m.type }} · {{ m.replit_style }}</span><h3>{{ m.id }}</h3><p>{{ m.role }}</p><small>Port: {{ m.default_port or 'n/a' }} · Health: {{ m.health_path or 'n/a' }}</small><br><a class="btn" href="{{ m.repo }}">GitHub</a></div>{% endfor %}</div></section>
+    <section class="card" style="margin-top:24px"><h2>Replit workspace bootstrap</h2><pre>python scripts/bootstrap_modules.py
+python scripts/status_modules.py
+# Primary product:
+cd modules/Membra_kpi && python scripts/apply_migrations.py && uvicorn app:app --host 0.0.0.0 --port 8001</pre></section>
+  </main>
+  <footer class="shell">MEMBRA — The Permission Layer for Local Commerce. Permissioned. Local. Profitable.</footer>
+</body>
+</html>
