@@ -1,0 +1,54 @@
+services:
+  membra-kpi:
+    build: ./modules/Membra_kpi
+    ports: ["8001:8000"]
+    env_file: ./modules/Membra_kpi/.env
+    volumes:
+      - ./runtime/kpi/data:/app/data
+      - ./runtime/kpi/uploads:/app/static/uploads
+    restart: unless-stopped
+
+  membra-api:
+    build: ./modules/Membra_api
+    ports: ["8002:7860"]
+    environment:
+      APP_DB_PATH: /data/membra_api.sqlite3
+      PORT: 7860
+    volumes:
+      - ./runtime/api:/data
+    restart: unless-stopped
+
+  membra-proofbook:
+    build: ./modules/Membra_proofbook
+    ports: ["8003:7860"]
+    environment:
+      APP_DB_PATH: /data/membra_proofbook.sqlite3
+      PORT: 7860
+    volumes:
+      - ./runtime/proofbook:/data
+    restart: unless-stopped
+
+  membra-wallet:
+    build: ./modules/Membra_wallet
+    ports: ["8004:7860"]
+    environment:
+      APP_DB_PATH: /data/membra_wallet.sqlite3
+      PORT: 7860
+    volumes:
+      - ./runtime/wallet:/data
+    restart: unless-stopped
+
+  membra-admin:
+    build: ./modules/Membra_admin-
+    ports: ["8005:7860"]
+    environment:
+      APP_DB_PATH: /data/membra_admin.sqlite3
+      PORT: 7860
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-change-me}
+    volumes:
+      - ./runtime/admin:/data
+    restart: unless-stopped
+
+networks:
+  default:
+    name: membra-os
