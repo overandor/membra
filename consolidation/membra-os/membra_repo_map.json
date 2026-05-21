@@ -1,0 +1,27 @@
+{
+  "canonical_parent": "overandor/membra",
+  "flagship_app": "overandor/Membra_kpi",
+  "proof_rail": "overandor/membra-qr-gateway",
+  "claim_rail": "overandor/sms",
+  "protocol_lab": "overandor/membramoney-protocol",
+  "commercial_positioning": "Physical-world inventory intelligence and proof-commerce infrastructure",
+  "safe_boundary": [
+    "no custody",
+    "no guaranteed returns",
+    "no bearer money claims",
+    "no production token execution",
+    "external settlement rails only"
+  ],
+  "modules": [
+    "assetification",
+    "proofbook",
+    "qr_gateway",
+    "claim_links",
+    "kpi_console",
+    "owner_approval",
+    "marketplace_drafts",
+    "payout_eligibility",
+    "admin_review",
+    "labs_protocol"
+  ]
+}
